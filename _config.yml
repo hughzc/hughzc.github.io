@@ -107,4 +107,4 @@ theme: next
 deploy:
   type: git
   repo: git@github.com:hughzc/hughzc.github.io.git
-  branch : public
+  branch : master
