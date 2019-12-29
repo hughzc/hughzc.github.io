@@ -2,6 +2,7 @@
 title: markdown测试
 date: 2019-12-29 11:04:12
 tags: markdown
+
 ---
 
 # markdown使用记录
@@ -21,5 +22,5 @@ tags: markdown
 
 按照博客上的方法进行使用
 
-![测试方法](markdown测试/传图片方法.png)
+![](传图片方法.png)
 
