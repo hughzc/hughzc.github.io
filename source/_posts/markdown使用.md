@@ -14,23 +14,39 @@ tags: markdown
 1. 基于Windows下载
 2. 偏好设置 
 
-## 图片测试
+## 注意事项
 
-​	markdown在hexo中添加图片
+### 部署步骤
+
+​		先将hexo文件夹源代码（写作所在文件夹）push至github仓库
+
+~~~
+git add .
+git commit -m “message”
+git push
+~~~
+
+​	然后将博客部署至远端
+
+~~~
+hexo deploy -g
+~~~
+
+## 添加图片
 
 引用自博客
 
 > https://blog.csdn.net/weixin_30734435/article/details/98497054
 
-#### 1. 更改配置文件
+#### 更改配置文件
 
 ​	在根目录下配置文件`_config.yml` 中有 `post_asset_folder:false改为true`。这样在建立文件时，`Hexo`会自动建立一个与文章同名的文件夹，这样就可以把与该文章相关的所有资源（图片）都放到那个文件夹里方便后面引用。
 
-#### 2. 安装git插件
+#### 安装git插件
 
 > npm install https://github.com/7ym0n/hexo-asset-image --save
 
-#### 3. 在插入图片处增加代码
+#### 在插入图片处增加代码
 
 [官方文档](https://hexo.io/zh-cn/docs/asset-folders)给出了解决方式，使用代码为
 
@@ -40,11 +56,15 @@ tags: markdown
 
 ​	将example.jpg修改为所需要的文件名称和后缀即可，其中**This is an example image**是图片描述。
 
-#### 4. 显示效果
+#### 显示效果
 
 {% asset_img 传图片方法.png This is an example image %}
 
-#  markdown语法记录
+### 标题前不加数字
+
+​	在标题前面加数字，hexo使用Next模板后，会自动根据多级标题加上相应数字生成目录，如果人为在多级标题前面加入数字，体验感并不好。
+
+# markdown语法记录
 
 引用自知乎，将一些常用命令进行记录
 
