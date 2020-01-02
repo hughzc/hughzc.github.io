@@ -165,6 +165,34 @@ https://www.bilibili.com/video
 
      
 
+## 将代码放至Github托管
+
+### 简单流程
+
+1. 添加SSH keys，设置当前仓库的权限
+
+2. 在Github新建仓库
+
+3. git init新建仓库
+
+4. git add, commit 代码
+
+5. 修改git文件，加入
+
+   ~~~java
+   [user]
+   	name = 
+   	email = @163.com
+   ~~~
+
+5. 如果这时候有新的commit，可以使用代码，进行commit的追加
+
+   ~~~
+   git commit --amend  --no-edit
+   ~~~
+
+6. 使用git push，将本地文件更新至仓库
+
 ## IDEA快捷键技巧
 
 - ctrl+P：提示输入参数类型
@@ -173,4 +201,5 @@ https://www.bilibili.com/video
 
 1. Maven是管理包和包的依赖的工具，pom.xml中包括所有运行Spring项目需要的包，主要为依赖parent
 2. gitignore用于只提交部分的代码，避免一些文件冲突
+3. ctrl+shift+n 快速查找文件
 
