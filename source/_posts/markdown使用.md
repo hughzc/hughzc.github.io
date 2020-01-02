@@ -20,18 +20,19 @@ tags: markdown
 
 ​	博客部署至远端
 
-~~~
+~~~java
 hexo deploy -g
 ~~~
 
 ​	将hexo文件夹源代码（写作所在文件夹）push至github仓库
 
-~~~
+~~~java
 git add .
 git commit -m “message”
 git push
 ~~~
 <!-- more -->
+
 ## 添加图片
 
 引用自博客
@@ -50,7 +51,7 @@ git push
 
 [官方文档](https://hexo.io/zh-cn/docs/asset-folders)给出了解决方式，使用代码为
 
-~~~
+~~~java
 {% asset_img example.jpg This is an example image %}
 ~~~
 
