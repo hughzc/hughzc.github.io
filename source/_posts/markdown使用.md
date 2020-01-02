@@ -31,7 +31,7 @@ git add .
 git commit -m “message”
 git push
 ~~~
-
+<!-- more -->
 ## 添加图片
 
 引用自博客

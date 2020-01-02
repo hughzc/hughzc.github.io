@@ -17,7 +17,7 @@ tags: SpringBoot
 - Git/Github
 - Maven
 - Restful
-
+<!-- more -->
 ## 项目创建
 
 ​	选择Spring，进行创建

@@ -2,7 +2,10 @@
 # Theme Core Configuration Settings
 # See: https://theme-next.org/docs/theme-settings/
 # ---------------------------------------------------------------
-
+# Automatic truncation
+auto_excerpt:
+  enable: true
+  length: 150
 # If false, merge configs from `_data/next.yml` into default configuration (rewrite).
 # If true, will fully override default configuration by options from `_data/next.yml` (override). Only for NexT settings.
 # And if true, all config from default NexT `_config.yml` must be copied into `next.yml`. Use if you know what you are doing.
@@ -355,7 +358,7 @@ codeblock:
   # Code Highlight theme
   # Available values: normal | night | night eighties | night blue | night bright | solarized | solarized dark | galactic
   # See: https://github.com/chriskempson/tomorrow-theme
-  highlight_theme: normal
+  highlight_theme: night
   # Add copy button on codeblock
   copy_button:
     enable: false
