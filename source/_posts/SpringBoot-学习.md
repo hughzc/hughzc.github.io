@@ -163,7 +163,6 @@ https://www.bilibili.com/video
      server.port=8887
      ~~~
 
-     
 
 ## 将代码放至Github托管
 
@@ -193,6 +192,75 @@ https://www.bilibili.com/video
 
 6. 使用git push，将本地文件更新至仓库
 
+## 明确需求
+
+### 目标效果
+
+[elastic社区](https://elasticsearch.cn/)
+
+- 最上面为导航，功能分类，搜索功能， 登录
+- 下面为一系列Tag
+- 再下面为主要板块，topic列表，包括评论数，时间，人等元素
+- 右边为热门元素
+
+## Bootstrap
+
+### 基本认识
+
+​	[官方网站](https://v3.bootcss.com/getting-started/#download)，Bootstrap为前端UI框架，可以快速搭建出一个前端页面，在**组件**中可以浏览所需要的功能，前端组件轮子集合，可以极大减小开发量。
+
+​	可以做到响应式布局，使用到了[栅格系统](https://v3.bootcss.com/css/#grid)，通过media设置尺寸，在不同屏幕尺寸下做不同的CSS样式。将整个浏览器分为12份，通过前缀后的数字组合实现快速布局。
+
+### Bootstrap编写导航栏样式
+
+- 下载Bootstrap
+- 复制进src/main/resources/static(放资源文件)
+- 更改hello.html为index.html
+  - 修改社区名称<titile>
+  - 删除body中内容
+
+- 引入bootstrap，样式和js文件
+
+  可直接将所需要的文件拖入，自动加入其路径
+
+  ~~~html
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/bootstrap-theme.min.css" />
+  <script src="../static/js/bootstrap.min.js" type="application/javascript" </script>
+  ~~~
+
+- 拷贝需要的组件代码至body中
+
+  - 导航条
+
+    修改名字，删去不需要的内容
+
+    初始样式效果
+
+    {% asset_img 导航范例.png 初始结果 %}
+
+    理想修改效果
+
+    {% asset_img 理想社区导航.png 理想结果 %}
+
+- 创建indexController
+
+  - 给注解Contrller
+  - 匹配路径为根目录，即(“/”)，什么都不输入默认访问此路径
+  - 返回index模板
+
+  ~~~java
+  @Controller
+  public class indexController {
+      @GetMapping("/")
+      public String index(){ return "index";};
+  }
+  ~~~
+
+  实际修改效果
+
+  {% asset_img 实际效果.png 实际结果 %}
+
 ## IDEA快捷键技巧
 
 - ctrl+P：提示输入参数类型
@@ -202,4 +270,6 @@ https://www.bilibili.com/video
 1. Maven是管理包和包的依赖的工具，pom.xml中包括所有运行Spring项目需要的包，主要为依赖parent
 2. gitignore用于只提交部分的代码，避免一些文件冲突
 3. ctrl+shift+n 快速查找文件
+4. shift+F6，更改名称
+5. ctrl+shift+F12切换最大屏
 
