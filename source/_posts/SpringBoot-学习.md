@@ -264,12 +264,12 @@ https://www.bilibili.com/video
 ## IDEA快捷键技巧
 
 - ctrl+P：提示输入参数类型
+- ctrl+shift+n 快速查找文件
+- shift+F6，更改名称
+- ctrl+shift+F12切换最大屏
 
 学到知识
 
 1. Maven是管理包和包的依赖的工具，pom.xml中包括所有运行Spring项目需要的包，主要为依赖parent
 2. gitignore用于只提交部分的代码，避免一些文件冲突
-3. ctrl+shift+n 快速查找文件
-4. shift+F6，更改名称
-5. ctrl+shift+F12切换最大屏
 
