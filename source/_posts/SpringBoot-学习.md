@@ -62,6 +62,8 @@ https://www.bilibili.com/video
    }
    ~~~
 
+   > @Controller，将当前类作为路由API的一个承载者
+
    作用是以网址形式向服务端传送key-value信息。
 
    - name=hughzc
@@ -214,8 +216,10 @@ https://www.bilibili.com/video
 ### Bootstrap编写导航栏样式
 
 - 下载Bootstrap
+
 - 复制进src/main/resources/static(放资源文件)
-- 更改hello.html为index.html
+
+- 更改resources/templates/hello.html为index.html
   - 修改社区名称<titile>
   - 删除body中内容
 
@@ -261,15 +265,139 @@ https://www.bilibili.com/video
 
   {% asset_img 实际效果.png 实际结果 %}
 
-## IDEA快捷键技巧
+## 利用Github App实现登录
+
+​	实现登录功能，接入Github。查看API文档，找到[OAuth Apps](https://developer.github.com/apps/)，依据提示进行操作。
+
+### 创建APP
+
+​	[依据网站提示](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/)，在Github设置中进行创建
+
+1. 填写APP名称
+
+2. 主页URL
+
+3. [callback URL](https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/)
+
+   - 用户被重定向以请求他们的GitHub身份
+   - 用户通过GitHub被重定向回您的站点
+   - 您的应用程序使用用户的访问令牌访问API
+
+   需要拿到一些用户数据，正常来说直接在主页URL后加入callback，但是为了本地调试方便，地址为
+
+   ~~~http
+   http://localhost:8887/callback
+   ~~~
+
+### Github登录流程
+
+​	使用[Visual Paradig](https://www.visual-paradigm.com)利用时序图梳理登录流程。
+
+1. 创建项目
+
+2. 创建diagram，选择Sequence diagram，表示对象和对象通过时间传递传递消息的路线。
+
+   用户向个人社区发出访问，社区进行登录。
+
+   - 给Github发出认证，Github认证后回调 redirect_uri并携带code
+   - 用户持access_token 携带code，若匹配，Github返回access_token 
+   - 站点发送user 携带access_token给Github，Github返回user信息
+   - 站点将user信息存入数据库，更新给用户登录状态
+   - 用户显示登录成功
+
+{% asset_img github登录流程.png 登录流程 %}
+
+#### 调用authorize
+
+​	将登录按钮绑定地址，点击登录时可以跳转到指定地址并携带写入参数。将地址href写成[参考文档](https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/)中所给。
+
+> URL中有多个参数时，第一个参数用**?**区分，之后的参数用**&**区分
+
+​	在index.html中找到登录，传入必要参数(clien_id，redirect_uri，scope，state)
+
+~~~html
+<li><a href="https://github.com/login/oauth/authorize?client_id=eb92e00b211c84362136&redirect_uri=http://localhost:8887/callback&scope=user&state=1">登录</a></li>
+~~~
+
+​	这时候点击登录并授权后，网站会返回code信息，后面将code信息提取出来
+
+#### 获取code
+
+1. 写新的Controller
+
+   返回String类型的calback()，返回index主页，在calback中寻找，写GetMapping注解，需要传入参数，为String类型的code和state。
+
+   ~~~java
+   @Controller
+   public class authorizeController {
+       //指向返回文件
+       @GetMapping("/calback")
+       //使用name接收code，为String类型
+       //使用name接收state，为String类型
+       public String callback(@RequestParam(name = "code") String code,
+                              @RequestParam(name = "state") String state){
+           //登录成功后返回index页面
+           return "index";
+       }
+   }
+   ~~~
+
+2. 模拟post请求
+
+   使用[OkHttp](https://square.github.io/okhttp/)
+
+   ~~~java
+   public static final MediaType JSON
+       = MediaType.get("application/json; charset=utf-8");
+   
+   OkHttpClient client = new OkHttpClient();
+   
+   String post(String url, String json) throws IOException {
+     RequestBody body = RequestBody.create(json, JSON);
+     Request request = new Request.Builder()
+         .url(url)
+         .post(body)
+         .build();
+     try (Response response = client.newCall(request).execute()) {
+       return response.body().string();
+     }
+   }
+   ~~~
+
+#### 获取用户信息
+
+​	新建一个包provider，提供对第三方信息的支持能力，新建类GithubProvider
+
+> 体现思想：不同业务间进行隔离
+
+​	写注解@Component
+
+> @Component 仅仅把当前类初始化Spring容器的上下文，这样调用时不用实例化对象，IOC，便于去调用对象
+
+​	查看文档，在使用Post请求时，有5个参数，当编程参数超过2个，不要使用形参传入，而是封装成对象。
+
+​	新建一个包dto，即数据传输模型，新建类AccessTokenDTO，里面有需要传输的5个参数，快捷键alt+insert快速创建其getter和setter方法。
+
+​	类GithubProvider中编写方法getAccessToken，接收AccessTokenDTO类型的数据。在此方法中拷贝OkHttp中的方法，引入jar包。
+
+​	在Maven中添加依赖，找到pom.xml，将依赖代码复制进依赖中。
+
+> [Maven包查询](https://mvnrepository.com/)
+
+# IDEA快捷键技巧
 
 - ctrl+P：提示输入参数类型
-- ctrl+shift+n 快速查找文件
-- shift+F6，更改名称
-- ctrl+shift+F12切换最大屏
+- ctrl+shift+n 快速**查找**文件
+- shift+F6  更改名称
+- ctrl+shift+F12 切换最大屏
+- alt+鼠标左键按住拖动，实现对多行的批量修改
+- alt+insert 提示创建get和set
+- 选中指定部分，alt+回车，引入jar包
 
 学到知识
 
 1. Maven是管理包和包的依赖的工具，pom.xml中包括所有运行Spring项目需要的包，主要为依赖parent
 2. gitignore用于只提交部分的代码，避免一些文件冲突
+3. 学习一个新东西先进官网去学习，先拷贝进自己项目跑起来
+4. 当编程参数超过2个，不要使用形参传入，而是封装成对象
 
