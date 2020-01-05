@@ -325,13 +325,13 @@ https://www.bilibili.com/video
 
 1. 写新的Controller
 
-   返回String类型的calback()，返回index主页，在calback中寻找，写GetMapping注解，需要传入参数，为String类型的code和state。
+   返回String类型的callback()，返回index主页，在calback中寻找，写GetMapping注解，需要传入参数，为用户写入的String类型的code和state。
 
    ~~~java
    @Controller
    public class authorizeController {
        //指向返回文件
-       @GetMapping("/calback")
+       @GetMapping("/callback")
        //使用name接收code，为String类型
        //使用name接收state，为String类型
        public String callback(@RequestParam(name = "code") String code,
@@ -349,9 +349,7 @@ https://www.bilibili.com/video
    ~~~java
    public static final MediaType JSON
        = MediaType.get("application/json; charset=utf-8");
-   
    OkHttpClient client = new OkHttpClient();
-   
    String post(String url, String json) throws IOException {
      RequestBody body = RequestBody.create(json, JSON);
      Request request = new Request.Builder()
@@ -363,8 +361,6 @@ https://www.bilibili.com/video
      }
    }
    ~~~
-
-#### 获取用户信息
 
 ​	新建一个包provider，提供对第三方信息的支持能力，新建类GithubProvider
 
@@ -384,7 +380,150 @@ https://www.bilibili.com/video
 
 > [Maven包查询](https://mvnrepository.com/)
 
-# IDEA快捷键技巧
+将不必要的修饰删除，如public static final修饰。
+
+- json就是自定义接收变量的access_token类变量，为了将access_token转化为json，需要jar包，使用[fastjson](https://mvnrepository.com/artifact/com.alibaba/fastjson)，将其依赖复制进pom.xml。方法中需要json，使用JSON.toJSONString(accessTokenDTO)，自动将accessToken转化成String类型的JSON。
+- url更改成[参考文档](https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/)中给出的POST地址
+- 处理IO异常
+- 最后返回null，如果取到了返回body。因为怀疑此body不是我们所需要的，因此可以先将其打印
+
+> 遇到不知道是否正确的变量，可以打印进行调试
+
+~~~java
+    public String getAccessToken(AccessTokenDTO accessTokenDTO){
+        MediaType mediaType = MediaType.get("application/json; charset=utf-8");
+
+        OkHttpClient client = new OkHttpClient();
+
+        RequestBody body = RequestBody.create(JSON.toJSONString(accessTokenDTO), mediaType);
+        Request request = new Request.Builder()
+                .url("https://github.com/login/oauth/access_token")
+                .post(body)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            String string = response.body().string();
+            System.out.println(string);
+            return string;
+        } catch (IOException e) {
+        }
+        return null;
+    }
+~~~
+
+​	GithubProvider的getAccessToken已经封装好，在controller/AuthorizeController中进行调用。通过@Component注解 ，已经将GithubProvider放到了Spring的容器中，利用@Autowired注解将Spring容器中的写好的实例化的实例加载到当前使用的上下文。通过注解加定义实例将实例化好的放入，使用方便。
+
+~~~java
+    @Autowired
+    private GithubProvider githubProvider; 
+~~~
+
+​	在AuthorizeController的calback方法中，将需要的5个参数封装进AccessToken，调用githubProvider的getAccessToken方法实现post请求。
+
+​	这时候启动项目，在localhost:8887页面点击登录，没有报错，而且在控制台打印了所需要的access_token。
+
+> 疑问，在AccessController中的mapping “callback”没有自己写，是Spring封装好的吗？
+
+​	即返回如下所示的字符串。这样通过access_token的api获取到了access_token。
+
+```java
+access_token=e72e16c7e42f292c6912e7710c838347ae178b4a&token_type=bearer
+```
+
+​	要获取到access_token，先用&拆分，然后用=拆分。对应的更改代码为
+
+~~~java
+String string = response.body().string();
+String token = string.split("&")[0].split("=")[1];
+return token;
+~~~
+
+#### 获取用户信息
+
+官方文档第三步
+
+> The access token allows you to make requests to the API on a behalf of a user.
+>
+> ```
+> Authorization: token OAUTH-TOKEN
+> GET https://api.github.com/user
+> ```
+>
+> For example, in curl you can set the Authorization header like this:
+>
+> ```
+> curl -H "Authorization: token OAUTH-TOKEN" https://api.github.com/user
+> ```
+
+​	在[github界面](https://github.com/settings/tokens/new)创建新的personal access token，拿到user信息，用来测试。复制token用于验证是否是调用API就可以拿回数据。
+
+​	验证方法，使用文档中给定的GET网址，加上github创建的access_token，ctrl+shift+n，在无痕网址界面进行验证，确实可以得到用户个人信息。测试完毕，删除此access_token。
+
+~~~http
+https://api.github.com/user?access_token=自己的access_token
+~~~
+
+​	在GithubProvider中再写方法，通过access_token获取到用户信息。需要的参数是id，name，bio。
+
+​	在dto中创建对象GithubUser。有三个属性，String的name和bio,long类型的id以避免越界。GithubUser是GithubProvider的一个返回值。使用[okhttp](https://square.github.io/okhttp/)的get方法。
+
+~~~java
+OkHttpClient client = new OkHttpClient();
+
+String run(String url) throws IOException {
+  Request request = new Request.Builder()
+      .url(url)
+      .build();
+
+  try (Response response = client.newCall(request).execute()) {
+    return response.body().string();
+  }
+}
+~~~
+
+​	url为测试所用的url，但accesstoken不同。
+
+​	浏览器返回的是json的格式，拿到获取的response的string，使用**JSON.parseObject(string)**，将**string**自动转化为java类对象。这样将String的json对象去自动解析转换成java的类对象。
+
+~~~java
+    public GithubUser getUser(String accessToken){
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://api.github.com/user?access_token"+accessToken)
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            String string = response.body().string();
+            GithubUser githubUser = JSON.parseObject(string,GithubUser.class);
+            return githubUser;
+        } catch (IOException e) {
+        }
+        return null;
+    }
+~~~
+
+​	在AuthorizeController中调用GithubProvider.getUser(accessToken)，将user进行打印，看是否是所需要的。通过github的user的api携带access_token获取到了用户信息。
+
+> 出现错误，在点击登录的时候并灭有出现理想的user姓名，而是空，先检查了access_token，发现是正确的，则说明是getUser()方法出现了问题，进行检查后发现是url里面少写了一个“=”。
+
+## Spring知识总结
+
+### 注解
+
+1. Controller
+
+   > @Controller，将当前类作为路由API的一个承载者
+
+2. Component
+
+   > @Component 仅仅把当前类初始化Spring容器的上下文，这样调用时不用实例化对象，IOC，便于去调用对象
+
+3. Autowired
+
+   > @Autowired注解将Spring容器中的写好的实例化的实例加载到当前使用的上下文
+
+# 快捷键技巧
+
+### IDEA快捷键
 
 - ctrl+P：提示输入参数类型
 - ctrl+shift+n 快速**查找**文件
@@ -393,6 +532,12 @@ https://www.bilibili.com/video
 - alt+鼠标左键按住拖动，实现对多行的批量修改
 - alt+insert 提示创建get和set
 - 选中指定部分，alt+回车，引入jar包
+- ctrl+alt+v 选中new Class，快速创建其变量
+- 按住shift+回车 自动换到当前光标的下一行
+
+### 其他快捷键
+
+- ctrl+shift+n 打开新的匿名窗口
 
 学到知识
 
