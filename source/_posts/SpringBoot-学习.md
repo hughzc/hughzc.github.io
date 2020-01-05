@@ -316,7 +316,7 @@ https://www.bilibili.com/video
 ​	在index.html中找到登录，传入必要参数(clien_id，redirect_uri，scope，state)
 
 ~~~html
-<li><a href="https://github.com/login/oauth/authorize?client_id=eb92e00b211c84362136&redirect_uri=http://localhost:8887/callback&scope=user&state=1">登录</a></li>
+<li><a href="https://github.com/login/oauth/authorize?client_id=github上给的&redirect_uri=http://localhost:8887/callback&scope=user&state=1">登录</a></li>
 ~~~
 
 ​	这时候点击登录并授权后，网站会返回code信息，后面将code信息提取出来
@@ -422,6 +422,8 @@ https://www.bilibili.com/video
 ​	这时候启动项目，在localhost:8887页面点击登录，没有报错，而且在控制台打印了所需要的access_token。
 
 > 疑问，在AccessController中的mapping “callback”没有自己写，是Spring封装好的吗？
+>
+> 之前url有一个是callback的，应该是之前的那个
 
 ​	即返回如下所示的字符串。这样通过access_token的api获取到了access_token。
 
@@ -505,6 +507,169 @@ String run(String url) throws IOException {
 
 > 出现错误，在点击登录的时候并灭有出现理想的user姓名，而是空，先检查了access_token，发现是正确的，则说明是getUser()方法出现了问题，进行检查后发现是url里面少写了一个“=”。
 
+~~~java
+@Controller
+public class AuthorizeController {
+    //Autowired与Component，调用GithubProdiver
+    @Autowired
+    private GithubProvider githubProvider;
+    //指向返回文件
+    @GetMapping("/callback")
+    //使用name接收code，为String类型
+    //使用name接收state，为String类型
+    public String callback(@RequestParam(name = "code") String code,
+                           @RequestParam(name = "state") String state){
+        AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
+        accessTokenDTO.setClient_id("网站给定");
+        accessTokenDTO.setClient_secret("网站给定");
+        accessTokenDTO.setCode(code);
+        accessTokenDTO.setState(state);
+        accessTokenDTO.setRedirect_uri("http://localhost:8887/callback");
+        String accessToken = githubProvider.getAccessToken(accessTokenDTO);
+        GithubUser user = githubProvider.getUser(accessToken);
+        System.out.println(user.getName());
+        //登录成功后返回index页面
+        return "index";
+    }
+}
+~~~
+
+### 配置文件的分离application.proerties
+
+> 体现的思路：要用到的时候在进行设计，不要过度设计
+
+​	之前将各种信息都写在了代码中，在线上部署的时候，地址这些需要手动修改，比较麻烦，要做到不同的环境去读取配置文件，将需要的信息写上不同的内容。写在application.proerties中。需要的有Client_id，Client_secret和Redirect_uri。
+
+> server.port = 8887，含义是server下面的port值是8887
+
+​	修改配置文件为
+
+~~~properties
+github.client.id = 给定的
+github.client.secret = 给定的
+github.redirect.uri = http://localhost:8887/callback
+~~~
+
+​	通过value注解来使用
+
+> @Value(“${string}”)，在配置文件中读取key为string的value
+
+~~~java
+    @Value("${github.client.id}")
+    private String clientId;
+    @Value("${github.client.secret}")
+    private String clientSecret;
+    @Value("${github.redirect.uri}")
+    private String redirectUri;
+~~~
+
+​	然后可以通过变量名直接使用。
+
+~~~java
+	accessTokenDTO.setClient_id(clientId);
+	accessTokenDTO.setClient_secret(clientSecret);
+    accessTokenDTO.setRedirect_uri(redirectUri);
+~~~
+
+### Session和Cookies原理和实现
+
+​	Session的简单理解是在银行开户，银行中存有你的账户信息。Cookies是银行卡，去银行取钱需要银行卡。在网页的application下可以看到cookie
+
+{% asset_img cookies.png This is an example image %}
+
+​	看到有多张银行卡
+
+- domain代表银行，cookie不能跨域，每条记录都有个域名，路径和过期时间，如15天可用这种。
+- name相当于卡号
+- value相当于卡号对应的唯一标识
+
+​      可在network中看向服务端请求的信息。Request中有cookie信息，服务端通过cookie找到session，返回，渲染到页面。
+
+​      要做到的效果是，没有登录的时候，有登录和我，登录成功后，我变成登陆者的名字，去掉登录。 
+
+​     在AuthorizeController下有callback，在user不为空的时候，可以证明登录成功。
+
+​	session在httprequest中拿到，将user对象放入session，此时框架集成了功能，使得前端有了指定的cookie。重新返回到index主页。使用redirect会将地址那些去掉，重定向到指定界面。这时候就写到了cookie，还需要在页面展示。
+
+​	在前端界面进行修改，如果有session，则展示我。
+
+> 不知道如何实现，则直接baidu，用关键词搜索，不要用自己的上下文语义
+
+​	在callback()方法中增加参数 **HttpServletRequest request**，在接收到user后写上判断语句
+
+~~~java
+if(user != null){
+            //登录成功，写cookie和session
+            //将user对象放入session，框架集成，前端有了银行卡
+            request.getSession().setAttribute("user",user);
+            return "redirect:index";
+        }else {
+            //登录失败，重新登陆
+            return "redirect:index";
+        }
+~~~
+
+​	在前端页面修改逻辑，如果session.user不为空，显示我；如果为空，显示登录
+
+> 在改动大的时候，注意看控制台，会有提示信息
+
+~~~html
+                <li class="dropdown" th:if="${session.user != null}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">我 <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">消息中心</a></li>
+                        <li><a href="#">个人资料</a></li>
+                        <li><a href="#">退出登录</a></li>
+                    </ul>
+                </li>
+                <li th:unless="${session.user == null}">
+                    <a href="https://github.com/login/oauth/authorize?client_id=eb92e00b211c84362136&redirect_uri=http://localhost:8887/callback&scope=user&state=1">
+                    登录</a></li>
+~~~
+
+​	但是没有登录也没有我，修改语法。将unless语法修改为
+
+~~~html
+<li th:unless="not ${session.user != null}">
+     <a href="https://github.com/login/oauth/authorize?client_id=eb92e00b211c84362136&redirect_uri=http://localhost:8887/callback&scope=user&state=1">
+     登录</a></li>
+~~~
+
+​	还是不行，进行调试，因为还没有点击登录，因此session为空。在页面中打印user,在GithubUser类中，重写其toString()方法。
+
+~~~html
+<div th:text="${session.user}"></div>
+~~~
+
+​	在网页的检查，element中找到代码对应相应位置，可以看到没有值。
+
+​	重新修改语法，两个都使用if。
+
+~~~html
+<li th:if="${session.user == null}">
+     <a href="https://github.com/login/oauth/authorize?client_id=eb92e00b211c84362136&redirect_uri=http://localhost:8887/callback&scope=user&state=1">
+     登录</a></li>
+~~~
+
+​	然后可以进行提交，但没有重定向到主页，说明重定向语法写错，修改为
+
+~~~java
+return "redirect:/";
+~~~
+
+​	这时候登录后变成我，而且刷新也不变化，说明已经将登录态记住了。这时候查看Application，出现了cookies。默认写了一个key，发送请求时，将name和value拼到cookie请求头中，发到服务端，通过cookie的key去找requst的session
+
+{% asset_img 默认cookie.png This is an example image %}
+
+​	然后将显示的我修改成个人名称，在index中将我去掉，添加**th:text="${session.user.getName()}**变成如下
+
+~~~html
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" th:text="${session.user.getName()}" ><span class="caret"></span></a>
+~~~
+
+​	但是每次重启服务器，用户都需要重新登录，如何解决？将登录信息持久化到数据库。
+
 ## Spring知识总结
 
 ### 注解
@@ -521,19 +686,25 @@ String run(String url) throws IOException {
 
    > @Autowired注解将Spring容器中的写好的实例化的实例加载到当前使用的上下文
 
+4. Value
+
+   > @Value(“${string}”)，在配置文件中读取key为string的value
+
 # 快捷键技巧
 
 ### IDEA快捷键
 
-- ctrl+P：提示输入参数类型
-- ctrl+shift+n 快速**查找**文件
-- shift+F6  更改名称
-- ctrl+shift+F12 切换最大屏
-- alt+鼠标左键按住拖动，实现对多行的批量修改
-- alt+insert 提示创建get和set
-- 选中指定部分，alt+回车，引入jar包
-- ctrl+alt+v 选中new Class，快速创建其变量
-- 按住shift+回车 自动换到当前光标的下一行
+- ctrl + P：提示输入参数类型
+- ctrl + shift+n 快速**查找**文件
+- shift + F6  更改名称
+- ctrl + shift + F12 切换最大屏
+- alt + 鼠标左键按住拖动，实现对多行的批量修改
+- alt + insert 提示创建get和set
+- 选中指定部分，alt + 回车，引入jar包
+- ctrl + alt + v 选中new Class，快速创建其变量
+- 按住shift + 回车 自动换到当前光标的下一行
+- ctrl + e 切回最近的一个访问窗口
+- 右键Git/history，可以看到历史提交信息时当前目录的情况
 
 ### 其他快捷键
 
