@@ -534,7 +534,7 @@ public class AuthorizeController {
 }
 ~~~
 
-### 配置文件的分离application.proerties
+## 配置文件的分离application.proerties
 
 > 体现的思路：要用到的时候在进行设计，不要过度设计
 
@@ -571,7 +571,7 @@ github.redirect.uri = http://localhost:8887/callback
     accessTokenDTO.setRedirect_uri(redirectUri);
 ~~~
 
-### Session和Cookies原理和实现
+## Session和Cookies原理和实现
 
 ​	Session的简单理解是在银行开户，银行中存有你的账户信息。Cookies是银行卡，去银行取钱需要银行卡。在网页的application下可以看到cookie
 
@@ -669,6 +669,101 @@ return "redirect:/";
 ~~~
 
 ​	但是每次重启服务器，用户都需要重新登录，如何解决？将登录信息持久化到数据库。
+
+## MySQL基本概念及语法
+
+​	MySQL是一个DataBase(数据库)，在数据库下有Table(表)，用表来承载数据，表下面是记录Record，之间为组合关系。没有一者，另一者也不存在。
+
+{% asset_img 数据库基本三层模型.png This is an example image %}
+
+​	[MySQL菜鸟教程资料](https://www.runoob.com/mysql/mysql-tutorial.html)。
+
+- 创建数据库
+
+  ~~~sql
+  CREATE DATABASE 数据库名;
+  ~~~
+
+- 创建数据表
+
+  ~~~sql
+  CREATE TABLE table_name (column_name column_type);
+  ~~~
+
+  在 RUNOOB 数据库中创建数据表runoob_tbl：
+
+  ~~~sql
+  CREATE TABLE IF NOT EXISTS `runoob_tbl`(
+     `runoob_id` INT UNSIGNED AUTO_INCREMENT,
+     `runoob_title` VARCHAR(100) NOT NULL,
+     `runoob_author` VARCHAR(40) NOT NULL,
+     `submission_date` DATE,
+     PRIMARY KEY ( `runoob_id` )
+  )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  ~~~
+
+   具体含义为：如果存在就删除，不存在就创建表，具体有int类型的id（逐渐自动增长），String类型的title，author，工具栏日Date类型的date。PRIMARY KEY表示每个表有自己的主键。
+
+- 插入数据
+
+  ~~~sql
+  INSERT INTO table_name ( field1, field2,...fieldN )
+                         VALUES
+                         ( value1, value2,...valueN );
+  ~~~
+
+  具体例子为
+
+  ~~~sql
+  mysql> INSERT INTO runoob_tbl 
+      -> (runoob_title, runoob_author, submission_date)
+      -> VALUES
+      -> ("学习 PHP", "菜鸟教程", NOW());
+  ~~~
+
+- 查询数据
+
+  ~~~sql
+  SELECT column_name,column_name
+  FROM table_name
+  [WHERE Clause]
+  [LIMIT N][ OFFSET M]
+  ~~~
+
+  含义为查询…，从….中，在…条件下，限制N个，从M开始。通过分页从数据库中拿出数据。
+
+  具体例子为
+
+  ~~~sql
+  select * from runoob_tbl;
+  ~~~
+
+- Update更新
+
+  ~~~sql
+  UPDATE table_name SET field1=new-value1, field2=new-value2
+  [WHERE Clause]
+  ~~~
+
+  具体例子为
+
+  ~~~sql
+  UPDATE runoob_tbl SET runoob_title='学习 C++' WHERE runoob_id=3;
+  ~~~
+
+- delete删除
+
+  ~~~sql
+  DELETE FROM table_name [WHERE Clause]
+  ~~~
+
+  具体例子为
+
+  ~~~sql
+  ELETE FROM runoob_tbl WHERE runoob_id=3;
+  ~~~
+
+  删除id=3时的数据。
 
 ## Spring知识总结
 
