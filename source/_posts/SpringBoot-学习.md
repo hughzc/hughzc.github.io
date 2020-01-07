@@ -812,3 +812,13 @@ return "redirect:/";
 3. 学习一个新东西先进官网去学习，先拷贝进自己项目跑起来
 4. 当编程参数超过2个，不要使用形参传入，而是封装成对象
 
+# 资源支持
+
+- [Spring官方文档](https://spring.io/guides)
+- [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
+- [elastic社区](https://elasticsearch.cn/)
+- [BootStrap](https://v3.bootcss.com/getting-started/#download)
+- [OAuth Apps文档](https://developer.github.com/apps/)
+- [Visual Paradig](https://www.visual-paradigm.com)
+- [OkHttp](https://square.github.io/okhttp/)
+- [Maven包查询](https://mvnrepository.com/)
