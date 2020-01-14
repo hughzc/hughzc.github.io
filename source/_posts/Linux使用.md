@@ -19,6 +19,8 @@ categories: Linux
 rpm -qa | grep java
 ```
 
+<!-- more -->
+
 命令说明：
 
 rpm 　管理套件

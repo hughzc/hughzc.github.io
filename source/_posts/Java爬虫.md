@@ -23,6 +23,8 @@ categories: Java
   </dependency>
   ~~~
 
+<!-- more -->
+
 ## 实战
 
 ### 项目创建
