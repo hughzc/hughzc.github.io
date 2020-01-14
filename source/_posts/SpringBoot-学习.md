@@ -765,9 +765,443 @@ return "redirect:/";
 
   删除id=3时的数据。
 
-## Spring知识总结
+## H2数据库
 
-### 注解
+ [H2数据库](http://h2database.com/html/main.html)是一个快速的内置数据库，通过浏览器或控制台直接仿问，在pom中添加其依赖，在IDEA中的Database添加H2数据库，使用embedded连接方式，路径选择为：在根目录下，以项目命名。
+
+> 在WIN10下，选择Data Source From Path，更好用
+
+```
+jdbc:h2:C:/Code/mycommunity
+```
+
+- 创建一个table user，增加一个column，name为id，自动增长，主键
+- 增加一个account_id，类型为VARCHAR(100)，即长度为100个字符的字符串
+- 增加name，类型为VARCHAR(50)
+- 自己设置value，登录成功后，手动设置到Cookie中，当传递过来时，拿值在数据库中查找，命名为token，类型为char(36)
+- 数据库的信息有两个时间，创建时间和修改时间，用于去排查问题，gmt为格林尼标准时间
+  - 增加gmt_create，类型为BIGINT，相当于Long
+  - 增加gmt_modified，类型为BIGINT
+
+{% asset_img H2创建.png This is an example image %}
+
+对应到具体的代码为
+
+```sql
+create table user
+(
+	id INT auto_increment,
+	account_id VARCHAR(100),
+	name VARCHAR(50),
+	token char(36),
+	gmt_create BIGINT,
+    gmt_modified BIGINT,
+	constraint user_pk
+		primary key (id)
+);
+```
+
+## 集成MyBatis并实现插入操作
+
+> 快速实现的思想：baidu搜索关键词然后在官网上看一手资料
+
+ MyBatis 是支持普通 SQL查询，存储过程和高级映射的优秀持久层框架。找到[MyBatis官方资料](http://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/)，按照步骤操作，查阅[Spring文档](https://docs.spring.io/spring-boot/docs/2.0.0.RC1/reference/htmlsingle/#boot-features-embedded-database-support)。
+
+- 添加依赖
+
+- 需要DataSource，在Spring中定义连接池，在application.properties中添加配置文件
+
+  - 添加spring-boot-starter-jdbc依赖
+
+  - 在配置文件中添加
+
+    ```xml
+    spring.datasource.url=jdbc:h2:C:/Code/mycommunity
+    spring.datasource.username=sa
+    spring.datasource.password=123
+    spring.datasource.driver-class-name=org.h2.Driver
+    ```
+
+    org.h2.Driver报错，查询后将h2的Maven依赖的test标签去掉即可。
+
+- 提供Mapper
+
+  新建包mapper，新建类UserMapper。
+
+  - 写Mapper注解，添加insert接口，传入User类型的数据，alt+回车导入自己写的数据库model的User类
+
+  - 新建类model，用于数据库传数据，新建类User，含有设置数据库的6种变量
+
+  - 写insert注解，添加“”写SQL的查询语句
+
+    ```sql
+    INSERT INTO table_name ( field1, field2,...fieldN )
+                           VALUES
+                           ( value1, value2,...valueN );
+    ```
+
+    第一个参数括号中写要传入的参数，values后的括号要加#{}
+
+    这样MyBatis可以将Object user中的名为#{}的值自动替换为object中对应值。
+
+  ```java
+  @Mapper
+  public interface UserMapper {
+      @Insert("insert into user (name,accout_id,token,gmt_create,gmt_modified) values (#{name},#{accountId},#{token},#{gmtCreate},#{gmtModified})")
+      void insert(User user);
+  }
+  ```
+
+- 在AuthorizeController中，当user不为空时，将其添加进数据库
+
+  - 通过注解@Autowired将UserMapper注解进来
+
+    ```java
+    @Autowired
+    private UserMapper userMapper;
+    ```
+
+  - 调用其userMapper的insert方法，新建User对象，用ctrl+alt+v快捷键
+
+  - 设置user的属性
+
+    - token采用UUID来做
+    - name为githubUser的name
+    - id将githubUser的ID转为String类型
+
+```java
+User user = new User();
+            //set user values
+            user.setToken(UUID.randomUUID().toString());
+            user.setName(githubUser.getName());
+            user.setAccountId(String.valueOf(githubUser.getId()));
+            user.setGmtCreate(System.currentTimeMillis());
+            user.setGmtModified(user.getGmtCreate());
+            userMapper.insert(user);
+```
+
+ 点击登录后，在数据库中存下了信息。
+
+ 当想测试，可以打断点，然后点击debug按钮。
+
+### 报错
+
+1. 无法找到数据库
+
+   删除user table，重新添加
+
+2. 找不到ACCOUT_ID Column
+
+   在INSERT注解中语法写错，将account_id错写为accout_id，因此在H2数据库中找不到指定的column
+
+## 获取登录状态
+
+ 以token为依据，绑定前端和后端的登录状态，将token抽取成变量，手动写key和value，手动将session和user进行识别。在数据库中查询是否在数据库中，存在则登录成功，不存在则登陆失败。此时不需要写入session，因为插入数据库的过程相当于写入session，在形参中注入**HttpServletResponse**，通过response写入cookie。
+
+ 不知道应该传输什么参数，使用ctrl+P。新建cookie，name为‘“token”，value为之前定义的token。
+
+```java
+response.addCookie(new Cookie("token",token));
+```
+
+ 此时因为没有写入session，session为空，因此网页上还是显示的是登录。检查网工业源码，在application中找到了自己写入的token。
+
+ 需要访问网页时将key为token的cookie信息拿到，因此在indexController中，先注入userMapper(只有在userMapper中才可以访问user)，希望userMapper中有findByToken方法，传入token，然后返回model包中的user对象。在index函数中增加参数**HttpServletRequest**，利用其获得到Cookie，使用ctrl+alt+v，快速生成变量，将得到cookies进行for循环，快捷写法：cookies.for，然后自动变成for循环。如果cookies中含有token，获得其value，为所需要的token。然后userMapper中创建相应方法(alt+回车，快速修复)，获得到user对象。
+
+> 设置cookie，使用response；获得cookie，使用request
+
+```java
+Cookie[] cookies = request.getCookies();
+for (Cookie cookie : cookies) {
+    if ("token".equals(cookie.getName())){
+        String token = cookie.getValue();
+        User user = userMapper.findByToken(token);
+        break;
+    }
+}
+```
+
+ 在UserMapper类中新建方法，注解为Select。查询数据库中是否包含token。
+
+ MyBatis编译时，将形参中的值放入#{}对应的进行替换，如果是类可以直接进行替换，如果不是类，需要加入注解。
+
+```sql
+@Select("select * from user where token = #{token}")
+User findByToken(@Param("token") String token);
+```
+
+ user相当于数据库和java类交互的模型，用user类插入数据，从数据库中查询数据返回User类。拿到user类后，需要与前端交互。
+
+ 如果user不为空，就将session写入user中。
+
+```java
+@Controller
+public class IndexController {
+    //默认要求依赖对象必须存在
+    @Autowired(required = false)
+    private UserMapper userMapper;
+    @GetMapping("/")
+    public String index(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            if ("token".equals(cookie.getName())){
+                String token = cookie.getValue();
+                User user = userMapper.findByToken(token);
+                if (user != null){
+                    request.getSession().setAttribute("user",user);
+                }
+                break;
+            }
+        }
+        return "index";
+    }
+}
+```
+
+### 解决的问题
+
+ 如果服务器重启或者链接突然断开，再次连接需要重新登录，比较麻烦，因此将cookie持久化至数据库中，虽然cookie可以存储很多信息，但不应该将私密信息存储在cookie中，cookie中只存储令牌信息或token，从而前后端交互使用。
+
+### 存在的问题
+
+ 当用户量很大，请求信息很多时，会比较慢。可以用redis等去改进。
+
+## 集成Flyway Migration
+
+ 在获取到用户信息时，GithubUser中的bio没有用到，因此在数据库中添加项，右键user点击modified。但是这样一个人改动，其他人数据库都要重新添加数据库脚本，比较麻烦。
+
+ 使用数据库的迁移原因是：自动将不同人的数据库版本进行整合，自动管理数据库版本。
+
+ 进入[Flyway官网](https://flywaydb.org/getstarted/)，查看其Maven方式，将其plugin代码拷贝进pom.xml同级标签下，将其url地址更改为application.propertites中字段，user，password也做相应更改。保持数据库版本一致。
+
+```xml
+<url>jdbc:h2:C:/Code/mycommunity</url>
+<user>sa</user>
+<password>123</password>
+```
+
+ 创建src/main/resources/db/migration，文件命名方式仿照如下
+
+> src/main/resources/db/migration/V1__Create_person_table.sql
+
+ 新建文件V1__Create_user_table.sql，将之前的sql语句粘贴。
+
+ 先删除原数据库，然后运行命令
+
+```
+mvn flyway:migrate
+```
+
+ 这样自动生成了新的数据库，而且生成flyway_shema_history文件，记录数据库执行过程，当有多个人执行数据库时，以文件中的记录为准；
+
+ 当数据库表格变更时，如要新增一个VARCHAR(256)类型的bio，**不直接在数据库中添加**，而是写好语句
+
+```sql
+alter table USER add bio VARCHAR(256);
+```
+
+> 可以先在IDEA的数据库中做对应操作，然后复制对应语句，这样不用自己去写语句，但是最后不能点执行，不然flyway操作会失败
+
+ 然后复制要变更的语句，复制在migration文件夹下生成新的文件V2__Add_bio_col_to_user_table.sql，重新运行flyway命令。这样子user数据库便新增了一个col为bio。
+
+> 相当于对数据库的每条操作都分批次写在sql文件中，然后运行flyway对对应生成相应的数据库。
+
+ 无论表有多么细小的改动，都要重新创建一个对应的sql文件，不然会抛出异常，因为表对应的状态码改变了。降低数据库维护难度。
+
+## Bootstrap编写问题发布界面
+
+ 仿照网站模板去做
+
+{% asset_img 发起问题模板.jpg This is an example image %}
+
+ 需要有标题输入框，内容框，标签，确认发起和发起指南。拷贝一份index页面叫做publish。title改为发布-未名社区，上面一栏其他不用改变，在下面去添加内容。
+
+ 目测为3:1的左右分割布局，使用[SpringBoot栅格系统](https://v3.bootcss.com/css/#grid)中的流式布局
+
+```html
+<div class="container-fluid">
+  <div class="row">
+    ...
+  </div>
+</div>
+```
+
+ 3:1在栅格系统（12份）下，为9:3，使用大屏幕尺寸，类前缀为.col-lg-，先敲下div.col-lg-9，然后按下**Tab键**，自动生成一个div。
+
+ 当屏幕变小的时候，从col-lg-9部分均占据全部页面，即其他尺寸比例变化，不同尺寸比例用**空格**隔开。
+
+```html
+<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12" style="background-color: red;height: 300px";></div>
+<div class="col-lg-3 col-md-12 col-sm-12 col-xs-12" style="background-color: green;height: 300px"></div>
+```
+
+ 其中背景色，高度均为style下的属性，不同属性间用分号隔开。
+
+ 进入publish网页，需要写PublishController。
+
+```java
+@Controller
+public class PublishController {
+    @GetMapping("/publish")
+    public String publish(){
+        return "publish";
+    }
+}
+```
+
+ 进入publish界面，可以看到在正常窗口下是9:3比例，当界面缩小后，变成了红色在上，绿色在下，均铺满整个窗口。
+
+{% asset_img 大屏幕尺寸.jpg This is an example image %}
+
+{% asset_img 其他屏幕尺寸.jpg This is an example image %}
+
+页面中需要一个输入框，使用组件，有一个发起，找到好看的icon。在div中加入标签
+
+```html
+<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+```
+
+ 将class中名称替换为所需要的，然后加入h2，文本为发起。span为h2块置元素，将其放在h2中。
+
+ 增加基本输入框，被form包裹，action为点击时所提交地址。placeholder为当没有输入时，默认显示文字。修改type为text，id和for为title，增加name为title。
+
+ 下面为问题补充，为文本输入框，因此在label下增加textarea标签，加入class。
+
+ 标签页需要输入框，再增加绿色的提交按钮。
+
+```html
+<button type="button" class="btn btn-success">（成功）Success</button>
+```
+
+ 最后上面一部分代码为
+
+```html
+<form action="">
+	<div class="form-group">
+		<label for="title">问题标题（简单扼要）：</label>
+        <input type="text" class="form-control" id="title" name="title" placeholder="问题标题...">
+    </div>
+    <div class="form-group">
+         <label for="title">问题补充（必填：请参照右边提示）：</label>
+         <textarea name="description" id="description" class="form-control" cols="30" rows="10"></textarea>
+    </div>
+    <div class="form-group">
+         <label for="title">添加标签：</label>
+         <input type="text" class="form-control" id="tag" name="tag" placeholder="输入标签，以，号分隔">
+    </div>
+    <button type="submit" class="btn btn-success">发布</button>
+</form>
+```
+
+ 然后为增加问题发布导航界面。
+
+```html
+<div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+	<h3>问题发起指南</h3>
+    ● 问题标题：请用精简的语言描述您发布的问题，不超过25字
+    ● 问题补充：详细描述您的问题内容，并确保问题描述清晰直观，并提供一些相关的资料
+    ● 选择标签：选择一个或者多个合适的标签，用逗号隔开，每个标签不超过10个字
+</div>
+```
+
+ 得到效果为
+
+{% asset_img 问题发布界面.png This is an example image %}
+
+进一步修复样式，通过**检查**来做。在浏览器中编辑，实时预览，然后拷贝代码。
+
+ 发现这一部分的代码应该放在nav外层，使用ctrl+w同时选中上下层。将其放在nav下面。
+
+ 在static/css下面增加community.css文件
+
+```css
+.main{
+    margin: 30px;
+}
+```
+
+ 将其拷贝至publish页面中。
+
+```html
+<link rel="stylesheet" href="css/community.css"/>
+```
+
+ 在提问部分的div class中加上main
+
+```html
+<div class="container-fluid main">
+```
+
+ 这样将导航和问题发布界面隔开。
+
+{% asset_img margin30.jpg This is an example image %}
+
+为了有突出效果，将最外层的body颜色改为灰色，将内容发布界面颜色改为白色。让发布按钮飘在右边。加入float
+
+{% asset_img 发布按钮.jpg This is an example image %}
+
+ 修改css代码，增加body，修改颜色为灰色，修改main部分颜色为白色。增加btn-publish按钮。
+
+```css
+body{
+    background-color: #efefef;
+}
+.main{
+    background-color: white;
+    margin: 30px;
+}
+.btn-publish{
+    float: right;
+    margin-bottom: 15px;
+}
+```
+
+ 在button的class后面进行追加
+
+```html
+<button type="submit" class="btn btn-success btn-publish">发布</button>
+```
+
+ 这样样式基本达成效果。
+
+ 网页添加部分完整代码为
+
+```html
+<div class="container-fluid main">
+    <div class="row">
+        <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12" ;>
+            <h2><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>发起</h2>
+            <hr>
+            <form action="">
+                <div class="form-group">
+                    <label for="title">问题标题（简单扼要）：</label>
+                    <input type="text" class="form-control" id="title" name="title" placeholder="问题标题...">
+                </div>
+                <div class="form-group">
+                    <label for="title">问题补充（必填：请参照右边提示）：</label>
+                    <textarea name="description" id="description" class="form-control" cols="30" rows="10"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="title">添加标签：</label>
+                    <input type="text" class="form-control" id="tag" name="tag" placeholder="输入标签，以，号分隔">
+                </div>
+                <button type="submit" class="btn btn-success btn-publish">发布</button>
+            </form>
+        </div>
+        <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+            <h3>问题发起指南</h3>
+            ● 问题标题：请用精简的语言描述您发布的问题，不超过25字
+            ● 问题补充：详细描述您的问题内容，并确保问题描述清晰直观，并提供一些相关的资料
+            ● 选择标签：选择一个或者多个合适的标签，用逗号隔开，每个标签不超过10个字
+            <hr>
+        </div>
+    </div>
+</div>
+```
+
+# Spring知识总结
+
+## 注解
 
 1. Controller
 
@@ -785,13 +1219,17 @@ return "redirect:/";
 
    > @Value(“${string}”)，在配置文件中读取key为string的value
 
+## 基础
+
+- 在类和类之间传输用DTO，在数据库中使用model
+
 # 快捷键技巧
 
 ### IDEA快捷键
 
 - ctrl + P：提示输入参数类型
 - ctrl + shift+n 快速**查找**文件
-- shift + F6  更改名称
+- shift + F6 更改名称
 - ctrl + shift + F12 切换最大屏
 - alt + 鼠标左键按住拖动，实现对多行的批量修改
 - alt + insert 提示创建get和set
@@ -800,6 +1238,12 @@ return "redirect:/";
 - 按住shift + 回车 自动换到当前光标的下一行
 - ctrl + e 切回最近的一个访问窗口
 - 右键Git/history，可以看到历史提交信息时当前目录的情况
+- shift+F6 将所有同名变量更名
+- 变量.for 完成对某变量的for循环
+- alt+回车 修复
+- 右键Git revert，将某个文件还原至Git提交状态
+- ctrl+w同时选中上下层
+- ctrl+alt+l 简单格式化
 
 ### 其他快捷键
 
@@ -822,3 +1266,7 @@ return "redirect:/";
 - [Visual Paradig](https://www.visual-paradigm.com)
 - [OkHttp](https://square.github.io/okhttp/)
 - [Maven包查询](https://mvnrepository.com/)
+- [MyBatis官方资料](http://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/)
+- [Spring文档](https://docs.spring.io/spring-boot/docs/2.0.0.RC1/reference/htmlsingle/#boot-features-embedded-database-support)
+- [MySQL菜鸟教程资料](https://www.runoob.com/mysql/mysql-tutorial.html)
+- [Flyway官网](https://flywaydb.org/getstarted/)
