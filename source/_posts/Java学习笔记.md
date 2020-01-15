@@ -5720,7 +5720,7 @@ conn打印结果如下
 
 {% asset_img 第27天5.png This is an example image %}
 
-sun.net.www.protocal.http:HttpURLConnection为http底层实现。
+​	前面http地址为http底层实现。
 
 String **getHeaderField**(String ) 获取相关属性，
 
