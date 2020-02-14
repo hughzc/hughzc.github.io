@@ -1199,6 +1199,149 @@ body{
 </div>
 ```
 
+## 发布文章
+
+### 创建Table，存储发布者数据
+
+数据库数据包括：id(primary key), title, descrption, gmt_create, gmt_modified, creator, comment_count, view_count, like_count, tag。基本思路为先利用IDEA添加所需要的信息，然后复制生成的表格代码如下
+
+~~~sql
+create table question
+(
+	id int auto_increment,
+	title VARCHAR(50),
+	description TEXT,
+	gmt_create BIGINT,
+	gmt_modified BIGINT,
+	creator int,
+	comment_count int default 0,
+	view_count int default 0,
+	like_count int default 0,
+	tag VARCHAR(256),
+	constraint question_pk
+		primary key (id)
+);
+~~~
+
+​	在Flyway中创建新脚本，命名为V3__Create_question_table.sql。将sql代码粘贴进此文件，运行命令
+
+~~~
+mvn flyway:migrate
+~~~
+
+### 写Mapper文件
+
+在mapper包下新建类QuestionMapper，增加Mapper注解，将类更改为interface，写create函数，需要传入question类，然后增加Insert注解，写入相关sql语句，即 insert into (写表中需要插入名称) values (#{question类中相关变量名称})
+
+~~~java
+@Mapper
+public interface QuestionMapper {
+    @Insert("insert into (title,description,gmt_create,gmt_modified,creator,tag) values (#{title},#{description},#{gmtCreate},#{gmtModified},#{creator},#{tag})")
+    void create(Question question);
+}
+~~~
+
+​	在model包中添加类Question，包含以下变量，并alt+insert创建getter和setter方法
+
+~~~java
+    private Integer id;
+    private String title;
+    private String description;
+    private String tag;
+    private Long gmtCreate;
+    private Long gmtModified;
+    private Integer creator;
+    private Integer viewCount;
+    private Integer commentCount;
+    private Integer likeCount;
+~~~
+
+​	修改publish.html中回答问题部分，添加form后面内容，action路由到publish界面，提交post请求
+
+~~~html
+<form action="/publish" method="post">
+~~~
+
+​	get为渲染页面，post为执行请求。在PublishController中增加方法
+
+​	仍然返回publish界面，前后端未分离带来。增加PostMapping注解，接收参数title,description,tag。利用Autowired持有questionmapper，并调用其create方法。ctrl+P查看其需要参数，需要question，新建一个question，ctrl+alt+v，将变量抽取出来。给question设置变量。shift+回车，换行。
+
+​	为了获取到user，可以利用index中的利用cookie来获取。request利用HttpServletRequest注入，usermapper利用@Autowired自动注入。为了在服务端API接口级别传递到页面中，将要传递的写入Model。
+
+如果获取到的user为空，则需要给model传入错误信息，并且回到publish界面。如果有错误提示，alt+回车。将信息填入后，回到首页。
+
+~~~java
+	@Autowired
+    private QuestionMapper questionMapper;
+    @Autowired
+    private UserMapper userMapper;
+
+    @PostMapping("/publish")
+    public String doPublish(
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("tag") String tag,
+            HttpServletRequest request,
+            Model model){
+        User user = null;
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            if ("token".equals(cookie.getName())){
+                String token = cookie.getValue();
+                user = userMapper.findByToken(token);
+                if (user != null){
+                    request.getSession().setAttribute("user",user);
+                }
+                break;
+            }
+        }
+        if (user == null){
+            model.addAttribute("error","用户未登陆");
+            return "publish";
+        }
+        Question question = new Question();
+        question.setTitle(title);
+        question.setDescription(description);
+        question.setTag(tag);
+        question.setCreator(user.getId());
+        question.setGmtCreate(System.currentTimeMillis());
+        question.setGmtModified(question.getGmtModified());
+
+        questionMapper.create(question);
+        return "redirect:/";
+    }
+~~~
+
+​	为了提示错误信息，在publish.html界面，在提交问题的上方，增加一个span，修改class为bootstrap中的警告框，文本为错误信息。
+
+​	继续包裹一个流式布局，希望其充满整个屏幕，将错误提示报告和提交按钮放至流式布局下。警告框最大化屏幕为9，当页面缩写后为12。button给其对应的class。
+
+​	但是效果不是太好，警告框比提交框更宽。
+
+~~~html
+<div class="container-fluid main ">
+	<div class="row">
+	<div class="alert alert-danger col-lg-9 col-md-12 col-sm-12 col-xs-12" th:text="${error}"></div>
+    <button type="submit" class="btn btn-success btn-publish col-lg-3 col-md-12 col-sm-12 col-xs-12">
+    发布
+    </button>
+</div></div>
+~~~
+
+{% asset_img 警告框1.png This is an example image %}
+
+​	将button的流式布局重新放在一个div中，然后将button放置在此div下。
+
+~~~html
+<div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+	<button type="submit" class="btn btn-success btn-publish">
+    发布
+    </button>
+</div>
+~~~
+
+
+
 # Spring知识总结
 
 ## 注解
