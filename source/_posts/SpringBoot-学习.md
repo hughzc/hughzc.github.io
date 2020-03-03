@@ -173,7 +173,7 @@ https://www.bilibili.com/video
 
 过程梳理：
 
-1. 在浏览器输入网址http://localhost:Port/hello?name=name值
+1. 在浏览器输入网址`http://localhost:Port/hello?name=name值`
 2. HTTP的GET请求由controller处理，GetMappint(“/hello”)到对应的hello方法中，传入的name进行接收，返回String类型的hello
 3. 在templates下寻找hello.index，进行前端页面显示，将name进行替换
 

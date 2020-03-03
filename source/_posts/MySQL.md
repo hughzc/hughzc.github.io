@@ -2035,7 +2035,7 @@ GROUP BY j.job_title,d.department_name;
 
 将位置表和部门表连接，这时候部门编号没有重复，每个部门编号都有对应的国家名，然后利用国家分组，就可以算出其部门个数。
 
-{% 国家对部门表.png This is an example image %}
+{% asset_img 国家对部门表.png This is an example image %}
 
 最后加上分组后的筛选条件，放在having语句后
 
@@ -2185,7 +2185,7 @@ JOIN job_grades g
 ON e.`salary` BETWEEN g.`lowest_sal` AND g.`highest_sal`;
 ~~~
 
-{% jobgrades.png This is an example image %}
+{% asset_img jobgrades.png This is an example image %}
 
 案例2：查询工资级别的个数>2的个数，并且按工资级别降序
 
@@ -2243,7 +2243,7 @@ LEFT JOIN boys bo
 ON b.`boyfriend_id`=bo.`id`;
 ~~~
 
-{% 左查询1.png This is an example image %}
+{% asset_img 左查询1.png This is an example image %}
 
 如果只想看没有男朋友不在表中的女神信息，可以加入筛选
 
@@ -2320,11 +2320,11 @@ CROSS JOIN boys bo;
 
 下为内连接，左外，右外的比较
 
-{% 三种连接.png This is an example image %}
+{% asset_img 三种连接.png This is an example image %}
 
 下为左外，右外加筛选和全外的比较
 
-{% 左外右外全外.png This is an example image %}
+{% asset_img 左外右外全外.png This is an example image %}
 
 ### 多表连接练习
 
