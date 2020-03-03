@@ -47,9 +47,13 @@ https://www.bilibili.com/video
 
 1. 使用[Spring官方文档](https://spring.io/guides)下的[Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)，找到其依赖的dependency
 
-   ，复制进项目，导入相应的包。
+   ，复制进项目的**pom.xml**进行maven配置，导入相应的包。
 
-2. 创建Web资源，写Controller，写Controller注解，写Mapping，通过路由的方法，可以接受各种资料。
+2. 创建Controller包，在其中新建一个Controller名称的类，整体标注上@Controller注解。
+
+   在Spring建立网站的方法中，**HTTP的请求由Controller处理**，通过@Controller注解来识别控制器。GreetingController通过返回View的名称（在此处为greeting）来**处理GET请求**/ greeting。 View负责呈现HTML内容。
+
+   @GetMapping注解确保将对/ greeting的HTTP **GET请求**映射到greeting（）方法。
 
    ~~~java
    @Controller
@@ -63,6 +67,8 @@ https://www.bilibili.com/video
    ~~~
 
    > @Controller，将当前类作为路由API的一个承载者
+   >
+   > @GetMapping，确保对其中内容的HTTP GET请求映射到greeting方法
 
    作用是以网址形式向服务端传送key-value信息。
 
@@ -165,6 +171,11 @@ https://www.bilibili.com/video
      server.port=8887
      ~~~
 
+过程梳理：
+
+1. 在浏览器输入网址http://localhost:Port/hello?name=name值
+2. HTTP的GET请求由controller处理，GetMappint(“/hello”)到对应的hello方法中，传入的name进行接收，返回String类型的hello
+3. 在templates下寻找hello.index，进行前端页面显示，将name进行替换
 
 ## 将代码放至Github托管
 
@@ -319,13 +330,13 @@ https://www.bilibili.com/video
 <li><a href="https://github.com/login/oauth/authorize?client_id=github上给的&redirect_uri=http://localhost:8887/callback&scope=user&state=1">登录</a></li>
 ~~~
 
-​	这时候点击登录并授权后，网站会返回code信息，后面将code信息提取出来
+​	这时候点击登录并授权后，网站会返回`code`信息，后面将`code`信息提取出来
 
 #### 获取code
 
 1. 写新的Controller
 
-   返回String类型的callback()，返回index主页，在calback中寻找，写GetMapping注解，需要传入参数，为用户写入的String类型的code和state。
+   返回String类型的`callback()`，返回index主页，在calback中寻找，写`GetMapping`注解，需要传入参数，为用户写入的String类型的code和state。
 
    ~~~java
    @Controller
@@ -362,11 +373,11 @@ https://www.bilibili.com/video
    }
    ~~~
 
-​	新建一个包provider，提供对第三方信息的支持能力，新建类GithubProvider
+​	新建一个包provider，提供对第三方信息的支持能力，新建类`GithubProvider`
 
 > 体现思想：不同业务间进行隔离
 
-​	写注解@Component
+​	写注解`@Component`
 
 > @Component 仅仅把当前类初始化Spring容器的上下文，这样调用时不用实例化对象，IOC，便于去调用对象
 
@@ -1236,7 +1247,7 @@ mvn flyway:migrate
 ~~~java
 @Mapper
 public interface QuestionMapper {
-    @Insert("insert into (title,description,gmt_create,gmt_modified,creator,tag) values (#{title},#{description},#{gmtCreate},#{gmtModified},#{creator},#{tag})")
+    @Insert("insert into question (title,description,gmt_create,gmt_modified,creator,tag) values (#{title},#{description},#{gmtCreate},#{gmtModified},#{creator},#{tag})")
     void create(Question question);
 }
 ~~~
@@ -1330,6 +1341,13 @@ public interface QuestionMapper {
 
 {% asset_img 警告框1.png This is an example image %}
 
+为了只有在error不等于null的时候才展示，增加if标签。
+
+~~~html
+<div class="alert alert-danger col-lg-9 col-md-12 col-sm-12 col-xs-12" th:text="${error}"
+ th:if="${error != null}"></div>
+~~~
+
 ​	将button的流式布局重新放在一个div中，然后将button放置在此div下。
 
 ~~~html
@@ -1340,7 +1358,77 @@ public interface QuestionMapper {
 </div>
 ~~~
 
+为了让index与public联系起来，在首页上加上发布按钮，点击后跳转到发布界面。加入li标签，在li标签下加入a标签来指向超链接，也需要将这部分拷贝至publish的html文件中，这样改动一个页面，也要将另一个页面进行更改，比较麻烦。
 
+~~~html
+               <li th:if="${session.user != null}">
+                    <a href="/publish">发布</a>
+                </li>
+~~~
+
+当报错的时候，在publish界面上填的信息是没有的，因此在PublishController中，将这些信息注入到model中，这样可以在html页面获取。同时为了防止用户输入空信息提交，进行校验
+
+~~~java
+		//设置输入不能为空
+        if (title == null || title == ""){
+            model.addAttribute("error","标题不能为空");
+            return "publish";
+        }
+        if (description == null || description == ""){
+            model.addAttribute("error","描述不能为空");
+            return "publish";
+        }
+        if (tag == null || tag == ""){
+            model.addAttribute("error","标签不能为空");
+            return "publish";
+        }
+        model.addAttribute("title",title);
+        model.addAttribute("description",description);
+        model.addAttribute("tag",tag);
+~~~
+
+在publish.html进行修改，在title，description，tag标签中添加用户输入的显示如下
+
+~~~html
+<div class="form-group">
+     <label for="title">问题标题（简单扼要）：</label>
+     <input type="text" class="form-control" th:text="${title}" id="title" name="title" placeholder="问题标题...">
+</div>
+<div class="form-group">
+     <label for="description">问题补充（必填：请参照右边提示）：</label>
+     <textarea name="description" th:text="${description}" id="description" class="form-control" cols="30" rows="10"></textarea>
+</div>
+<div class="form-group">
+      <label for="tag">添加标签：</label>
+      <input type="text" class="form-control" th:text="${tag}" id="tag" name="tag" placeholder="输入标签，以，号分隔">
+</div>
+~~~
+
+在调试的时候，发现当输入标题，但不输入问题补充的时候，error会提示，但是标题部分没有回写下来，原因是将model.attribute放到了校验下方，因此不能显示出来。将model注入调整到最上面，这时候发现标题的显示位置不在value中
+
+{% asset_img 标题错位.png This is an example image %}
+
+去搜索：thymeleaf input，发现不能通过使用text获得值，要使用value，而描述使用value无法获取，需要使用text。
+
+~~~html
+<input type="text" class="form-control" th:value="${title}" id="title" name="title" 		placeholder="问题标题...">
+<textarea name="description" th:text="${description}" id="description" class="form-			control" cols="30" rows="10"></textarea>
+<input type="text" class="form-control" th:value="${tag}" id="tag" name="tag" 				placeholder="输入标签，以，号分隔">
+~~~
+
+发布文章总结：
+
+1、在html中form表单中填action，即为提交请求的地址，post路由到/publish中，当点击submit，会寻找地址为publish，请求为post的接口，注入到doPublish方法中
+
+2、接收标题，描述，标签信息，放入model中以便于页面的回显
+
+3、验证接收信息是否不为空，如果为空，注入到error中
+
+4、验证是否登录，通过token拿到数据库中存的user信息，若user信息存在则绑定到session中；若不存在，将错误信息注入，返回到前端中
+
+5、全部工作后，构建question对象，创建questionMapper，插入至数据库
+
+因此接下来需要将发布的问题显示在首页中。
 
 # Spring知识总结
 
@@ -1350,15 +1438,19 @@ public interface QuestionMapper {
 
    > @Controller，将当前类作为路由API的一个承载者
 
-2. Component
+2. GetMapping
+
+   > @GetMapping，确保对其中内容的HTTP GET请求映射到greeting方法
+
+3. Component
 
    > @Component 仅仅把当前类初始化Spring容器的上下文，这样调用时不用实例化对象，IOC，便于去调用对象
 
-3. Autowired
+4. Autowired
 
    > @Autowired注解将Spring容器中的写好的实例化的实例加载到当前使用的上下文
 
-4. Value
+5. Value
 
    > @Value(“${string}”)，在配置文件中读取key为string的value
 

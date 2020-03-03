@@ -132,6 +132,10 @@ git push
 
 [^1]: https://github.com/
 
+### 灰色背景
+
+加之前：Github，加之后`Github`，具体为大写锁定后按1左边的键。
+
 ## 列表
 
 ### 有序列表
