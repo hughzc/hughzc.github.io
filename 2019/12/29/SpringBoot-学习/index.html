@@ -69,8 +69,9 @@
 <meta property="og:image" content="https://hughzc.github.io/2019/12/29/SpringBoot-%E5%AD%A6%E4%B9%A0/margin30.jpg">
 <meta property="og:image" content="https://hughzc.github.io/2019/12/29/SpringBoot-%E5%AD%A6%E4%B9%A0/%E5%8F%91%E5%B8%83%E6%8C%89%E9%92%AE.jpg">
 <meta property="og:image" content="https://hughzc.github.io/2019/12/29/SpringBoot-%E5%AD%A6%E4%B9%A0/%E8%AD%A6%E5%91%8A%E6%A1%861.png">
+<meta property="og:image" content="https://hughzc.github.io/2019/12/29/SpringBoot-%E5%AD%A6%E4%B9%A0/%E6%A0%87%E9%A2%98%E9%94%99%E4%BD%8D.png">
 <meta property="article:published_time" content="2019-12-29T10:45:23.000Z">
-<meta property="article:modified_time" content="2020-02-12T08:37:14.798Z">
+<meta property="article:modified_time" content="2020-03-03T13:07:34.663Z">
 <meta property="article:author" content="未名Hugh">
 <meta property="article:tag" content="SpringBoot">
 <meta name="twitter:card" content="summary">
@@ -254,7 +255,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-02-12 16:37:14" itemprop="dateModified" datetime="2020-02-12T16:37:14+08:00">2020-02-12</time>
+                <time title="修改时间：2020-03-03 21:07:34" itemprop="dateModified" datetime="2020-03-03T21:07:34+08:00">2020-03-03</time>
               </span>
 
           
@@ -295,13 +296,16 @@
 </ul>
 <h3 id="正式编程"><a href="#正式编程" class="headerlink" title="正式编程"></a>正式编程</h3><h4 id="实现输入网址返回可视化界面"><a href="#实现输入网址返回可视化界面" class="headerlink" title="实现输入网址返回可视化界面"></a>实现输入网址返回可视化界面</h4><h5 id="文档说明"><a href="#文档说明" class="headerlink" title="文档说明"></a>文档说明</h5><ol>
 <li><p>使用<a href="https://spring.io/guides" target="_blank" rel="noopener">Spring官方文档</a>下的<a href="https://spring.io/guides/gs/serving-web-content/" target="_blank" rel="noopener">Serving Web Content with Spring MVC</a>，找到其依赖的dependency</p>
-<p>，复制进项目，导入相应的包。</p>
+<p>，复制进项目的<strong>pom.xml</strong>进行maven配置，导入相应的包。</p>
 </li>
-<li><p>创建Web资源，写Controller，写Controller注解，写Mapping，通过路由的方法，可以接受各种资料。</p>
+<li><p>创建Controller包，在其中新建一个Controller名称的类，整体标注上@Controller注解。</p>
+<p>在Spring建立网站的方法中，<strong>HTTP的请求由Controller处理</strong>，通过@Controller注解来识别控制器。GreetingController通过返回View的名称（在此处为greeting）来<strong>处理GET请求</strong>/ greeting。 View负责呈现HTML内容。</p>
+<p>@GetMapping注解确保将对/ greeting的HTTP <strong>GET请求</strong>映射到greeting（）方法。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GreetingController</span> </span>&#123;</span><br><span class="line">	<span class="meta">@GetMapping</span>(<span class="string">"/greeting"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">greeting</span><span class="params">(@RequestParam(name=<span class="string">"name"</span>, required=<span class="keyword">false</span>, defaultValue=<span class="string">"World"</span>)</span> String name, Model model) </span>&#123;</span><br><span class="line">		model.addAttribute(<span class="string">"name"</span>, name);</span><br><span class="line">		<span class="keyword">return</span> <span class="string">"greeting"</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <p>@Controller，将当前类作为路由API的一个承载者</p>
+<p>@GetMapping，确保对其中内容的HTTP GET请求映射到greeting方法</p>
 </blockquote>
 <p>作用是以网址形式向服务端传送key-value信息。</p>
 <ul>
@@ -352,10 +356,15 @@
 <li><p>修改端口号，在<strong>配置</strong>文件(resources.application.properties)中进行修改，点击重新启动</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server.port&#x3D;8887</span><br></pre></td></tr></table></figure>
 
-
 </li>
 </ul>
 </li>
+</ol>
+<p>过程梳理：</p>
+<ol>
+<li>在浏览器输入网址<code>http://localhost:Port/hello?name=name值</code></li>
+<li>HTTP的GET请求由controller处理，GetMappint(“/hello”)到对应的hello方法中，传入的name进行接收，返回String类型的hello</li>
+<li>在templates下寻找hello.index，进行前端页面显示，将name进行替换</li>
 </ol>
 <h2 id="将代码放至Github托管"><a href="#将代码放至Github托管" class="headerlink" title="将代码放至Github托管"></a>将代码放至Github托管</h2><h3 id="简单流程"><a href="#简单流程" class="headerlink" title="简单流程"></a>简单流程</h3><ol>
 <li><p>添加SSH keys，设置当前仓库的权限</p>
@@ -466,10 +475,10 @@
 <p>​    在index.html中找到登录，传入必要参数(clien_id，redirect_uri，scope，state)</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"https://github.com/login/oauth/authorize?client_id=github上给的&amp;redirect_uri=http://localhost:8887/callback&amp;scope=user&amp;state=1"</span>&gt;</span>登录<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>​    这时候点击登录并授权后，网站会返回code信息，后面将code信息提取出来</p>
+<p>​    这时候点击登录并授权后，网站会返回<code>code</code>信息，后面将<code>code</code>信息提取出来</p>
 <h4 id="获取code"><a href="#获取code" class="headerlink" title="获取code"></a>获取code</h4><ol>
 <li><p>写新的Controller</p>
-<p>返回String类型的callback()，返回index主页，在calback中寻找，写GetMapping注解，需要传入参数，为用户写入的String类型的code和state。</p>
+<p>返回String类型的<code>callback()</code>，返回index主页，在calback中寻找，写<code>GetMapping</code>注解，需要传入参数，为用户写入的String类型的code和state。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">authorizeController</span> </span>&#123;</span><br><span class="line">    <span class="comment">//指向返回文件</span></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/callback"</span>)</span><br><span class="line">    <span class="comment">//使用name接收code，为String类型</span></span><br><span class="line">    <span class="comment">//使用name接收state，为String类型</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">callback</span><span class="params">(@RequestParam(name = <span class="string">"code"</span>)</span> String code,</span></span><br><span class="line"><span class="function">                           @<span class="title">RequestParam</span><span class="params">(name = <span class="string">"state"</span>)</span> String state)</span>&#123;</span><br><span class="line">        <span class="comment">//登录成功后返回index页面</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">"index"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>模拟post请求</p>
@@ -478,11 +487,11 @@
 
 </li>
 </ol>
-<p>​    新建一个包provider，提供对第三方信息的支持能力，新建类GithubProvider</p>
+<p>​    新建一个包provider，提供对第三方信息的支持能力，新建类<code>GithubProvider</code></p>
 <blockquote>
 <p>体现思想：不同业务间进行隔离</p>
 </blockquote>
-<p>​    写注解@Component</p>
+<p>​    写注解<code>@Component</code></p>
 <blockquote>
 <p>@Component 仅仅把当前类初始化Spring容器的上下文，这样调用时不用实例化对象，IOC，便于去调用对象</p>
 </blockquote>
@@ -858,7 +867,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn flyway:migrate</span><br></pre></td></tr></table></figure>
 
 <h3 id="写Mapper文件"><a href="#写Mapper文件" class="headerlink" title="写Mapper文件"></a>写Mapper文件</h3><p>在mapper包下新建类QuestionMapper，增加Mapper注解，将类更改为interface，写create函数，需要传入question类，然后增加Insert注解，写入相关sql语句，即 insert into (写表中需要插入名称) values (#{question类中相关变量名称})</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">QuestionMapper</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Insert</span>(<span class="string">"insert into (title,description,gmt_create,gmt_modified,creator,tag) values (#&#123;title&#125;,#&#123;description&#125;,#&#123;gmtCreate&#125;,#&#123;gmtModified&#125;,#&#123;creator&#125;,#&#123;tag&#125;)"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">create</span><span class="params">(Question question)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">QuestionMapper</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Insert</span>(<span class="string">"insert into question (title,description,gmt_create,gmt_modified,creator,tag) values (#&#123;title&#125;,#&#123;description&#125;,#&#123;gmtCreate&#125;,#&#123;gmtModified&#125;,#&#123;creator&#125;,#&#123;tag&#125;)"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">create</span><span class="params">(Question question)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>​    在model包中添加类Question，包含以下变量，并alt+insert创建getter和setter方法</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Integer id;</span><br><span class="line"><span class="keyword">private</span> String title;</span><br><span class="line"><span class="keyword">private</span> String description;</span><br><span class="line"><span class="keyword">private</span> String tag;</span><br><span class="line"><span class="keyword">private</span> Long gmtCreate;</span><br><span class="line"><span class="keyword">private</span> Long gmtModified;</span><br><span class="line"><span class="keyword">private</span> Integer creator;</span><br><span class="line"><span class="keyword">private</span> Integer viewCount;</span><br><span class="line"><span class="keyword">private</span> Integer commentCount;</span><br><span class="line"><span class="keyword">private</span> Integer likeCount;</span><br></pre></td></tr></table></figure>
@@ -879,15 +888,43 @@
 
 <img src="/2019/12/29/SpringBoot-%E5%AD%A6%E4%B9%A0/%E8%AD%A6%E5%91%8A%E6%A1%861.png" class title="This is an example image">
 
+<p>为了只有在error不等于null的时候才展示，增加if标签。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"alert alert-danger col-lg-9 col-md-12 col-sm-12 col-xs-12"</span> <span class="attr">th:text</span>=<span class="string">"$&#123;error&#125;"</span></span></span><br><span class="line"><span class="tag"> <span class="attr">th:if</span>=<span class="string">"$&#123;error != null&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
 <p>​    将button的流式布局重新放在一个div中，然后将button放置在此div下。</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"col-lg-3 col-md-12 col-sm-12 col-xs-12"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">"submit"</span> <span class="attr">class</span>=<span class="string">"btn btn-success btn-publish"</span>&gt;</span></span><br><span class="line">    发布</span><br><span class="line">    <span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
+<p>为了让index与public联系起来，在首页上加上发布按钮，点击后跳转到发布界面。加入li标签，在li标签下加入a标签来指向超链接，也需要将这部分拷贝至publish的html文件中，这样改动一个页面，也要将另一个页面进行更改，比较麻烦。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">li</span> <span class="attr">th:if</span>=<span class="string">"$&#123;session.user != null&#125;"</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/publish"</span>&gt;</span>发布<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
+<p>当报错的时候，在publish界面上填的信息是没有的，因此在PublishController中，将这些信息注入到model中，这样可以在html页面获取。同时为了防止用户输入空信息提交，进行校验</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//设置输入不能为空</span></span><br><span class="line">      <span class="keyword">if</span> (title == <span class="keyword">null</span> || title == <span class="string">""</span>)&#123;</span><br><span class="line">          model.addAttribute(<span class="string">"error"</span>,<span class="string">"标题不能为空"</span>);</span><br><span class="line">          <span class="keyword">return</span> <span class="string">"publish"</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (description == <span class="keyword">null</span> || description == <span class="string">""</span>)&#123;</span><br><span class="line">          model.addAttribute(<span class="string">"error"</span>,<span class="string">"描述不能为空"</span>);</span><br><span class="line">          <span class="keyword">return</span> <span class="string">"publish"</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (tag == <span class="keyword">null</span> || tag == <span class="string">""</span>)&#123;</span><br><span class="line">          model.addAttribute(<span class="string">"error"</span>,<span class="string">"标签不能为空"</span>);</span><br><span class="line">          <span class="keyword">return</span> <span class="string">"publish"</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      model.addAttribute(<span class="string">"title"</span>,title);</span><br><span class="line">      model.addAttribute(<span class="string">"description"</span>,description);</span><br><span class="line">      model.addAttribute(<span class="string">"tag"</span>,tag);</span><br></pre></td></tr></table></figure>
 
+<p>在publish.html进行修改，在title，description，tag标签中添加用户输入的显示如下</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">label</span> <span class="attr">for</span>=<span class="string">"title"</span>&gt;</span>问题标题（简单扼要）：<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:text</span>=<span class="string">"$&#123;title&#125;"</span> <span class="attr">id</span>=<span class="string">"title"</span> <span class="attr">name</span>=<span class="string">"title"</span> <span class="attr">placeholder</span>=<span class="string">"问题标题..."</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">label</span> <span class="attr">for</span>=<span class="string">"description"</span>&gt;</span>问题补充（必填：请参照右边提示）：<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">textarea</span> <span class="attr">name</span>=<span class="string">"description"</span> <span class="attr">th:text</span>=<span class="string">"$&#123;description&#125;"</span> <span class="attr">id</span>=<span class="string">"description"</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">cols</span>=<span class="string">"30"</span> <span class="attr">rows</span>=<span class="string">"10"</span>&gt;</span><span class="tag">&lt;/<span class="name">textarea</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">label</span> <span class="attr">for</span>=<span class="string">"tag"</span>&gt;</span>添加标签：<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:text</span>=<span class="string">"$&#123;tag&#125;"</span> <span class="attr">id</span>=<span class="string">"tag"</span> <span class="attr">name</span>=<span class="string">"tag"</span> <span class="attr">placeholder</span>=<span class="string">"输入标签，以，号分隔"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在调试的时候，发现当输入标题，但不输入问题补充的时候，error会提示，但是标题部分没有回写下来，原因是将model.attribute放到了校验下方，因此不能显示出来。将model注入调整到最上面，这时候发现标题的显示位置不在value中</p>
+<img src="/2019/12/29/SpringBoot-%E5%AD%A6%E4%B9%A0/%E6%A0%87%E9%A2%98%E9%94%99%E4%BD%8D.png" class title="This is an example image">
+
+<p>去搜索：thymeleaf input，发现不能通过使用text获得值，要使用value，而描述使用value无法获取，需要使用text。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;title&#125;"</span> <span class="attr">id</span>=<span class="string">"title"</span> <span class="attr">name</span>=<span class="string">"title"</span> 		<span class="attr">placeholder</span>=<span class="string">"问题标题..."</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">textarea</span> <span class="attr">name</span>=<span class="string">"description"</span> <span class="attr">th:text</span>=<span class="string">"$&#123;description&#125;"</span> <span class="attr">id</span>=<span class="string">"description"</span> <span class="attr">class</span>=<span class="string">"form-			control"</span> <span class="attr">cols</span>=<span class="string">"30"</span> <span class="attr">rows</span>=<span class="string">"10"</span>&gt;</span><span class="tag">&lt;/<span class="name">textarea</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;tag&#125;"</span> <span class="attr">id</span>=<span class="string">"tag"</span> <span class="attr">name</span>=<span class="string">"tag"</span> 				<span class="attr">placeholder</span>=<span class="string">"输入标签，以，号分隔"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>发布文章总结：</p>
+<p>1、在html中form表单中填action，即为提交请求的地址，post路由到/publish中，当点击submit，会寻找地址为publish，请求为post的接口，注入到doPublish方法中</p>
+<p>2、接收标题，描述，标签信息，放入model中以便于页面的回显</p>
+<p>3、验证接收信息是否不为空，如果为空，注入到error中</p>
+<p>4、验证是否登录，通过token拿到数据库中存的user信息，若user信息存在则绑定到session中；若不存在，将错误信息注入，返回到前端中</p>
+<p>5、全部工作后，构建question对象，创建questionMapper，插入至数据库</p>
+<p>因此接下来需要将发布的问题显示在首页中。</p>
 <h1 id="Spring知识总结"><a href="#Spring知识总结" class="headerlink" title="Spring知识总结"></a>Spring知识总结</h1><h2 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h2><ol>
 <li><p>Controller</p>
 <blockquote>
 <p>@Controller，将当前类作为路由API的一个承载者</p>
+</blockquote>
+</li>
+<li><p>GetMapping</p>
+<blockquote>
+<p>@GetMapping，确保对其中内容的HTTP GET请求映射到greeting方法</p>
 </blockquote>
 </li>
 <li><p>Component</p>
@@ -1052,20 +1089,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1107,7 +1144,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共76.3k字</span>
+  <span class="post-count">博客全站共117.5k字</span>
 </div>
         
 
