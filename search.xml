@@ -7,6 +7,8 @@
 <blockquote>
 <p>参考博客：<code>https://www.cnblogs.com/kubixuesheng/p/4397798.html</code></p>
 </blockquote>
+<a id="more"></a>
+
 <h1 id="什么是哈夫曼树"><a href="#什么是哈夫曼树" class="headerlink" title="什么是哈夫曼树"></a>什么是哈夫曼树</h1><p>要学习哈夫曼树，首先要知道哈夫曼树是什么，为什么要用哈夫曼树。</p>
 <h2 id="问题场景：判断结构"><a href="#问题场景：判断结构" class="headerlink" title="问题场景：判断结构"></a>问题场景：判断结构</h2><p>如果要使用条件判断将百分制成绩转换为等级输出，可以写多个if else语句，将其判断逻辑用一个树来表示，其中越接近树顶层的结果越容易获取到，假如有如下的分数段分布情况</p>
 <table>

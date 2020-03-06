@@ -47,12 +47,12 @@
   };
 </script>
 
-  <meta name="description" content="写这篇博客源自于之前做了一道哈夫曼编码的题，但是当时哈夫曼树的知识已经遗忘了，因此没有做出来。后来在学习左神的算法的时候，复习到了切金条的问题，其中用到了哈夫曼树，因此趁此机会在网上学习了哈夫曼树的相关知识并自己动手用Java实现了相关操作，记录在博客中，方便日后查阅。  参考博客：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;kubixuesheng&#x2F;p&#x2F;4397798.html  什么是哈夫">
+  <meta name="description" content="写这篇博客源自于之前做了一道哈夫曼编码的题，但是当时哈夫曼树的知识已经遗忘了，因此没有做出来。后来在学习左神的算法的时候，复习到了切金条的问题，其中用到了哈夫曼树，因此趁此机会在网上学习了哈夫曼树的相关知识并自己动手用Java实现了相关操作，记录在博客中，方便日后查阅。  参考博客：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;kubixuesheng&#x2F;p&#x2F;4397798.html">
 <meta property="og:type" content="article">
 <meta property="og:title" content="哈夫曼树">
 <meta property="og:url" content="https://hughzc.github.io/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/index.html">
 <meta property="og:site_name" content="未名的奇妙旅程">
-<meta property="og:description" content="写这篇博客源自于之前做了一道哈夫曼编码的题，但是当时哈夫曼树的知识已经遗忘了，因此没有做出来。后来在学习左神的算法的时候，复习到了切金条的问题，其中用到了哈夫曼树，因此趁此机会在网上学习了哈夫曼树的相关知识并自己动手用Java实现了相关操作，记录在博客中，方便日后查阅。  参考博客：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;kubixuesheng&#x2F;p&#x2F;4397798.html  什么是哈夫">
+<meta property="og:description" content="写这篇博客源自于之前做了一道哈夫曼编码的题，但是当时哈夫曼树的知识已经遗忘了，因此没有做出来。后来在学习左神的算法的时候，复习到了切金条的问题，其中用到了哈夫曼树，因此趁此机会在网上学习了哈夫曼树的相关知识并自己动手用Java实现了相关操作，记录在博客中，方便日后查阅。  参考博客：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;kubixuesheng&#x2F;p&#x2F;4397798.html">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://hughzc.github.io/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E6%9E%84%E9%80%A01.png">
 <meta property="og:image" content="https://hughzc.github.io/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E6%9E%84%E9%80%A02.png">
@@ -65,7 +65,7 @@
 <meta property="og:image" content="https://hughzc.github.io/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E5%AD%97%E7%AC%A6%E9%A2%91%E6%95%B02.png">
 <meta property="og:image" content="https://hughzc.github.io/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E5%AD%97%E7%AC%A6%E9%A2%91%E6%95%B03.png">
 <meta property="article:published_time" content="2020-03-06T09:16:14.000Z">
-<meta property="article:modified_time" content="2020-03-06T14:14:53.130Z">
+<meta property="article:modified_time" content="2020-03-06T14:18:18.657Z">
 <meta property="article:author" content="未名Hugh">
 <meta property="article:tag" content="算法">
 <meta property="article:tag" content="哈夫曼树">
@@ -245,7 +245,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-03-06 17:16:14 / 修改时间：22:14:53" itemprop="dateCreated datePublished" datetime="2020-03-06T17:16:14+08:00">2020-03-06</time>
+              <time title="创建时间：2020-03-06 17:16:14 / 修改时间：22:18:18" itemprop="dateCreated datePublished" datetime="2020-03-06T17:16:14+08:00">2020-03-06</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -274,6 +274,8 @@
 <blockquote>
 <p>参考博客：<code>https://www.cnblogs.com/kubixuesheng/p/4397798.html</code></p>
 </blockquote>
+<a id="more"></a>
+
 <h1 id="什么是哈夫曼树"><a href="#什么是哈夫曼树" class="headerlink" title="什么是哈夫曼树"></a>什么是哈夫曼树</h1><p>要学习哈夫曼树，首先要知道哈夫曼树是什么，为什么要用哈夫曼树。</p>
 <h2 id="问题场景：判断结构"><a href="#问题场景：判断结构" class="headerlink" title="问题场景：判断结构"></a>问题场景：判断结构</h2><p>如果要使用条件判断将百分制成绩转换为等级输出，可以写多个if else语句，将其判断逻辑用一个树来表示，其中越接近树顶层的结果越容易获取到，假如有如下的分数段分布情况</p>
 <table>
