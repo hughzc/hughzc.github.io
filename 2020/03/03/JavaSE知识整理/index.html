@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://hughzc.github.io').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="Java基础Java基本语法、特性数据类型运算符流程控制语句方法main方法public static void main(String[] args) main方法是Java程序的入口，public表示任何类和对象可以访问，static表示方法随类而加载，可使用类名来调用，void表明没有返回值，main为JVM识别的特殊方法名，不是关键字。字符串数组args可以用来输入参数。main为最先加载">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaSE知识整理">
+<meta property="og:url" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/index.html">
+<meta property="og:site_name" content="未名的奇妙旅程">
+<meta property="og:description" content="Java基础Java基本语法、特性数据类型运算符流程控制语句方法main方法public static void main(String[] args) main方法是Java程序的入口，public表示任何类和对象可以访问，static表示方法随类而加载，可使用类名来调用，void表明没有返回值，main为JVM识别的特殊方法名，不是关键字。字符串数组args可以用来输入参数。main为最先加载">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/list%E4%B8%8Eset.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E9%93%BE%E8%A1%A8hash.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E7%BA%A2%E9%BB%91%E6%A0%91hash.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/hash%E6%95%A3%E5%88%97.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E7%BA%A2%E9%BB%91%E6%A0%91%E5%9B%BE.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/segment.png">
+<meta property="article:published_time" content="2020-03-03T14:00:20.000Z">
+<meta property="article:modified_time" content="2020-03-05T12:53:18.041Z">
+<meta property="article:author" content="未名Hugh">
+<meta property="article:tag" content="JavaSE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/list%E4%B8%8Eset.png">
+
+<link rel="canonical" href="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>JavaSE知识整理 | 未名的奇妙旅程</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+  
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">未名的奇妙旅程</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">未名的技术博客，记录学习点滴</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="未名Hugh">
+      <meta itemprop="description" content="技术博客，Java，Spring Boot，并发编程，网络编程">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="未名的奇妙旅程">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JavaSE知识整理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-03 22:00:20" itemprop="dateCreated datePublished" datetime="2020-03-03T22:00:20+08:00">2020-03-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-05 20:53:18" itemprop="dateModified" datetime="2020-03-05T20:53:18+08:00">2020-03-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaSE/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaSE</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Java基础"><a href="#Java基础" class="headerlink" title="Java基础"></a>Java基础</h1><h2 id="Java基本语法、特性"><a href="#Java基本语法、特性" class="headerlink" title="Java基本语法、特性"></a>Java基本语法、特性</h2><h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><h3 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h3><h3 id="流程控制语句"><a href="#流程控制语句" class="headerlink" title="流程控制语句"></a>流程控制语句</h3><h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><h4 id="main方法"><a href="#main方法" class="headerlink" title="main方法"></a>main方法</h4><p>public static void main(String[] args)</p>
+<p>main方法是Java程序的入口，public表示任何类和对象可以访问，static表示方法随类而加载，可使用类名来调用，void表明没有返回值，main为JVM识别的特殊方法名，不是关键字。字符串数组args可以用来输入参数。main为最先加载的方法（不一定最先执行），因此需要被静态调用。</p>
+<p>是否有其他写法？</p>
+<p>public与static可以交换顺序，也可以定义为final，也可以用synchronized来修饰main方法。</p>
+<h4 id="在main方法执行前输出"><a href="#在main方法执行前输出" class="headerlink" title="在main方法执行前输出"></a>在main方法执行前输出</h4><p>可以使用静态代码块，静态代码块在类加载时被调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">	<span class="keyword">static</span>&#123;</span><br><span class="line">		Sout(<span class="string">"Hello1"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	main()&#123;</span><br><span class="line">		Sout(<span class="string">"Hello2"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h2><h3 id="static"><a href="#static" class="headerlink" title="static"></a>static</h3><h3 id="final"><a href="#final" class="headerlink" title="final"></a>final</h3><h3 id="this"><a href="#this" class="headerlink" title="this"></a>this</h3><h2 id="面向对象"><a href="#面向对象" class="headerlink" title="面向对象"></a>面向对象</h2><h3 id="面向对象思想"><a href="#面向对象思想" class="headerlink" title="面向对象思想"></a>面向对象思想</h3><h3 id="匿名对象"><a href="#匿名对象" class="headerlink" title="匿名对象"></a>匿名对象</h3><h3 id="封装"><a href="#封装" class="headerlink" title="封装"></a>封装</h3><h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h3><h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><h3 id="多态"><a href="#多态" class="headerlink" title="多态"></a>多态</h3><h3 id="抽象类"><a href="#抽象类" class="headerlink" title="抽象类"></a>抽象类</h3><h3 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h3><h3 id="内部类"><a href="#内部类" class="headerlink" title="内部类"></a>内部类</h3><h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><h3 id="List与Set"><a href="#List与Set" class="headerlink" title="List与Set"></a>List与Set</h3><p>Collection下有List、Set和Queue，重点说明List与Set的区别。</p>
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/list%E4%B8%8Eset.png" class title="This is an example image">
+
+<p>一、特点</p>
+<p>按照特点来看</p>
+<ul>
+<li>List：元素有序（存入和取出顺序一致），可以索引（角标）操作元素，元素可以重复</li>
+<li>Set：元素不能重复，无序</li>
+</ul>
+<p>二、种类</p>
+<ul>
+<li><p>List</p>
+<ul>
+<li>底层是数组，查询快，增删慢<ul>
+<li>Vector，线程安全，效率低</li>
+<li>ArrayList，线程不安全，效率高</li>
+</ul>
+</li>
+<li>底层是链表，查询慢，增删快<ul>
+<li>LinkedList，线程不安全，效率高</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Set</p>
+<ul>
+<li><p>底层是哈希表</p>
+<p>HashSet，保证元素唯一性，存入的类需要覆写hashcode()和equals()方法</p>
+<p>先判断hashcode()，再判断equals()</p>
+</li>
+<li><p>底层是二叉树</p>
+<p>TreeSet，保证元素排序，两种排序方式，比较器优先使用</p>
+<ul>
+<li>自然顺序，让对象所属的类实现Compareble接口，覆盖compareTo()方法，无参构造</li>
+<li>让集合自身具备比较功能，比较器实现Comparator接口，覆盖compare()方法</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>其中，Vector虽安全，但不适用于高并发。HashSet底层为HashMap，在add元素时，以键的形式放入，值为PRESENT。TreeSet的核心在排序，不排序用HashSet。TreeSet有两种排序方式，方式一是被排序类实现Compareble接口（实现equals()、hashcode()、compareTo()方法），方式二为传入比较器，比较器需要实现Comparator接口（实现compare()方法）。TreeSet底层为TreeMap，两种排序方式比较器优先级较高。</p>
+<h3 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h3><p>HashMap为Java中非常重要和常用的一种数据结构，下面将重点介绍HashMap的底层原理及方法实现。</p>
+<p>Java8以前：数组+链表</p>
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E9%93%BE%E8%A1%A8hash.png" class title="This is an example image">
+
+<p>操作为非同步，效率较高。<strong>数组默认16</strong>，存储链表头节点，数组位置的获得方式是hash(key.hashCode())%len，计算键的哈希值再算出%数组长度的值。实际中通过位运算来实现。其中数组的类型为Entry&lt;K,V&gt;，当发生哈希冲突时，则将数组中的Entry设置为新值的next，新值放在数组中，旧值在新值的链表上。</p>
+<p>最坏的情况下，链表会集中在一个数组，这样查找的时间复杂度从O(1)变为O(n)。</p>
+<p>Java8及以后：链表+数组+红黑树</p>
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E7%BA%A2%E9%BB%91%E6%A0%91hash.png" class title="This is an example image">
+
+<p>当数组中某个位置链表长度大于TREEIFY_THRESHOLD常量时，链表转换为红黑树，最坏情况下的性能从O(n)提高到O(logn)。数组类型变为Node，当链表大小<strong>超过</strong>TREEIFY_THRESHOLD（<strong>默认是8</strong>）时，链表被改造成红黑树。当红黑树元素被删除<strong>低于</strong>UNTREEIFY_THRESHOLD（<strong>默认是6</strong>）时，红黑树被转成链表。HashMap在首次使用时才被初始化，可以扩容，当插入一个元素，若对应位置数组没有元素，则新建；如果有，则判断是树还是链表，按照相应方式插入。若链表元素超过阈值，则树化；若插入值的键重复，就更新值。</p>
+<h4 id="put方法"><a href="#put方法" class="headerlink" title="put方法"></a>put方法</h4><p>HashMap的put方法逻辑是：</p>
+<ol>
+<li>若HashMap未被初始化 ，进行初始化</li>
+<li>对key求hash值，计算下标</li>
+<li>如果没有碰撞，直接放入桶中</li>
+<li>如果碰撞了，以链表的方式链接到 后面</li>
+<li>如果链表长度超过阈值（8），把链表转成红黑树</li>
+<li>如果链表的长度低于6，把红黑树转成链表</li>
+<li>如果key对应节点存在，替换旧值</li>
+<li>如果桶满了（容量16*负载因子0.75），需要resize（扩容2倍重排）</li>
+</ol>
+<h4 id="get方法"><a href="#get方法" class="headerlink" title="get方法"></a>get方法</h4><p>先计算hash值找到对应的桶，然后在链表或者红黑树中通过equals方法找到对应的节点，找到值并返回。</p>
+<h4 id="扩容resize-方法"><a href="#扩容resize-方法" class="headerlink" title="扩容resize()方法"></a>扩容resize()方法</h4><p>在构造哈希表时，若不指明初始大小，默认为16，若大小达到了容量16*负载因子0.75，用大数组去替代小数组，重新调整hashmap大小为原来2倍，比较耗时。</p>
+<ul>
+<li>在多线程环境下，调整大小会存在条件竞争，容易造成<strong>死锁</strong></li>
+<li>rehashing是一个比较耗时的过程</li>
+</ul>
+<h4 id="如何减少碰撞"><a href="#如何减少碰撞" class="headerlink" title="如何减少碰撞"></a>如何减少碰撞</h4><ul>
+<li><p>使用扰动函数：促使元素位置分布均匀，减少碰撞几率</p>
+</li>
+<li><p>使用final对象，并采用合适的equals()和hashCode()方法</p>
+<p>使用String、Integer等类作为键很好，防止键值改变，放入和获取到的键不一样，就不能获取到</p>
+</li>
+</ul>
+<p>哈希散列的过程：可以看到<strong>hashmap允许键为null</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> h;</span><br><span class="line">	<span class="keyword">return</span> (key == <span class="keyword">null</span>) ? <span class="number">0</span> : (h=key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将hashCode右移16位，去除低位，与原数据异或，混合原始哈希码的高位和低位，加大低位随机性，散列更均匀，计算下标使用(数组长度-1)&amp;hash，数组长度总为2^n（传入值时替换为最接近2的n次方的值），等价于对长度取模，效率更高。    </p>
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/hash%E6%95%A3%E5%88%97.png" class title="This is an example image">
+
+<h4 id="Dos攻击"><a href="#Dos攻击" class="headerlink" title="Dos攻击"></a>Dos攻击</h4><p>在JDK7以前，如果对方知道我方使用哈希算法，可以发送大量哈希值相同的请求来导致严重的哈希碰撞，然后不停访问这些key就可以显著影响服务器的性能（大量占用CPU），这样形成了一次拒绝服务供给（DoS）。这样将最坏性能从O（N）优化至O（logN），有较大的改善。</p>
+<p>那么怎么进一步处理呢？</p>
+<ol>
+<li>限制POST和GET请求参数个数</li>
+<li>限制POST请求的请求体大小</li>
+<li>Web Application FireWall（WAF）</li>
+</ol>
+<p>对于JDK7，HashMap会动态的使用一个专门的TreeMap实现来替换掉它。</p>
+<h4 id="多线程下的HashMap"><a href="#多线程下的HashMap" class="headerlink" title="多线程下的HashMap"></a>多线程下的HashMap</h4><p>由于HashMap不是线程安全的，在多线程下会出现问题，有</p>
+<ul>
+<li><p>多线程put操作后，get操作导致死循环</p>
+<p>rehash时容易出现环状链表</p>
+</li>
+<li><p>多线程put非null元素后，get操作得到null值</p>
+</li>
+<li><p>多线程put操作，导致元素丢失</p>
+</li>
+</ul>
+<h4 id="红黑树"><a href="#红黑树" class="headerlink" title="红黑树"></a>红黑树</h4><blockquote>
+<p>引用自博客<code>https://my.oschina.net/hosee/blog/618828</code></p>
+</blockquote>
+<p>要了解红黑树是什么，为什么要有红黑树。</p>
+<p>红黑树是二叉查找树，不同的是在每个结点上增加一个存储位来表示颜色，Red或Black。而红黑树的特点是通过对任何一条从根到叶子的路径上各个结点的着色方式的限制，红黑树确保没有一条路径比其他路径长出两倍，树是接近平衡的。</p>
+<p>二叉查找树简单理解是：</p>
+<ul>
+<li>若有左子树，则左子树上所有结点的值均小于根节点值 </li>
+<li>若有右子树，则右子树上所有结点的值均大于根节点值</li>
+<li>任意节点的左、右子树分别为二叉查找树</li>
+<li>没有键值相等的节点</li>
+</ul>
+<p>一般普通的二叉查找树高度为log(N)，但如果二叉查找树退化为一个链表，最坏时间会变成O（N）,那么红黑树如何保证树相对平衡呢？介绍其5个性质：</p>
+<ol>
+<li>每个节点要么红、要么黑</li>
+<li>根节点是黑</li>
+<li>叶节点是黑的</li>
+<li>若一个节点是红，两个儿子都是黑的（不存在两个连续的红色节点）</li>
+<li>对任意节点，其到叶节点尾端指针的每条路径都包含相同数目的黑节点</li>
+</ol>
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E7%BA%A2%E9%BB%91%E6%A0%91%E5%9B%BE.png" class title="This is an example image">
+
+<p>数学证明红黑树的操作时间复杂度最差为O(logN)。</p>
+<h4 id="HashMap与HashTable"><a href="#HashMap与HashTable" class="headerlink" title="HashMap与HashTable"></a>HashMap与HashTable</h4><p>因为HashMap在多线程下不安全，而线程安全的类有HashTable，其线程安全原因是使用了synchronized修饰符，锁为调用者的this，与Collections.synchronizedMap(hashMap)几乎无区别，只是锁不一样，synchronizedMap锁为Object类的mutex，hashMap方法均用synchronized(mutex)加锁。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Hashtable</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">Dictionary</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;, <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> V <span class="title">get</span><span class="params">(Object key)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> V <span class="title">put</span><span class="params">(K key, V value)</span> </span>&#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但HashTable在多线程下效率较低，因此又引入了ConcurrentHashMap。</p>
+<h4 id="HashMap与ConcurrentHashMap"><a href="#HashMap与ConcurrentHashMap" class="headerlink" title="HashMap与ConcurrentHashMap"></a>HashMap与ConcurrentHashMap</h4><p>那么该如何优化HashTable呢？</p>
+<p><strong>通过锁细粒度化，将整锁拆解成多个锁进行优化</strong>。</p>
+<p>早期的ConcurrentHashMap通过分段锁Segment实现</p>
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/segment.png" class title="This is an example image">
+
+<p>在HashMap的基础上，外面多了一层数组结构，有多个Segment（一种可重入锁），每个Segment中有多段数据（HashEntry），当一个线程占用一个锁时，位于此Segment上的其他数据也可以被访问到。默认分配<strong>16</strong>个Segment，理论上比HashTable效率高16倍。将HashMap的table数组逻辑上拆分为多个子数组，每个子数组配置一个Segment，线程只有在获取到某把分段锁后，才能获取到其中的子数组，其他没有该Segment的线程访问其中数据被阻塞，而访问没有被Segment锁住的数据不会被阻塞。</p>
+<p>而当前的ConcurrentHashMap，使用CAS+Synchronized使锁更细化</p>
+<h1 id="Java高级"><a href="#Java高级" class="headerlink" title="Java高级"></a>Java高级</h1>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JavaSE/" rel="tag"># JavaSE</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/" rel="prev" title="并发与锁总结">
+      <i class="fa fa-chevron-left"></i> 并发与锁总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/" rel="next" title="哈夫曼树">
+      哈夫曼树 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java基础"><span class="nav-number">1.</span> <span class="nav-text">Java基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java基本语法、特性"><span class="nav-number">1.1.</span> <span class="nav-text">Java基本语法、特性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据类型"><span class="nav-number">1.1.1.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运算符"><span class="nav-number">1.1.2.</span> <span class="nav-text">运算符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#流程控制语句"><span class="nav-number">1.1.3.</span> <span class="nav-text">流程控制语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法"><span class="nav-number">1.1.4.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#main方法"><span class="nav-number">1.1.4.1.</span> <span class="nav-text">main方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在main方法执行前输出"><span class="nav-number">1.1.4.2.</span> <span class="nav-text">在main方法执行前输出</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关键字"><span class="nav-number">1.2.</span> <span class="nav-text">关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#static"><span class="nav-number">1.2.1.</span> <span class="nav-text">static</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#final"><span class="nav-number">1.2.2.</span> <span class="nav-text">final</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#this"><span class="nav-number">1.2.3.</span> <span class="nav-text">this</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#面向对象"><span class="nav-number">1.3.</span> <span class="nav-text">面向对象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#面向对象思想"><span class="nav-number">1.3.1.</span> <span class="nav-text">面向对象思想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#匿名对象"><span class="nav-number">1.3.2.</span> <span class="nav-text">匿名对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#封装"><span class="nav-number">1.3.3.</span> <span class="nav-text">封装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构造方法"><span class="nav-number">1.3.4.</span> <span class="nav-text">构造方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#继承"><span class="nav-number">1.3.5.</span> <span class="nav-text">继承</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多态"><span class="nav-number">1.3.6.</span> <span class="nav-text">多态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抽象类"><span class="nav-number">1.3.7.</span> <span class="nav-text">抽象类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接口"><span class="nav-number">1.3.8.</span> <span class="nav-text">接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内部类"><span class="nav-number">1.3.9.</span> <span class="nav-text">内部类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集合"><span class="nav-number">1.4.</span> <span class="nav-text">集合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#List与Set"><span class="nav-number">1.4.1.</span> <span class="nav-text">List与Set</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HashMap"><span class="nav-number">1.4.2.</span> <span class="nav-text">HashMap</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#put方法"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">put方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get方法"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">get方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#扩容resize-方法"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">扩容resize()方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何减少碰撞"><span class="nav-number">1.4.2.4.</span> <span class="nav-text">如何减少碰撞</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Dos攻击"><span class="nav-number">1.4.2.5.</span> <span class="nav-text">Dos攻击</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多线程下的HashMap"><span class="nav-number">1.4.2.6.</span> <span class="nav-text">多线程下的HashMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#红黑树"><span class="nav-number">1.4.2.7.</span> <span class="nav-text">红黑树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HashMap与HashTable"><span class="nav-number">1.4.2.8.</span> <span class="nav-text">HashMap与HashTable</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HashMap与ConcurrentHashMap"><span class="nav-number">1.4.2.9.</span> <span class="nav-text">HashMap与ConcurrentHashMap</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java高级"><span class="nav-number">2.</span> <span class="nav-text">Java高级</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="未名Hugh"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">未名Hugh</p>
+  <div class="site-description" itemprop="description">技术博客，Java，Spring Boot，并发编程，网络编程</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">未名Hugh</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.6.0
+  </div>
+-->
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共133.4k字</span>
+</div>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/clicklove.js"></script>

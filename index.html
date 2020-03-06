@@ -205,6 +205,477 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="未名Hugh">
+      <meta itemprop="description" content="技术博客，Java，Spring Boot，并发编程，网络编程">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="未名的奇妙旅程">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/" class="post-title-link" itemprop="url">哈夫曼树</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-03-06 17:16:14 / 修改时间：22:14:53" itemprop="dateCreated datePublished" datetime="2020-03-06T17:16:14+08:00">2020-03-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/" itemprop="url" rel="index">
+                    <span itemprop="name">哈夫曼树</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>写这篇博客源自于之前做了一道哈夫曼编码的题，但是当时哈夫曼树的知识已经遗忘了，因此没有做出来。后来在学习左神的算法的时候，复习到了切金条的问题，其中用到了哈夫曼树，因此趁此机会在网上学习了哈夫曼树的相关知识并自己动手用Java实现了相关操作，记录在博客中，方便日后查阅。</p>
+<blockquote>
+<p>参考博客：<code>https://www.cnblogs.com/kubixuesheng/p/4397798.html</code></p>
+</blockquote>
+<h1 id="什么是哈夫曼树"><a href="#什么是哈夫曼树" class="headerlink" title="什么是哈夫曼树"></a>什么是哈夫曼树</h1><p>要学习哈夫曼树，首先要知道哈夫曼树是什么，为什么要用哈夫曼树。</p>
+<h2 id="问题场景：判断结构"><a href="#问题场景：判断结构" class="headerlink" title="问题场景：判断结构"></a>问题场景：判断结构</h2><p>如果要使用条件判断将百分制成绩转换为等级输出，可以写多个if else语句，将其判断逻辑用一个树来表示，其中越接近树顶层的结果越容易获取到，假如有如下的分数段分布情况</p>
+<table>
+<thead>
+<tr>
+<th>分数</th>
+<th>0-59</th>
+<th>60-69</th>
+<th>70-79</th>
+<th>80-89</th>
+<th>90-100</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>比例</td>
+<td>0.05</td>
+<td>0.15</td>
+<td>0.40</td>
+<td>0.30</td>
+<td>0.10</td>
+</tr>
+</tbody></table>
+<p>为了写出判断每个学生分数区间的代码，可以有如下两种构造方式</p>
+<p>构造方式1</p>
+<img src="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E6%9E%84%E9%80%A01.png" class title="This is an example image">
+
+<p>构造方式2</p>
+<img src="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E6%9E%84%E9%80%A02.png" class title="This is an example image">
+
+<p>这样第一种方式的判断次数要多余第二种方式，原因是假设头节点高度为0，越往下高度越高，节点所在的高度越高，则找到此节点所需要的工作量越大。这时候为了找到一种效率最高的判别树，便找到了哈夫曼树。</p>
+<h2 id="哈夫曼树有关概念"><a href="#哈夫曼树有关概念" class="headerlink" title="哈夫曼树有关概念"></a>哈夫曼树有关概念</h2><p>路径：在一棵树中，从一个结点到另一个结点的通路。</p>
+<p>路径长度：路径上的结点个数-1。</p>
+<p>结点的权：路径上的值，可以理解为节点的距离，通常指字符对应的二进制编码出现的概率。</p>
+<p>树的路径长度：从树根节点到每一个叶结点的路径长度之和。</p>
+<p>结点的带权路径长度：该结点到树根的路径长度与该结点上权的乘积</p>
+<p>树的带权路径长度：所有的结点带权路径长度之和。</p>
+<p>哈夫曼树就是树的带权路径长度最短的二叉树。</p>
+<h1 id="如何得到一棵哈夫曼树"><a href="#如何得到一棵哈夫曼树" class="headerlink" title="如何得到一棵哈夫曼树"></a>如何得到一棵哈夫曼树</h1><h2 id="哈夫曼树构造算法"><a href="#哈夫曼树构造算法" class="headerlink" title="哈夫曼树构造算法"></a>哈夫曼树构造算法</h2><ol>
+<li>根据给定的带权值的结点构成二叉树集合，每个二叉树只有一个带权值的结点，左右子树为空</li>
+<li>在集合中选取权值最小的两个二叉树重新构造一个二叉树，新的二叉树的权值为两个二叉树权值之和</li>
+<li>在集合中删除取出的两个二叉树，将新的二叉树放入</li>
+<li>重复步骤2,3直到只有一棵二叉树</li>
+</ol>
+<p>这样便得到了一棵哈夫曼树。</p>
+<p>要注意的是，具有相同带权结点的哈夫曼树不唯一。</p>
+<h1 id="哈夫曼树的应用"><a href="#哈夫曼树的应用" class="headerlink" title="哈夫曼树的应用"></a>哈夫曼树的应用</h1><h2 id="哈夫曼编码"><a href="#哈夫曼编码" class="headerlink" title="哈夫曼编码"></a>哈夫曼编码</h2><p>哈夫曼编码为哈夫曼树在通讯领域的应用，可以有效压缩数据，在编码时候需要考虑两个问题：数据的最小冗余编码（频率大的字符编码短），译码唯一性（一个译码对应唯一编码），利用哈夫曼树可以很好解决以上问题。</p>
+<p>在之前介绍的哈夫曼树构造基础之上，在两个子树合并为一个新的二叉树时，选择权值较小的二叉树为左子树，然后从树的根结点出发，其左子树的分支标‘0’，右子树的分支标’1’，这样便可以得到每个字符的编码，如下图所示</p>
+<img src="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E5%93%88%E5%A4%AB%E6%9B%BC%E7%BC%96%E7%A0%81.png" class title="This is an example image">
+
+<p>这样得到的编码即为二进制前缀编码。</p>
+<p>总算将其基本概念大致介绍了一遍，那么开始从最初的起点（做错的题）开始，自己设计一个用于26个英文字符编码的哈夫曼树吧！</p>
+<h1 id="”我的”哈夫曼树"><a href="#”我的”哈夫曼树" class="headerlink" title="”我的”哈夫曼树"></a>”我的”哈夫曼树</h1><h2 id="问题介绍"><a href="#问题介绍" class="headerlink" title="问题介绍"></a>问题介绍</h2><p>假设某段通信电文仅由 6 个字母 ABCDEF 组成，字母在电文中出现的频率分别为2，3，7，15，4，6。根据这些频率作为权值构造哈夫曼编码，最终构造出的哈夫曼树带权路径长度与字母 B 的哈夫曼编码分别为<strong>__</strong>。(这里假定左节点的值小于右节点的值)</p>
+<p>因此接下来的内容为致力于构造自己的哈夫曼树，来解决此类问题。</p>
+<h2 id="需求介绍"><a href="#需求介绍" class="headerlink" title="需求介绍"></a>需求介绍</h2><p>在明确了问题后，需要进一步分析需求。</p>
+<p>输入：目前看到关于哈夫曼树的题目有两种输入方式，一种是直接输入一串字符串，另一种是逐个输入字符，频率。</p>
+<p>输出：希望最后输出有哈夫曼树的路径长度，带权路径长度与每个字母对应的哈夫曼编码。</p>
+<p>因此便得到了基础需求，即输入字符串或者字符+频率，得到其对应的哈夫曼树路径长度、带权路径长度与哈夫曼编码，下面将逐步实现这些需求，并在此基础之上，增加一些自定义的需求。说明：下面定义的哈夫曼树基于大写英文字母进行统计，只进行A-Z的字符统计。</p>
+<h2 id="树结点的结构"><a href="#树结点的结构" class="headerlink" title="树结点的结构"></a>树结点的结构</h2><p>树由结点构成，基本的树结点中有值，左结点，右结点，而为了实现需求，需要在此之上加入每个节点的字符，结点的值为每个字符的频率，而当集合中有多个子树权值相等时，为了让树显得更加饱满（高度更低），选择优先让子结点数更少的二叉树进行合并，因此需要加上当前结点下所有结点的个数（包括自己），因此树结点的定义如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HaffNode</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> Character c;<span class="comment">//字符</span></span><br><span class="line">    <span class="keyword">public</span> Integer fre;<span class="comment">//频数</span></span><br><span class="line">    <span class="keyword">public</span> Integer count;<span class="comment">//子结点个数</span></span><br><span class="line">    <span class="comment">//两个结点</span></span><br><span class="line">    <span class="keyword">public</span> HaffNode left;</span><br><span class="line">    <span class="keyword">public</span> HaffNode right;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">HaffNode</span><span class="params">(Character c, Integer fre, <span class="keyword">int</span> count)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.c = c;</span><br><span class="line">        <span class="keyword">this</span>.fre = fre;</span><br><span class="line">        <span class="keyword">this</span>.count = count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="哈夫曼树的结构"><a href="#哈夫曼树的结构" class="headerlink" title="哈夫曼树的结构"></a>哈夫曼树的结构</h2><p>在前面所介绍的哈夫曼树的生成算法中，每次需要弹出两个权值最小的两个子树，最后直到只有一个子树，因此可以利用小根堆来实现，在Java中的实现为优先级队列PriorityQueue，为了保证让子结点树更小的二叉树优先被弹出，定义相应的比较器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HaffmanCompare</span> <span class="keyword">implements</span> <span class="title">Comparator</span>&lt;<span class="title">HaffNode</span>&gt;</span>&#123;</span><br><span class="line">    <span class="comment">//让树更均衡</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(HaffNode o1, HaffNode o2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> o1.fre != o2.fre ? o1.fre - o2.fre : o1.count - o2.count;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>核心思想为如果两个二叉树权值不同，则优先比较权值；若权值相同，则优先弹出子树个数更少的二叉树。</p>
+<p>然后将此比较器传入哈夫曼树中维护的优先级队列中，因为在需求中介绍了有两种输入方式，一种为直接传入字符串，一种为逐个传入字符和频数，因此相应的定义了两种构造函数，一种有参数的对应传入字符串，一种无参数的对应逐个传入字符。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyHaffman</span> </span>&#123;</span><br><span class="line">    <span class="comment">//持有小根堆，用来统计每个字符的个数</span></span><br><span class="line">    <span class="keyword">private</span> PriorityQueue&lt;HaffNode&gt; numHeap = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">private</span> String str = <span class="keyword">null</span>;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyHaffman</span><span class="params">(String str)</span></span>&#123;</span><br><span class="line">        numHeap = <span class="keyword">new</span> PriorityQueue&lt;HaffNode&gt;(<span class="keyword">new</span> HaffmanCompare());</span><br><span class="line">        <span class="keyword">this</span>.str = str;</span><br><span class="line">    &#125;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyHaffman</span><span class="params">()</span></span>&#123;</span><br><span class="line">        numHeap = <span class="keyword">new</span> PriorityQueue&lt;HaffNode&gt;(<span class="keyword">new</span> HaffmanCompare());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在完成了树的初始化后，需要将每个字符与其频率封装成为结点对象，传入维护的优先级队列中。因此首先需要统计每个字符与其频率</p>
+<h2 id="统计每个字符与其频率"><a href="#统计每个字符与其频率" class="headerlink" title="统计每个字符与其频率"></a>统计每个字符与其频率</h2><h3 id="传入字符串"><a href="#传入字符串" class="headerlink" title="传入字符串"></a>传入字符串</h3><p>首先介绍传入参数为一个字符串的形式，假设传入字符串为“ABACCDA”，为了统计每个字符串个数，可以利用桶排序，即维护一个长度为26的数组作为桶，若为A在0号桶，为B在1号桶，以此类推。这样便可以将每个桶位置处的字符个数统计出来。然后遍历桶的26个位置，如果当前桶中有数，就将此位置对应的字符与其频率封装成结点对象，并放入堆中。</p>
+<p>其中封装的时候，传入当前字符，频率，所有结点个数（1）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//输入字符串，统计频率，并加到大根堆中</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getFre</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">//桶排序，将每个字符放入桶中</span></span><br><span class="line">    <span class="keyword">int</span>[] arr = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">26</span>];<span class="comment">//统计频率</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; str.length(); i++) &#123;</span><br><span class="line">        arr[str.charAt(i)-<span class="string">'A'</span>]++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//从桶中取出来数，统计每个字母的个数</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">25</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (arr[i] != <span class="number">0</span>)&#123;</span><br><span class="line">            System.out.print((<span class="keyword">char</span>)(<span class="string">'A'</span>+i)+<span class="string">" "</span>+arr[i]+<span class="string">" "</span>);</span><br><span class="line">            numHeap.add(<span class="keyword">new</span> HaffNode((<span class="keyword">char</span>)(<span class="string">'A'</span>+i),arr[i],<span class="number">1</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="传入数组"><a href="#传入数组" class="headerlink" title="传入数组"></a>传入数组</h3><p>而如果是以A 3，换行，B 4,…，这样的形式输入，则在输入的函数处维护一个数组，数组的index为0的地方表示A，值为3，表示A的频率为3，以此类推，便得到了一个字符的频率数组，完成此过程的代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//传入字符和频数来构造数组</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addCharAndFre</span><span class="params">(<span class="keyword">int</span>[] arr,<span class="keyword">char</span> c, <span class="keyword">int</span> fre)</span></span>&#123;</span><br><span class="line">    <span class="comment">//新建桶，放入桶中</span></span><br><span class="line">    <span class="keyword">if</span> (c &lt; <span class="string">'A'</span> || c &gt; <span class="string">'Z'</span> || fre &lt;=<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"输入的字符不为A-Z之间或者频数不为正数"</span>);</span><br><span class="line">    arr[c-<span class="string">'A'</span>] = fre;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将所有的输入都存到了上述数组中后，便可以遍历桶，将不为0处对应的字符与频率封装为结点对象并放入堆中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getFre</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">       <span class="comment">//从桶中取出来数，统计每个字母的个数</span></span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">25</span>; i++) &#123;</span><br><span class="line">           <span class="keyword">if</span> (arr[i] != <span class="number">0</span>)&#123;</span><br><span class="line">               System.out.print((<span class="keyword">char</span>)(<span class="string">'A'</span>+i)+<span class="string">" "</span>+arr[i]+<span class="string">" "</span>);</span><br><span class="line">               numHeap.add(<span class="keyword">new</span> HaffNode((<span class="keyword">char</span>)(<span class="string">'A'</span>+i),arr[i],<span class="number">1</span>));</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       System.out.println();</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来便可以开始构造哈夫曼树</p>
+<h2 id="树的构造"><a href="#树的构造" class="headerlink" title="树的构造"></a>树的构造</h2><p>这方法需要返回树的根结点，其思路为</p>
+<ol>
+<li>如果堆为空，返回空</li>
+<li>如果堆中元素比1大，则弹出2个结点</li>
+<li>新建一个结点，字符为A-Z之外的（此处选#），权值为两个子树之和，左子树为权值较小的，总结点树为两子树结点树之和+1</li>
+<li>将此结点重新放入堆中，继续步骤2,3，直到只有1个结点</li>
+<li>返回此结点，即为哈夫曼树的头结点</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//构建哈夫曼树</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> HaffNode <span class="title">getHaffTree</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">//如果堆为空，返回空</span></span><br><span class="line">    <span class="keyword">if</span> (numHeap.isEmpty())</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">//从numHeap中弹出两个，构建新的节点，再丢进去</span></span><br><span class="line">    <span class="keyword">while</span> (numHeap.size() &gt; <span class="number">1</span>)&#123;</span><br><span class="line">        HaffNode cf1 = numHeap.poll();</span><br><span class="line">        HaffNode cf2 = numHeap.poll();</span><br><span class="line">        <span class="comment">//字符用单引号</span></span><br><span class="line">        HaffNode res = <span class="keyword">new</span> HaffNode(<span class="string">'#'</span>,cf1.fre+cf2.fre,cf1.count+cf2.count+<span class="number">1</span>);</span><br><span class="line">        <span class="comment">//构建左右子树</span></span><br><span class="line">        res.left = cf1.fre &lt;= cf2.fre ? cf1 : cf2;</span><br><span class="line">        res.right = cf1.fre &lt;= cf2.fre ? cf2 : cf1;</span><br><span class="line">        numHeap.offer(res);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//只剩一个的时候弹出</span></span><br><span class="line">    <span class="keyword">return</span> numHeap.peek();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="树的打印"><a href="#树的打印" class="headerlink" title="树的打印"></a>树的打印</h2><p>为了直观显示树的结构和方便验证程序的正确性，此处<strong>直接使用左神的打印树的函数</strong>，其核心思路为递归方式的中序遍历，每一层树占据的长度为len，因此需要计算得到每个结点所在树的高度，如果为右子树，用<code>V</code>标识；如果为左子树，用<code>^</code>标识。递归的中序遍历为递归左子树，打印当前结点，递归右子树。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//打印树</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printTree</span><span class="params">(HaffNode head)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Binary Tree:"</span>);</span><br><span class="line">        printInOrder(head, <span class="number">0</span>, <span class="string">"H"</span>, <span class="number">17</span>);</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printInOrder</span><span class="params">(HaffNode head, <span class="keyword">int</span> height, String to, <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (head == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        printInOrder(head.right, height + <span class="number">1</span>, <span class="string">"v"</span>, len);</span><br><span class="line">        String val = to + head.c + head.fre + to;</span><br><span class="line">        <span class="keyword">int</span> lenM = val.length();</span><br><span class="line">        <span class="keyword">int</span> lenL = (len - lenM) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">int</span> lenR = len - lenM - lenL;</span><br><span class="line">        val = getSpace(lenL) + val + getSpace(lenR);</span><br><span class="line">        System.out.println(getSpace(height * len) + val);</span><br><span class="line">        printInOrder(head.left, height + <span class="number">1</span>, <span class="string">"^"</span>, len);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getSpace</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</span><br><span class="line">        String space = <span class="string">" "</span>;</span><br><span class="line">        StringBuffer buf = <span class="keyword">new</span> StringBuffer(<span class="string">""</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; num; i++) &#123;</span><br><span class="line">            buf.append(space);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> buf.toString();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="树的编码"><a href="#树的编码" class="headerlink" title="树的编码"></a>树的编码</h2><p>在构建好树以后，需要得到每个叶子结点的编码。思路为递归实现，需要传入的参数是统计结果的Map，用来表示当前路径长度的String，用来表示总的带权路径长度的StringBuilder，以及当前树的高度和当前结点。</p>
+<p>采用先序遍历，base case为结点为空，当结点不为空的时候：</p>
+<ol>
+<li>如果当前结点为叶子结点，将其字符编码加入，将其带权路径加入到结果中（如果StringBuilder长度为0，直接将当前高度*频率加入；若已经有数，将之前的数取出，累加上当前结点的带权路径长度，替换到StirngBuilder中原来的值）</li>
+<li>如果当前结点不为叶子结点，递归遍历其左子树，其中string加上0，高度加一</li>
+<li>递归遍历其右子树，string加上1，高度加一</li>
+</ol>
+<p>在此过程中遇到的坑有，之前为了获得结点的字符使用的是StringBuilder类型，但是因为StringBuilder的值在堆中而不是在当前递归栈中，在返回到上一级时需要将当前步骤的影响消除，使用此方法效果有问题。后在leetcode上找到了相似的题目，使用String类型来保存当前栈的状态，这样不用自己去手动消除这一步状态 ，更为简单。而计算带权路径又需要一个堆内存中的变量，此处使用比较笨的方法，利用StringBuilder，每次取出之前的值，加上当前值再进行替换。其中使用的replace函数来替换，起始位置为0，终止位置要是其长度。</p>
+<p>得到的启示：要是遇到要获取每个结点的路径的题目，可以使用String类型来保存其路径，这样可以自动随栈变化，使用比较方便。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//编码，使用StringBuilder有问题，现在改成String</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">encodingHaff</span><span class="params">(Map&lt;Character,String&gt; map, String sb, StringBuilder num, <span class="keyword">int</span> height, HaffNode cf)</span></span>&#123;</span><br><span class="line">    <span class="comment">//basecase</span></span><br><span class="line">    <span class="keyword">if</span> (cf != <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="comment">//当前节点为叶子节点</span></span><br><span class="line">        <span class="keyword">if</span> (cf.left == <span class="keyword">null</span> &amp;&amp; cf.right == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="comment">//将答案加入</span></span><br><span class="line">            map.put(cf.c,sb);</span><br><span class="line">            <span class="keyword">if</span> (num.length() == <span class="number">0</span>)&#123;</span><br><span class="line">                num.append(height*cf.fre);</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">int</span> temp = Integer.valueOf(num.toString())+height*cf.fre;</span><br><span class="line">                num.replace(<span class="number">0</span>,num.length(),String.valueOf(temp));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">//如果不为叶子节点，遍历左右两边</span></span><br><span class="line">            encodingHaff(map,sb+<span class="number">0</span>, num, height+<span class="number">1</span>, cf.left);</span><br><span class="line">            encodingHaff(map,sb+<span class="number">1</span>,num, height+<span class="number">1</span>, cf.right);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同时需要实现给一个字符串，输出其编码后的二进制码，思路为字符串每一位在Map中进行寻找，最后输出</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//输入字符串，给编码后的二进制码结果</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">codeHaff</span><span class="params">(String str, Map&lt;Character,String&gt; map)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (str == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    StringBuilder res = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; str.length(); i++) &#123;</span><br><span class="line">        res.append(map.get(str.charAt(i)));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="树编码结果的输出"><a href="#树编码结果的输出" class="headerlink" title="树编码结果的输出"></a>树编码结果的输出</h2><p>在上一步中，树所有的编码结果放在了一个Map中，因此需要获取Map中的所有数，比较old school的方式是先获取Map的EntrySet类型的Set，再获取Set的EntrySet类型迭代器，利用迭代器来遍历Map，获取其每一个Key与Value，为了让程序更有拓展性，此处使用了泛型。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//遍历map</span></span><br><span class="line">   <span class="keyword">public</span> &lt;K,V&gt; <span class="function"><span class="keyword">void</span> <span class="title">itraMap</span><span class="params">(Map&lt;K,V&gt; map)</span></span>&#123;</span><br><span class="line">       <span class="comment">//得到entey</span></span><br><span class="line">       Set&lt;Map.Entry&lt;K,V&gt;&gt; entrySet = map.entrySet();</span><br><span class="line">       <span class="comment">//遍历enterset</span></span><br><span class="line">       Iterator&lt;Map.Entry&lt;K,V&gt;&gt; it = entrySet.iterator();</span><br><span class="line">       <span class="keyword">while</span> (it.hasNext())&#123;</span><br><span class="line">           Map.Entry&lt;K,V&gt; me = it.next();</span><br><span class="line">           K key = me.getKey();</span><br><span class="line">           V value = me.getValue();</span><br><span class="line">           System.out.println(key+<span class="string">":"</span>+value+<span class="string">" "</span>);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>也可以使用更加简洁的写法，用 foreach语句遍历map的keySet，如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//遍历map的较方便写法</span></span><br><span class="line"><span class="keyword">public</span> &lt;K,V&gt; <span class="function"><span class="keyword">void</span> <span class="title">itraMap2</span><span class="params">(Map&lt;K,V&gt; map)</span></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (K key : map.keySet())&#123;</span><br><span class="line">        V value = map.get(key);</span><br><span class="line">        System.out.println(key+<span class="string">":"</span>+value+<span class="string">" "</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时候基本需求便实现了，但是获取了编码，如果给出了一串编码后的结果，该如何得到其解码呢？</p>
+<p>因为哈夫曼树为二进制前缀编码，当编码规则确定后，解码结果应该唯一。因此，如果给定了一个字符串输入，从第一个字符开始看，在根结点开始遍历，如果是0，去左子树；如果是1，去右子树；如果都不是，抛出异常。当遍历结点走到了叶子节点时，将当前字符添加至结果，并从树的根结点开始遍历，直到将输入的字符串遍历完。</p>
+<p>其中，遇到的坑是判断的逻辑，应该是先往左或右去走，再判断是不是叶子结点，而不是先判断再走。原因是在此处，默认至少树中是有2个以上的结点的，因为如果只有头结点一个叶子结点，是无法编码的，也就无法解码。因此头结点是不用判断的，当到了头结点，至少要<strong>先走出一步再进行判断</strong>，不然会少判断一个字符，造成解码错误。基本原理是<code>1</code>或者<code>0</code>的状态，是在在路径上的结点才有的，也就是要先走一步才有1或者0的状态，因此要先走一步，再进行判断。</p>
+<p>第二个坑是char字符的判断，字符用单引号，字符串用双引号，因为刚开始的时候比较的为(0or1)，比较的不是0与1字符，因此一直判断不对 。总的代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//译码</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> String <span class="title">decodeHaff</span><span class="params">(String str, HaffNode head)</span></span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (head == <span class="keyword">null</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">null</span>;                                                                               </span><br><span class="line">       <span class="comment">//返回结果</span></span><br><span class="line">       StringBuilder res = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">       HaffNode cur = head;</span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; str.length(); i++) &#123;</span><br><span class="line">           <span class="comment">//如果当前为0，往左走，如果为1，往右走</span></span><br><span class="line">           Character nowChar = str.charAt(i);</span><br><span class="line">           <span class="comment">//字符使用单引号，字符串使用双引号</span></span><br><span class="line">           <span class="comment">//是0往左走，是1往右走</span></span><br><span class="line">           <span class="keyword">if</span> (nowChar.equals(<span class="string">'0'</span>)) &#123;</span><br><span class="line">               cur = cur.left;</span><br><span class="line">           &#125; <span class="keyword">else</span> <span class="keyword">if</span> (nowChar.equals(<span class="string">'1'</span>)) &#123;</span><br><span class="line">               cur = cur.right;</span><br><span class="line">           &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"译码错误"</span>);</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//如果当前节点为叶节点，添加至结果，再从头开始找</span></span><br><span class="line">           <span class="keyword">if</span> (cur.left == <span class="keyword">null</span> &amp;&amp; cur.right == <span class="keyword">null</span>) &#123;</span><br><span class="line">               res.append(cur.c);</span><br><span class="line">               cur = head;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> res.toString();</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="构造总方法"><a href="#构造总方法" class="headerlink" title="构造总方法"></a>构造总方法</h2><p>因此总的方法为：如果传入的是字符串，使用无参的得到频率方法；若传入的是数组，使用有参的得到频率方法，然后后面的均为构造树，返回类型为得到的字符与二进制编码的Map，具体代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">  <span class="comment">//主方法，对应输入string的构造方法</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Map&lt;Character,String&gt; <span class="title">mainHaff</span><span class="params">()</span></span>&#123;</span><br><span class="line">      System.out.println(<span class="string">"所有字母及频数如下"</span>);</span><br><span class="line">      <span class="comment">//1、得到每个字符的频率并放入堆中</span></span><br><span class="line">      getFre();</span><br><span class="line">      <span class="keyword">return</span> getTree();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//主方法，对应输入字母，频数的输入方式</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Map&lt;Character,String&gt; <span class="title">mainHaff</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">      <span class="comment">//从桶中取出来数，统计每个字母的个数</span></span><br><span class="line">      getFre(arr);</span><br><span class="line">      <span class="keyword">return</span> getTree();</span><br><span class="line">  &#125;</span><br><span class="line"><span class="comment">//已经得到了堆，用堆得到哈夫曼树</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Map&lt;Character,String&gt; <span class="title">getTree</span><span class="params">()</span></span>&#123;</span><br><span class="line">      <span class="comment">//1、构建哈夫曼树</span></span><br><span class="line">      HaffNode head = getHaffTree();</span><br><span class="line">      <span class="comment">//2、看哈夫曼树的遍历</span></span><br><span class="line">      printTree(head);</span><br><span class="line">      <span class="comment">//3、得到 每个字符的编码map</span></span><br><span class="line">      Map&lt;Character,String&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">      String sb = <span class="keyword">new</span> String();</span><br><span class="line">      StringBuilder sum = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">      encodingHaff(map,sb,sum, <span class="number">0</span>, head);</span><br><span class="line">      <span class="comment">//4、遍历map看结果</span></span><br><span class="line">      itraMap2(map);</span><br><span class="line">      <span class="comment">//5、输出路径长度与带权值路径长度</span></span><br><span class="line">      System.out.println(<span class="string">"哈夫曼带权路径长度为："</span>+sum);</span><br><span class="line">      System.out.println(<span class="string">"哈夫曼总路径长度为："</span>+head.fre);</span><br><span class="line">      <span class="keyword">return</span> map;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="构造输入"><a href="#构造输入" class="headerlink" title="构造输入"></a>构造输入</h2><p>输入的逻辑为：如果输入1，输入一串字符串，然后构建哈夫曼树；如果输入2，循环输入字符与频率，如果输出end表示结束，将获得的频率数组传入用于构建哈夫曼树。这样便得到了编码信息。这时候用户可以选择是否继续，如果输入1便继续，输入当前规则下得到的编码字符串，则输出为译码后的字符信息。输入代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    BufferedReader bf = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(System.in));</span><br><span class="line">    <span class="comment">//提示以字符串输入还是每个字母频率</span></span><br><span class="line">    System.out.println(<span class="string">"请输入数字1或者2"</span>);</span><br><span class="line">    System.out.println(<span class="string">"输入1：将整个字符串输入"</span>);</span><br><span class="line">    System.out.println(<span class="string">"输入2：将字符对应的频数输入"</span>);</span><br><span class="line">    <span class="keyword">int</span> n = Integer.valueOf(bf.readLine());</span><br><span class="line">    MyHaffman mf = <span class="keyword">null</span>;</span><br><span class="line">    Map&lt;Character,String&gt; map = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">//处理输入</span></span><br><span class="line">    <span class="keyword">switch</span> (n)&#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">            System.out.println(<span class="string">"请输入完整字符串"</span>);</span><br><span class="line">            String str = bf.readLine().toUpperCase();</span><br><span class="line">            mf = <span class="keyword">new</span> MyHaffman(str);</span><br><span class="line">            map = mf.mainHaff();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">            System.out.println(<span class="string">"请输入字母和频数，中间用空格隔开"</span>);</span><br><span class="line">            System.out.println(<span class="string">"以end作为结束"</span>);</span><br><span class="line">            String s;</span><br><span class="line">            mf = <span class="keyword">new</span> MyHaffman();</span><br><span class="line">            <span class="keyword">int</span>[] arr = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">26</span>];</span><br><span class="line">            <span class="keyword">while</span> (!(s=bf.readLine()).equals(<span class="string">"end"</span>))&#123;</span><br><span class="line">                String[] strArr = s.split(<span class="string">" "</span>);</span><br><span class="line">                <span class="keyword">char</span> c = strArr[<span class="number">0</span>].toUpperCase().charAt(<span class="number">0</span>);</span><br><span class="line">                <span class="keyword">int</span> fre = Integer.valueOf(strArr[<span class="number">1</span>]);</span><br><span class="line">                mf.addCharAndFre(arr,c,fre);</span><br><span class="line">            &#125;</span><br><span class="line">            map = mf.mainHaff(arr);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">"是否要继续：如果要编码，输入1；如果要译码，输入2，否则输入3"</span>);</span><br><span class="line">    <span class="keyword">int</span> opt;</span><br><span class="line">    <span class="keyword">while</span> ((opt = Integer.valueOf(bf.readLine())) != <span class="number">3</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span> (opt == <span class="number">1</span>)&#123;</span><br><span class="line">            System.out.println(<span class="string">"输入要编码的字符串，如ABSFSDF"</span>);</span><br><span class="line">            String str = bf.readLine().toUpperCase();</span><br><span class="line">            System.out.println(<span class="string">"编码后的二进制码为："</span>+mf.codeHaff(str,map));</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(opt == <span class="number">2</span>)&#123;</span><br><span class="line">            System.out.println(<span class="string">"输入要译码的二进制码，由0或者1组成"</span>);</span><br><span class="line">            String str = bf.readLine();</span><br><span class="line">            System.out.println(str);</span><br><span class="line">            System.out.println(<span class="string">"解码后的字符串为："</span>+mf.decodeHaff(str,mf.getHaffTree()));</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"是否要继续：如果要编码，输入1；如果要译码，输入2，否则输入3"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="效果演示"><a href="#效果演示" class="headerlink" title="效果演示"></a>效果演示</h2><h3 id="输入字符串"><a href="#输入字符串" class="headerlink" title="输入字符串"></a>输入字符串</h3><p>输入字符串ABCACCDAEAE，交互过程如下</p>
+<img src="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E5%AD%97%E7%AC%A6%E4%B8%B21.png" class title="This is an example image">
+
+<p>得到的所有字母及频数如下</p>
+<img src="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E5%AD%97%E7%AC%A6%E4%B8%B22.png" class title="This is an example image">
+
+<p>得到的每个字符的编码规则及带权路径等如下</p>
+<img src="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E5%AD%97%E7%AC%A6%E4%B8%B23.png" class title="This is an example image">
+
+<p>接着编码、解码及退出如下</p>
+<p>可以看到正常的完成了需要的功能。</p>
+<h3 id="输入字符及频数"><a href="#输入字符及频数" class="headerlink" title="输入字符及频数"></a>输入字符及频数</h3><p>不忘初心，牢记使命。</p>
+<p>这个博客开始的地方就是这道错题，请这位选手回到讲台。</p>
+<img src="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E7%89%9B%E5%AE%A2%E9%A2%98%E7%9B%AE.png" class title="This is an example image">
+
+<p>我们开始用程序来做这一道题</p>
+<p>交互方式如下</p>
+<img src="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E5%AD%97%E7%AC%A6%E9%A2%91%E6%95%B01.png" class title="This is an example image">
+
+<p>那么结果应该为！</p>
+<img src="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E5%AD%97%E7%AC%A6%E9%A2%91%E6%95%B02.png" class title="This is an example image">
+
+<p>所以答案选A！</p>
+<img src="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/%E5%AD%97%E7%AC%A6%E9%A2%91%E6%95%B03.png" class title="This is an example image">
+
+<h3 id="小彩蛋"><a href="#小彩蛋" class="headerlink" title="小彩蛋"></a>小彩蛋</h3><p>输入字符及频数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">a <span class="number">1</span></span><br><span class="line">b <span class="number">1</span></span><br><span class="line">h <span class="number">1</span></span><br><span class="line">e <span class="number">1</span></span><br><span class="line">i <span class="number">2</span></span><br><span class="line">j <span class="number">1</span></span><br><span class="line">o <span class="number">1</span></span><br><span class="line">u <span class="number">2</span></span><br><span class="line">y <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>二进制码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">01110101011111101001100000011110101</span></span><br></pre></td></tr></table></figure>
+
+<p>答案在文章最后</p>
+<p>输入字符及频数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">a <span class="number">1</span></span><br><span class="line">e <span class="number">2</span></span><br><span class="line">f <span class="number">3</span></span><br><span class="line">h <span class="number">2</span></span><br><span class="line">i <span class="number">1</span></span><br><span class="line">j <span class="number">1</span></span><br><span class="line">n <span class="number">2</span></span><br><span class="line">p <span class="number">2</span></span><br><span class="line">s <span class="number">1</span></span><br><span class="line">v <span class="number">1</span></span><br><span class="line">y <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>二进制码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">111111111011101010010010100111011100001000111000000001101</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><p>从不太了解哈夫曼树，到查阅博客，自己编写哈夫曼树的类，遇到问题，在leetcode和左神算法笔记中寻找方法，不断调试，踩坑，添加功能，到最后马马虎虎完成了自己要求的功能，也许其中还有很多考虑的不够周到的地方，但因为自己的好奇心去实现一个功能，确实是一件很有意思的事情。</p>
+<h2 id="彩蛋"><a href="#彩蛋" class="headerlink" title="彩蛋"></a>彩蛋</h2><p>彩蛋1：</p>
+<p>字符编码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">A:<span class="number">000</span> </span><br><span class="line">B:<span class="number">010</span> </span><br><span class="line">U:<span class="number">101</span> </span><br><span class="line">E:<span class="number">1111</span> </span><br><span class="line">H:<span class="number">011</span> </span><br><span class="line">Y:<span class="number">001</span> </span><br><span class="line">I:<span class="number">110</span> </span><br><span class="line">J:<span class="number">100</span> </span><br><span class="line">O:<span class="number">1110</span></span><br></pre></td></tr></table></figure>
+
+<p>二进制码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">01110101011111101001100000011110101</span></span><br></pre></td></tr></table></figure>
+
+<p>答案：</p>
+<p>HUBEIJIAYOU</p>
+<p>彩蛋2：</p>
+<p>字符编码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">P:<span class="number">000</span> </span><br><span class="line">A:<span class="number">1100</span> </span><br><span class="line">S:<span class="number">1001</span> </span><br><span class="line">E:<span class="number">010</span> </span><br><span class="line">V:<span class="number">1010</span> </span><br><span class="line">F:<span class="number">111</span> </span><br><span class="line">H:<span class="number">001</span> </span><br><span class="line">I:<span class="number">1000</span> </span><br><span class="line">Y:<span class="number">1101</span> </span><br><span class="line">J:<span class="number">1011</span> </span><br><span class="line">N:<span class="number">011</span></span><br></pre></td></tr></table></figure>
+
+<p>对应的二进制码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">111111111011101010010010100111011100001000111000000001101</span></span><br></pre></td></tr></table></figure>
+
+<p>答案：</p>
+<p>FFFNVSHENJIEHAPPY</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="未名Hugh">
+      <meta itemprop="description" content="技术博客，Java，Spring Boot，并发编程，网络编程">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="未名的奇妙旅程">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/" class="post-title-link" itemprop="url">JavaSE知识整理</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-03 22:00:20" itemprop="dateCreated datePublished" datetime="2020-03-03T22:00:20+08:00">2020-03-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-05 20:53:18" itemprop="dateModified" datetime="2020-03-05T20:53:18+08:00">2020-03-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaSE/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaSE</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Java基础"><a href="#Java基础" class="headerlink" title="Java基础"></a>Java基础</h1><h2 id="Java基本语法、特性"><a href="#Java基本语法、特性" class="headerlink" title="Java基本语法、特性"></a>Java基本语法、特性</h2><h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><h3 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h3><h3 id="流程控制语句"><a href="#流程控制语句" class="headerlink" title="流程控制语句"></a>流程控制语句</h3><h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><h4 id="main方法"><a href="#main方法" class="headerlink" title="main方法"></a>main方法</h4><p>public static void main(String[] args)</p>
+<p>main方法是Java程序的入口，public表示任何类和对象可以访问，static表示方法随类而加载，可使用类名来调用，void表明没有返回值，main为JVM识别的特殊方法名，不是关键字。字符串数组args可以用来输入参数。main为最先加载的方法（不一定最先执行），因此需要被静态调用。</p>
+<p>是否有其他写法？</p>
+<p>public与static可以交换顺序，也可以定义为final，也可以用synchronized来修饰main方法。</p>
+<h4 id="在main方法执行前输出"><a href="#在main方法执行前输出" class="headerlink" title="在main方法执行前输出"></a>在main方法执行前输出</h4><p>可以使用静态代码块，静态代码块在类加载时被调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">	<span class="keyword">static</span>&#123;</span><br><span class="line">		Sout(<span class="string">"Hello1"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	main()&#123;</span><br><span class="line">		Sout(<span class="string">"Hello2"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h2><h3 id="static"><a href="#static" class="headerlink" title="static"></a>static</h3><h3 id="final"><a href="#final" class="headerlink" title="final"></a>final</h3><h3 id="this"><a href="#this" class="headerlink" title="this"></a>this</h3><h2 id="面向对象"><a href="#面向对象" class="headerlink" title="面向对象"></a>面向对象</h2><h3 id="面向对象思想"><a href="#面向对象思想" class="headerlink" title="面向对象思想"></a>面向对象思想</h3><h3 id="匿名对象"><a href="#匿名对象" class="headerlink" title="匿名对象"></a>匿名对象</h3><h3 id="封装"><a href="#封装" class="headerlink" title="封装"></a>封装</h3><h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h3><h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><h3 id="多态"><a href="#多态" class="headerlink" title="多态"></a>多态</h3><h3 id="抽象类"><a href="#抽象类" class="headerlink" title="抽象类"></a>抽象类</h3><h3 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h3><h3 id="内部类"><a href="#内部类" class="headerlink" title="内部类"></a>内部类</h3><h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><h3 id="List与Set"><a href="#List与Set" class="headerlink" title="List与Set"></a>List与Set</h3><p>Collection下有List、Set和Queue，重点说明List与Set的区别。</p>
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/list%E4%B8%8Eset.png" class title="This is an example image">
+
+<p>一、特点</p>
+<p>按照特点来看</p>
+<ul>
+<li>List：元素有序（存入和取出顺序一致），可以索引（角标）操作元素，元素可以重复</li>
+<li>Set：元素不能重复，无序</li>
+</ul>
+<p>二、种类</p>
+<ul>
+<li><p>List</p>
+<ul>
+<li>底层是数组，查询快，增删慢<ul>
+<li>Vector，线程安全，效率低</li>
+<li>ArrayList，线程不安全，效率高</li>
+</ul>
+</li>
+<li>底层是链表，查询慢，增删快<ul>
+<li>LinkedList，线程不安全，效率高</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Set</p>
+<ul>
+<li><p>底层是哈希表</p>
+<p>HashSet，保证元素唯一性，存入的类需要覆写hashcode()和equals()方法</p>
+<p>先判断hashcode()，再判断equals()</p>
+</li>
+<li><p>底层是二叉树</p>
+<p>TreeSet，保证元素排序，两种排序方式，比较器优先使用</p>
+<ul>
+<li>自然顺序，让对象所属的类实现Compareble接口，覆盖compareTo()方法，无参构造</li>
+<li>让集合自身具备比较功能，比较器实现Comparator接口，覆盖compare()方法</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>其中，Vector虽安全，但不适用于高并发。HashSet底层为HashMap，在add元素时，以键的形式放入，值为PRESENT。TreeSet的核心在排序，不排序用HashSet。TreeSet有两种排序方式，方式一是被排序类实现Compareble接口（实现equals()、hashcode()、compareTo()方法），方式二为传入比较器，比较器需要实现Comparator接口（实现compare()方法）。TreeSet底层为TreeMap，两种排序方式比较器优先级较高。</p>
+<h3 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h3><p>HashMap为Java中非常重要和常用的一种数据结构，下面将重点介绍HashMap的底层原理及方法实现。</p>
+<p>Java8以前：数组+链表</p>
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E9%93%BE%E8%A1%A8hash.png" class title="This is an example image">
+
+<p>操作为非同步，效率较高。<strong>数组默认16</strong>，存储链表头节点，数组位置的获得方式是hash(key.hashCode())%len，计算键的哈希值再算出%数组长度的值。实际中通过位运算来实现。其中数组的类型为Entry&lt;K,V&gt;，当发生哈希冲突时，则将数组中的Entry设置为新值的next，新值放在数组中，旧值在新值的链表上。</p>
+<p>最坏的情况下，链表会集中在一个数组，这样查找的时间复杂度从O(1)变为O(n)。</p>
+<p>Java8及以后：链表+数组+红黑树</p>
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E7%BA%A2%E9%BB%91%E6%A0%91hash.png" class title="This is an example image">
+
+<p>当数组中某个位置链表长度大于TREEIFY_THRESHOLD常量时，链表转换为红黑树，最坏情况下的性能从O(n)提高到O(logn)。数组类型变为Node，当链表大小<strong>超过</strong>TREEIFY_THRESHOLD（<strong>默认是8</strong>）时，链表被改造成红黑树。当红黑树元素被删除<strong>低于</strong>UNTREEIFY_THRESHOLD（<strong>默认是6</strong>）时，红黑树被转成链表。HashMap在首次使用时才被初始化，可以扩容，当插入一个元素，若对应位置数组没有元素，则新建；如果有，则判断是树还是链表，按照相应方式插入。若链表元素超过阈值，则树化；若插入值的键重复，就更新值。</p>
+<h4 id="put方法"><a href="#put方法" class="headerlink" title="put方法"></a>put方法</h4><p>HashMap的put方法逻辑是：</p>
+<ol>
+<li>若HashMap未被初始化 ，进行初始化</li>
+<li>对key求hash值，计算下标</li>
+<li>如果没有碰撞，直接放入桶中</li>
+<li>如果碰撞了，以链表的方式链接到 后面</li>
+<li>如果链表长度超过阈值（8），把链表转成红黑树</li>
+<li>如果链表的长度低于6，把红黑树转成链表</li>
+<li>如果key对应节点存在，替换旧值</li>
+<li>如果桶满了（容量16*负载因子0.75），需要resize（扩容2倍重排）</li>
+</ol>
+<h4 id="get方法"><a href="#get方法" class="headerlink" title="get方法"></a>get方法</h4><p>先计算hash值找到对应的桶，然后在链表或者红黑树中通过equals方法找到对应的节点，找到值并返回。</p>
+<h4 id="扩容resize-方法"><a href="#扩容resize-方法" class="headerlink" title="扩容resize()方法"></a>扩容resize()方法</h4><p>在构造哈希表时，若不指明初始大小，默认为16，若大小达到了容量16*负载因子0.75，用大数组去替代小数组，重新调整hashmap大小为原来2倍，比较耗时。</p>
+<ul>
+<li>在多线程环境下，调整大小会存在条件竞争，容易造成<strong>死锁</strong></li>
+<li>rehashing是一个比较耗时的过程</li>
+</ul>
+<h4 id="如何减少碰撞"><a href="#如何减少碰撞" class="headerlink" title="如何减少碰撞"></a>如何减少碰撞</h4><ul>
+<li><p>使用扰动函数：促使元素位置分布均匀，减少碰撞几率</p>
+</li>
+<li><p>使用final对象，并采用合适的equals()和hashCode()方法</p>
+<p>使用String、Integer等类作为键很好，防止键值改变，放入和获取到的键不一样，就不能获取到</p>
+</li>
+</ul>
+<p>哈希散列的过程：可以看到<strong>hashmap允许键为null</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> h;</span><br><span class="line">	<span class="keyword">return</span> (key == <span class="keyword">null</span>) ? <span class="number">0</span> : (h=key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将hashCode右移16位，去除低位，与原数据异或，混合原始哈希码的高位和低位，加大低位随机性，散列更均匀，计算下标使用(数组长度-1)&amp;hash，数组长度总为2^n（传入值时替换为最接近2的n次方的值），等价于对长度取模，效率更高。    </p>
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/hash%E6%95%A3%E5%88%97.png" class title="This is an example image">
+
+<h4 id="Dos攻击"><a href="#Dos攻击" class="headerlink" title="Dos攻击"></a>Dos攻击</h4><p>在JDK7以前，如果对方知道我方使用哈希算法，可以发送大量哈希值相同的请求来导致严重的哈希碰撞，然后不停访问这些key就可以显著影响服务器的性能（大量占用CPU），这样形成了一次拒绝服务供给（DoS）。这样将最坏性能从O（N）优化至O（logN），有较大的改善。</p>
+<p>那么怎么进一步处理呢？</p>
+<ol>
+<li>限制POST和GET请求参数个数</li>
+<li>限制POST请求的请求体大小</li>
+<li>Web Application FireWall（WAF）</li>
+</ol>
+<p>对于JDK7，HashMap会动态的使用一个专门的TreeMap实现来替换掉它。</p>
+<h4 id="多线程下的HashMap"><a href="#多线程下的HashMap" class="headerlink" title="多线程下的HashMap"></a>多线程下的HashMap</h4><p>由于HashMap不是线程安全的，在多线程下会出现问题，有</p>
+<ul>
+<li><p>多线程put操作后，get操作导致死循环</p>
+<p>rehash时容易出现环状链表</p>
+</li>
+<li><p>多线程put非null元素后，get操作得到null值</p>
+</li>
+<li><p>多线程put操作，导致元素丢失</p>
+</li>
+</ul>
+<h4 id="红黑树"><a href="#红黑树" class="headerlink" title="红黑树"></a>红黑树</h4><blockquote>
+<p>引用自博客<code>https://my.oschina.net/hosee/blog/618828</code></p>
+</blockquote>
+<p>要了解红黑树是什么，为什么要有红黑树。</p>
+<p>红黑树是二叉查找树，不同的是在每个结点上增加一个存储位来表示颜色，Red或Black。而红黑树的特点是通过对任何一条从根到叶子的路径上各个结点的着色方式的限制，红黑树确保没有一条路径比其他路径长出两倍，树是接近平衡的。</p>
+<p>二叉查找树简单理解是：</p>
+<ul>
+<li>若有左子树，则左子树上所有结点的值均小于根节点值 </li>
+<li>若有右子树，则右子树上所有结点的值均大于根节点值</li>
+<li>任意节点的左、右子树分别为二叉查找树</li>
+<li>没有键值相等的节点</li>
+</ul>
+<p>一般普通的二叉查找树高度为log(N)，但如果二叉查找树退化为一个链表，最坏时间会变成O（N）,那么红黑树如何保证树相对平衡呢？介绍其5个性质：</p>
+<ol>
+<li>每个节点要么红、要么黑</li>
+<li>根节点是黑</li>
+<li>叶节点是黑的</li>
+<li>若一个节点是红，两个儿子都是黑的（不存在两个连续的红色节点）</li>
+<li>对任意节点，其到叶节点尾端指针的每条路径都包含相同数目的黑节点</li>
+</ol>
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E7%BA%A2%E9%BB%91%E6%A0%91%E5%9B%BE.png" class title="This is an example image">
+
+<p>数学证明红黑树的操作时间复杂度最差为O(logN)。</p>
+<h4 id="HashMap与HashTable"><a href="#HashMap与HashTable" class="headerlink" title="HashMap与HashTable"></a>HashMap与HashTable</h4><p>因为HashMap在多线程下不安全，而线程安全的类有HashTable，其线程安全原因是使用了synchronized修饰符，锁为调用者的this，与Collections.synchronizedMap(hashMap)几乎无区别，只是锁不一样，synchronizedMap锁为Object类的mutex，hashMap方法均用synchronized(mutex)加锁。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Hashtable</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">Dictionary</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;, <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> V <span class="title">get</span><span class="params">(Object key)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> V <span class="title">put</span><span class="params">(K key, V value)</span> </span>&#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但HashTable在多线程下效率较低，因此又引入了ConcurrentHashMap。</p>
+<h4 id="HashMap与ConcurrentHashMap"><a href="#HashMap与ConcurrentHashMap" class="headerlink" title="HashMap与ConcurrentHashMap"></a>HashMap与ConcurrentHashMap</h4><p>那么该如何优化HashTable呢？</p>
+<p><strong>通过锁细粒度化，将整锁拆解成多个锁进行优化</strong>。</p>
+<p>早期的ConcurrentHashMap通过分段锁Segment实现</p>
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/segment.png" class title="This is an example image">
+
+<p>在HashMap的基础上，外面多了一层数组结构，有多个Segment（一种可重入锁），每个Segment中有多段数据（HashEntry），当一个线程占用一个锁时，位于此Segment上的其他数据也可以被访问到。默认分配<strong>16</strong>个Segment，理论上比HashTable效率高16倍。将HashMap的table数组逻辑上拆分为多个子数组，每个子数组配置一个Segment，线程只有在获取到某把分段锁后，才能获取到其中的子数组，其他没有该Segment的线程访问其中数据被阻塞，而访问没有被Segment锁住的数据不会被阻塞。</p>
+<p>而当前的ConcurrentHashMap，使用CAS+Synchronized使锁更细化</p>
+<h1 id="Java高级"><a href="#Java高级" class="headerlink" title="Java高级"></a>Java高级</h1>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -236,7 +707,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-03 20:48:19" itemprop="dateModified" datetime="2020-03-03T20:48:19+08:00">2020-03-03</time>
+                <time title="修改时间：2020-03-05 23:33:51" itemprop="dateModified" datetime="2020-03-05T23:33:51+08:00">2020-03-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -320,7 +791,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-03 09:56:50" itemprop="dateModified" datetime="2020-03-03T09:56:50+08:00">2020-03-03</time>
+                <time title="修改时间：2020-03-06 10:56:05" itemprop="dateModified" datetime="2020-03-06T10:56:05+08:00">2020-03-06</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -345,7 +816,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="OJ处理技巧"><a href="#OJ处理技巧" class="headerlink" title="OJ处理技巧"></a>OJ处理技巧</h2><p>类名为public class Main</p>
+          <h1 id="OJ处理技巧"><a href="#OJ处理技巧" class="headerlink" title="OJ处理技巧"></a>OJ处理技巧</h1><p>类名为public class Main</p>
 <p>较好的做法是将要用到的类都封装好，不要放在Main类中，主类只需要持有要用到的类的对象，然后调用即可。</p>
 <p>StringBuilder类的append方法，res.append(str1).append(str2)比res.append(str1+str2)效率高。</p>
           <!--noindex-->
@@ -840,7 +1311,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-03 21:07:34" itemprop="dateModified" datetime="2020-03-03T21:07:34+08:00">2020-03-03</time>
+                <time title="修改时间：2020-03-05 20:03:24" itemprop="dateModified" datetime="2020-03-05T20:03:24+08:00">2020-03-05</time>
               </span>
 
           
@@ -886,89 +1357,12 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2019/12/29/markdown%E4%BD%BF%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，Spring Boot，并发编程，网络编程">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/12/29/markdown%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">markdown使用</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-12-29 11:04:12" itemprop="dateCreated datePublished" datetime="2019-12-29T11:04:12+08:00">2019-12-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-03 16:49:03" itemprop="dateModified" datetime="2020-03-03T16:49:03+08:00">2020-03-03</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="markdown在hexo中使用"><a href="#markdown在hexo中使用" class="headerlink" title="markdown在hexo中使用"></a>markdown在hexo中使用</h1><h2 id="markdown工具"><a href="#markdown工具" class="headerlink" title="markdown工具"></a>markdown工具</h2><h3 id="个人使用工具：Typora"><a href="#个人使用工具：Typora" class="headerlink" title="个人使用工具：Typora"></a>个人使用工具：<strong>Typora</strong></h3><ol>
-<li>基于Windows下载</li>
-<li>偏好设置 </li>
-</ol>
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><h3 id="部署步骤"><a href="#部署步骤" class="headerlink" title="部署步骤"></a>部署步骤</h3><p>​    博客部署至远端</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo deploy -g</span><br></pre></td></tr></table></figure>
-
-<p>​    将hexo文件夹源代码（写作所在文件夹）push至github仓库</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m “message”</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/12/29/markdown%E4%BD%BF%E7%94%A8/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
 
 
 
@@ -1035,20 +1429,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1090,7 +1484,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共117.5k字</span>
+  <span class="post-count">博客全站共133.4k字</span>
 </div>
         
 
