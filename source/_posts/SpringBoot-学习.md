@@ -609,7 +609,7 @@ github.redirect.uri = http://localhost:8887/callback
 ​	在callback()方法中增加参数 **HttpServletRequest request**，在接收到user后写上判断语句
 
 ~~~java
-if(user != null){
+		if(user != null){
             //登录成功，写cookie和session
             //将user对象放入session，框架集成，前端有了银行卡
             request.getSession().setAttribute("user",user);
@@ -1210,6 +1210,12 @@ body{
 </div>
 ```
 
+为了在发布界面点击未名社区可以跳转回主页，在a标签中增加href为根目录
+
+~~~html
+<a class="navbar-brand" href="/">未名社区</a>
+~~~
+
 ## 发布文章
 
 ### 创建Table，存储发布者数据
@@ -1430,6 +1436,189 @@ public interface QuestionMapper {
 
 因此接下来需要将发布的问题显示在首页中。
 
+### 添加Lombok支持
+
+分析理想的社区界面，发现发布界面中有头像的显示，而之前创建的用户信息数据库中是没有头像的，因此需要创建数据库脚本去添加这一栏。添加信息为图片的url，类型为varchar(100)，sql语言如下
+
+~~~sql
+alter table USER add avatar_url varchar(100);
+~~~
+
+新建文件V4__Add_avatar_url_to_user_table.sql，将上述sql语句复制，然后执行`mvn flyway:migrate。
+
+在model.User类中添加图像地址信息。
+
+~~~java
+    private String avatarUrl;
+~~~
+
+然后再添加其getter和setter方法，但这样非常麻烦。使用[Lombok](https://projectlombok.org/)。添加其maven依赖即可。
+
+~~~xml
+	<dependency>
+		<groupId>org.projectlombok</groupId>
+		<artifactId>lombok</artifactId>
+		<version>1.18.12</version>
+		<scope>provided</scope>
+	</dependency>
+~~~
+
+> Lombok是一个可以通过简单的注解形式来帮助我们简化消除一些必须有但显得很臃肿的Java代码的工具，通过使用对应的注解，可以在编译源码的时候生成对应的方法。
+
+查阅其文档可知，其`@Data`注解可以自动生成getter和setter方法。然后`ctrl+shift+n`回到User类中，删掉其getter和setter方法，然后在类名上方加入`@Data`注解。同样将Question类、AccessTokenDTO类、GithubUser类中的getter与setter方法删掉。
+
+> 当只有几个类的时候并没有必要使用，但是因为类很多，创建频繁，才需要此功能
+>
+> 设计思想：必要时才用
+
+这时候，因为User信息被改动了，因此在UserMapper中添加相应的信息如下，UserMapper作用是将User信息插入到数据库中。
+
+~~~sql
+ @Insert("insert into user (name,account_id,token,gmt_create,gmt_modified,avatar_url) values (#{name},#{accountId},#{token},#{gmtCreate},#{gmtModified},#{avatarUrl})")
+    void insert(User user);
+~~~
+
+那么如何获取头像的url值呢？
+
+之前获取到user信息是从Github的API获取 ，因此仍然从API网页获取`https://api.github.com/users/用户名`
+
+可以从页面中看到，其中有avatar_url这一栏，给出了头像的url信息。
+
+此时需要在GithubUser中添加avatar_url信息，这样现在的GithubUser属性如下
+
+~~~java
+    private String name;
+    private long id;
+    private String bio;
+    private String avatar_url;
+~~~
+
+而githunUser获取到了头像的url后，需要在`AuthorizeController`类中将值传给User类
+
+~~~java
+user.setAvatarUrl(githubUser.getAvatar_url());
+~~~
+
+遇到的问题：写了@Data注解，但是在`AuthorizeController`类中无法获取到GithubUser和User类中的getter和setter方法，后查询是因为IDEA没有下载LomBok插件，解决方法是在Plugins插件设置中设置HTTP属性，在cmd中利用`ipconfig`来获取本机的IP地址填入，然后重启IDEA即可解决。
+
+为了验证，将cookies全部删掉，但在IndexController和PublishController中对cookies的处理没有加空值判断，现在加上，这样就避免了当cookies为空的时候报空指针异常。
+
+~~~java
+        if (cookies != null && cookies.length != 0)
+            for (Cookie cookie : cookies) {
+                if ("token".equals(cookie.getName())) {
+                    String token = cookie.getValue();
+                    User user = userMapper.findByToken(token);
+                    if (user != null) {
+                        request.getSession().setAttribute("user", user);
+                    }
+                    break;
+                }
+            }
+~~~
+
+这样便可以获取用户的头像url了。
+
+### 完成首页问题列表
+
+首页的问题列表界面与发布问题的界面类似，因此可以直接拷贝publish界面下半部分至index页面。
+
+{% asset_img 主页问题展示.png This is an example image %}
+
+其中右边部分为热门话题，进行文字修改。
+
+对于左边部分，在bootstrap官网找对应的icon。在html中将对应的class修改为网站所给，左边部分的tag先不管，而每个人的发布的框框与媒体对象比较类似，如下图所示
+
+{% asset_img 媒体对象.png This is an example image %}
+
+其对应的代码为
+
+~~~html
+<div class="media">
+  <div class="media-left">
+    <a href="#">
+      <img class="media-object" src="..." alt="...">
+    </a>
+  </div>
+  <div class="media-body">
+    <h4 class="media-heading">Media heading</h4>
+    ...
+  </div>
+</div>
+~~~
+
+将form表单部分替换掉。将src部分用之前获取到的自己的头像url去实验以此来快速看效果。这时候显示效果如下
+
+{% asset_img 大头像.png This is an example image %}
+
+虽然样式没有问题，但头像的大小需要设置，调试的最快的方式是对着页面要看的元素点击检查，然后在element.style中敲入想要的大小，注意需要加上单位，如果直接写width:40会出错，因为没有单位，要加上px，这样就可以看到头像变小了。也可以点击40px，然后用鼠标滑轮去控制。
+
+{% asset_img 小头像.png This is an example image %}
+
+如果不想要头像变成方的显示，可以在bootstrap中寻找，在全局CSS样式-图片中有3种显示方式，主要是设置其class属性，追加到图片url的class处
+
+~~~html
+<img class="media-object img-rounded" src="图片地址">
+~~~
+
+同时要对头像的大小进行更改，在community.css中，增加media-object的样式
+
+~~~css
+.media-object{
+    width: 40px;
+    height: 40px;
+}
+~~~
+
+但是对网页样式并没有影响。原因是没有添加css引用。
+
+~~~html
+    <link rel="stylesheet" href="../static/css/community.css">
+~~~
+
+然后添加回复数，浏览和时间。文字直接复制，样式可以通过网页获取。将文字的样式进行拷贝至community.css样式中
+
+~~~css
+.text-desc {
+    font-size: 12px;
+    font-weight: normal;
+    color: #999;
+}
+~~~
+
+在index页面中将文字放入span，class为text-desc
+
+~~~html
+<span class="text-desc">3 个评论 • 294 次浏览 • 2 天前</span>
+~~~
+
+在页面上可以显示后，需要在服务端获取信息显示在网页上。存在edge浏览器显示正常，chrome浏览器CSS样式 显示失效的问题。
+
+接下来解决从服务器获取数据的问题，在indexController返回index页面前获取信息，可以利用model.addAttribute将信息写入到前端中。需要注入questionMapper，并在QuestionMapper中list方法，用于显示。并注入Model，用于向前端注入信息。
+
+~~~java
+    @Autowired(required = false)
+    private QuestionMapper questionMapper;
+
+	//IndexContrller前面部分省略
+	List<Question> questionList = questionMapper.list();
+    return "index";
+~~~
+
+QuestionMapper中list方法用到查询语句。
+
+但是问题是questionMapper中没有需要的头像信息，在question表中有creator信息，与user表关联，这样才能拿到头像信息。为了在两个表之间传输信息，在dto传输层再新建一个类，与Question类其他一样，只是多了一个User对象，因此在返回的时候，要返回QuestionDTO，但是问题是questionMapper是针对question类的，而不是user，因此不能返回user相关的信息，需要再提炼出一层service模型。
+
+在service包下新建QuestionService，并增加`@Service`注解，这时候可以组装使用questionMapper和UserMapper，起组装作用，这个中间层习惯性叫为Service。因此在IndexController中将持有的questionMapper替换为questionService。在questionService中新建list方法，需要依赖questionMapper和userMapper，先利用questionMapper获取List，然后循环List，在每个question中通过userMapper，新建一个方法findById，利用question的creator信息去获取user。
+
+~~~java
+    //userMapper中的findById方法
+    @Select("select * from user where id = #{id}")
+    User findById(@Param("id") Integer id);
+~~~
+
+然后将question转为questionDTO，使用Spring的工具类快速将question中需要的信息拷贝至questionDTO中（通过反射进行复制）。
+
 # Spring知识总结
 
 ## 注解
@@ -1454,13 +1643,21 @@ public interface QuestionMapper {
 
    > @Value(“${string}”)，在配置文件中读取key为string的value
 
+6. Data
+
+   > @Data LomLok注解，自动生成类中的getter和setter方法
+
+7. Service
+
+   > 
+
 ## 基础
 
 - 在类和类之间传输用DTO，在数据库中使用model
 
 # 快捷键技巧
 
-### IDEA快捷键
+## IDEA快捷键
 
 - ctrl + P：提示输入参数类型
 - ctrl + shift+n 快速**查找**文件
@@ -1469,18 +1666,19 @@ public interface QuestionMapper {
 - alt + 鼠标左键按住拖动，实现对多行的批量修改
 - alt + insert 提示创建get和set
 - 选中指定部分，alt + 回车，引入jar包
-- ctrl + alt + v 选中new Class，快速创建其变量
+- **ctrl + alt + v** 选中new Class，快速创建其变量
 - 按住shift + 回车 自动换到当前光标的下一行
 - ctrl + e 切回最近的一个访问窗口
 - 右键Git/history，可以看到历史提交信息时当前目录的情况
 - shift+F6 将所有同名变量更名
-- 变量.for 完成对某变量的for循环
+- **变量.for** 完成对某变量的for循环
 - alt+回车 修复
 - 右键Git revert，将某个文件还原至Git提交状态
 - ctrl+w同时选中上下层
 - ctrl+alt+l 简单格式化
+- iter 快速生成foreach循环
 
-### 其他快捷键
+## 其他快捷键
 
 - ctrl+shift+n 打开新的匿名窗口
 
