@@ -205,6 +205,179 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/03/08/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="未名Hugh">
+      <meta itemprop="description" content="技术博客，Java，Spring Boot，并发编程，网络编程">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="未名的奇妙旅程">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/08/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">设计模式</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-08 11:19:50" itemprop="dateCreated datePublished" datetime="2020-03-08T11:19:50+08:00">2020-03-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-09 10:00:00" itemprop="dateModified" datetime="2020-03-09T10:00:00+08:00">2020-03-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>为了学习设计模式，需要了解为什么要有设计模式，设计模式有哪些及设计模式在哪里得到了使用。下面将分别从以下方面进行介绍。</p>
+<h2 id="设计模式解决痛点"><a href="#设计模式解决痛点" class="headerlink" title="设计模式解决痛点"></a>设计模式解决痛点</h2><p>在编写软件的时候，人们会遇到多项挑战，如重用性、可读性、可靠性、耦合性、内聚性等，而设计模式就是人们将经常遇到的问题，总结而得到的比较通用的解决方式，可以让程序具有更好的以下特性：</p>
+<ul>
+<li>代码重用性：相同功能代码，不用多次编写</li>
+<li>可读性：编程更规范，便于其他人的阅读和理解（祖传奥利给山）</li>
+<li>可扩展性：需要增加新功能时，非常方便，可维护性好</li>
+<li>可靠性：增加新功能后，对原有功能没有影响</li>
+</ul>
+<p>这样程序具有高内聚、低耦合的特性。</p>
+<h2 id="设计模式七大原则"><a href="#设计模式七大原则" class="headerlink" title="设计模式七大原则"></a>设计模式七大原则</h2><p>那设计出了一种原则，如何知道这种设计原则是否真的规范呢？那么设计模式需要遵守一些原则，即设计设计模式的原则。以下列出了七大原则</p>
+<ul>
+<li>单一职责原则</li>
+<li>接口隔离原则</li>
+<li>依赖倒转原则</li>
+<li>里氏替换原则</li>
+<li>开闭原则</li>
+<li>迪米特法则</li>
+<li>合成复用原则</li>
+</ul>
+<h3 id="单一职责原则"><a href="#单一职责原则" class="headerlink" title="单一职责原则"></a>单一职责原则</h3><p>对类来说，一个类应该只负责一项职责（并不是只有一种方法），若A负责两个不同职责，如职责1与职责2，当职责1需求而改变A时，可能造成职责2的运行错误，因此需要将类A更细粒度分为类1与类2。</p>
+<h4 id="单一职责原则注意事项与细节"><a href="#单一职责原则注意事项与细节" class="headerlink" title="单一职责原则注意事项与细节"></a>单一职责原则注意事项与细节</h4><ol>
+<li>降低类的复杂度，一个类只复杂一项职责</li>
+<li>提高类的可读性，可 维护性</li>
+<li>降低变更引起的风险</li>
+<li>通常，应遵守单一职责原则，只有逻辑足够简单，才可以在代码级违反单一职责原则：只有类中方法足够少，才可以在方法级别保持单一职责原则</li>
+</ol>
+<h3 id="接口隔离原则"><a href="#接口隔离原则" class="headerlink" title="接口隔离原则"></a>接口隔离原则</h3><p>客户端不应该依赖它不需要的接口，即一个类对另一个类的依赖应建立在最小的接口上。</p>
+<p>如果，接口C中有2个方法，类B实现了接口C，类A依赖类B中的第1个方法(A中传入接口C类型对象，调用其中1个方法，依靠多态实现)，即C中的后一个方法A是不需要的。这样就违背了接口隔离原则。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">C</span></span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span> <span class="keyword">implements</span> <span class="title">C</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span></span>&#123;&#125;;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span></span>&#123;&#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">methodA</span><span class="params">(C c)</span></span>&#123;</span><br><span class="line">        c.method1();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">psvm&#123;</span><br><span class="line">    A a = <span class="keyword">new</span> A();</span><br><span class="line">    a.methodA(<span class="keyword">new</span> B());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>若要按照接口隔离原则处理，应该将接口C进行拆解，其中只要包含类A需要的方法即可。</p>
+<h3 id="依赖倒转原则"><a href="#依赖倒转原则" class="headerlink" title="依赖倒转原则"></a>依赖倒转原则</h3><ol>
+<li>高层模块不应该依赖底层模块，二者都应该依赖其抽象</li>
+<li>抽象不应该依赖细节，细节应该依赖抽象</li>
+<li>依赖倒转的中心思想是面向接口编程</li>
+<li>设计理念：相对于细节的多变性，抽象的东西更稳定。以抽象为基础搭建的架构比以细节为基础的架构要稳定的多。在Java中，抽象指接口或抽象类，细节就是具体的实现类</li>
+<li>使用接口或抽象类目的是指定好规范，不涉及具体的操作，把展现细节的任务交给实现类去实现。</li>
+</ol>
+<h4 id="依赖关系传递的三种方式"><a href="#依赖关系传递的三种方式" class="headerlink" title="依赖关系传递的三种方式"></a>依赖关系传递的三种方式</h4><p>如果类A要实现1个功能，定义一个抽象类具有此功能，类B实现此抽象类，然后类A中调用抽象类的方法，在传参的时候将B类传入即可。但是这种依赖关系的传递有三种方法：</p>
+<ol>
+<li>接口传递</li>
+<li>构造方法传递</li>
+<li>setter方法传递</li>
+</ol>
+<p>假设有一个接口如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Interface</span></span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于接口传递，即为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">methodA</span><span class="params">(Interface i)</span></span>&#123;</span><br><span class="line">        i.method();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//调用时</span></span><br><span class="line">psvm&#123;</span><br><span class="line">    A a = <span class="keyword">new</span> A();</span><br><span class="line">    a.methodA(<span class="keyword">new</span> B());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于构造方法传递</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> Interface i;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">A</span><span class="params">(Interface i)</span></span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.i = i;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">methodA</span><span class="params">()</span></span>&#123;</span><br><span class="line">        i.method();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//调用时</span></span><br><span class="line">psvm&#123;</span><br><span class="line">    A a = <span class="keyword">new</span> A(<span class="keyword">new</span> B());</span><br><span class="line">    a.methodA();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于setter方法传递</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> Interface i;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setter</span><span class="params">(Interface i)</span></span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.i = i;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">methodA</span><span class="params">()</span></span>&#123;</span><br><span class="line">        i.method();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//调用时</span></span><br><span class="line">psvm&#123;</span><br><span class="line">    A a = <span class="keyword">new</span> A();</span><br><span class="line">    a.setter(<span class="keyword">new</span> B());</span><br><span class="line">    a.methodA();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>总结：如果要依赖一个接口，需要持有其对象，可以选择在方法调用时接收，也可以选择在此类中持有个私有的接口引用，然后通过构造函数或者setter方法去获取其实例化对象。</p>
+<h4 id="依赖倒转原则的注意事项和细节"><a href="#依赖倒转原则的注意事项和细节" class="headerlink" title="依赖倒转原则的注意事项和细节"></a>依赖倒转原则的注意事项和细节</h4><ol>
+<li>低层模块尽量都要有抽象类或接口，或者两者都有，程序稳定性更好</li>
+<li>变量的声明类型尽量是抽象类或接口，这样变量引用和实际对象间，就存在一个缓冲层，利于程序扩展和优化</li>
+<li>继承时遵循里氏替换原则</li>
+</ol>
+<h3 id="里氏替换原则"><a href="#里氏替换原则" class="headerlink" title="里氏替换原则"></a>里氏替换原则</h3><p>继承性的思考和说明</p>
+<ol>
+<li>继承包含的含义：父类中已经实现好的方法，实际上在设定规范和契约，虽然它不强制要求所有的子类必须要遵守这些契约，但如果子类对这些已经实现的方法任意修改，会对整个继承体系造成破坏</li>
+<li>继承在给程序设计带来便利的同时，也带来了弊端。如使用继承会给程序带来侵入性，程序的可移植性降低，增加了对象间的耦合性。若一个类被其他类所继承，则当这个类要修改时，必须考虑到所有的子类，并且父类修改后，所有涉及到子类的功能都有可能产生故障</li>
+<li>因此在编程中为了正确的使用继承，应该考虑里氏替换原则</li>
+</ol>
+<h4 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h4><ol>
+<li>里氏替换原则在1988年由姓里的女士提出</li>
+<li>所有引用积累的地方必须能透明地使用其子类的对象</li>
+<li>在使用继承时，遵循里氏替换原则，<strong>在子类中尽量不要重写父类的方法</strong></li>
+<li>里氏替换原则告诉我们，继承实际上增强了两个类的耦合性，在适当的情况下，可以通过聚合、组合、依赖来降低耦合</li>
+</ol>
+<h4 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h4><p>若子类修改了父类的方法，让原来的父类和子类都继承一个更通俗的积累，原有的继承关系去掉，采用依赖、聚合、组合等关系替代。</p>
+<h3 id="开闭原则"><a href="#开闭原则" class="headerlink" title="开闭原则"></a>开闭原则</h3><h4 id="基本介绍-1"><a href="#基本介绍-1" class="headerlink" title="基本介绍"></a>基本介绍</h4><ol>
+<li>开闭原则是编程中最基础、最重要的设计原则</li>
+<li>一个软件实体如类，模块和函数应该对<strong>扩展开放</strong>（对提供方），对<strong>修改关闭</strong>（对使用方），<strong>用抽象构建框架</strong>，<strong>用实现扩展细节</strong></li>
+<li>当软件需要变化时，尽量通过扩展软件实体的行为来实现变化，而不是通过修改已有的代码来实现变化</li>
+<li>编程中遵守其他 原则，以及使用设计模式的目的就是遵循开闭原则</li>
+</ol>
+<h3 id="迪米特法则"><a href="#迪米特法则" class="headerlink" title="迪米特法则"></a>迪米特法则</h3><h4 id="基本介绍-2"><a href="#基本介绍-2" class="headerlink" title="基本介绍"></a>基本介绍</h4><ol>
+<li>一个对象应该对其他对象保持最少的了解</li>
+<li>类与类关系越密切，耦合度越大</li>
+<li>迪米特法则又叫<strong>最少知道原则</strong>，即一个类对自己依赖的类知道的越少越好，也就是对于被依赖的类不管多么复杂，都尽量将逻辑封装在类的内部。对外除了提供的public方法，不对外泄漏任何信息</li>
+<li>迪米特法则更简单定义：只与直接的朋友通信</li>
+<li>朋友关系：只要两个对象之间有耦合关系，这两个对象就是朋友关系。直接朋友：出现成员变量，方法参数，方法返回值中的类；非直接朋友：出现在局部变量中的类。陌生的类最好不要以局部变量的形式出现在类的内部</li>
+</ol>
+<h4 id="注意事项和细节"><a href="#注意事项和细节" class="headerlink" title="注意事项和细节"></a>注意事项和细节</h4><ol>
+<li>迪米特法则的核心是降低类之间的耦合</li>
+<li>但是由于每个类都减少了不必要的依赖，因此迪米特法则只是要求降低类间（对象间）耦合关系，并不是要求完全没有依赖关系</li>
+</ol>
+<h3 id="合成复用原则"><a href="#合成复用原则" class="headerlink" title="合成复用原则"></a>合成复用原则</h3><h4 id="基本介绍-3"><a href="#基本介绍-3" class="headerlink" title="基本介绍"></a>基本介绍</h4><p>原则是尽量使用合成/聚合的方式，而不是使用继承</p>
+<h3 id="设计原则核心思想"><a href="#设计原则核心思想" class="headerlink" title="设计原则核心思想"></a>设计原则核心思想</h3><ol>
+<li>找出应用中可能需要变化之处，把它们独立出来，不要和那些不需要变化的代码混在一起</li>
+<li>针对接口编程，而不是针对实现编程</li>
+<li>为了交互对象之间的松耦合设计而努力</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -316,7 +489,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-05 20:53:18" itemprop="dateModified" datetime="2020-03-05T20:53:18+08:00">2020-03-05</time>
+                <time title="修改时间：2020-03-10 22:23:56" itemprop="dateModified" datetime="2020-03-10T22:23:56+08:00">2020-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -341,149 +514,19 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Java基础"><a href="#Java基础" class="headerlink" title="Java基础"></a>Java基础</h1><h2 id="Java基本语法、特性"><a href="#Java基本语法、特性" class="headerlink" title="Java基本语法、特性"></a>Java基本语法、特性</h2><h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><h3 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h3><h3 id="流程控制语句"><a href="#流程控制语句" class="headerlink" title="流程控制语句"></a>流程控制语句</h3><h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><h4 id="main方法"><a href="#main方法" class="headerlink" title="main方法"></a>main方法</h4><p>public static void main(String[] args)</p>
-<p>main方法是Java程序的入口，public表示任何类和对象可以访问，static表示方法随类而加载，可使用类名来调用，void表明没有返回值，main为JVM识别的特殊方法名，不是关键字。字符串数组args可以用来输入参数。main为最先加载的方法（不一定最先执行），因此需要被静态调用。</p>
-<p>是否有其他写法？</p>
-<p>public与static可以交换顺序，也可以定义为final，也可以用synchronized来修饰main方法。</p>
-<h4 id="在main方法执行前输出"><a href="#在main方法执行前输出" class="headerlink" title="在main方法执行前输出"></a>在main方法执行前输出</h4><p>可以使用静态代码块，静态代码块在类加载时被调用</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">	<span class="keyword">static</span>&#123;</span><br><span class="line">		Sout(<span class="string">"Hello1"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	main()&#123;</span><br><span class="line">		Sout(<span class="string">"Hello2"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h2><h3 id="static"><a href="#static" class="headerlink" title="static"></a>static</h3><h3 id="final"><a href="#final" class="headerlink" title="final"></a>final</h3><h3 id="this"><a href="#this" class="headerlink" title="this"></a>this</h3><h2 id="面向对象"><a href="#面向对象" class="headerlink" title="面向对象"></a>面向对象</h2><h3 id="面向对象思想"><a href="#面向对象思想" class="headerlink" title="面向对象思想"></a>面向对象思想</h3><h3 id="匿名对象"><a href="#匿名对象" class="headerlink" title="匿名对象"></a>匿名对象</h3><h3 id="封装"><a href="#封装" class="headerlink" title="封装"></a>封装</h3><h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h3><h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><h3 id="多态"><a href="#多态" class="headerlink" title="多态"></a>多态</h3><h3 id="抽象类"><a href="#抽象类" class="headerlink" title="抽象类"></a>抽象类</h3><h3 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h3><h3 id="内部类"><a href="#内部类" class="headerlink" title="内部类"></a>内部类</h3><h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><h3 id="List与Set"><a href="#List与Set" class="headerlink" title="List与Set"></a>List与Set</h3><p>Collection下有List、Set和Queue，重点说明List与Set的区别。</p>
-<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/list%E4%B8%8Eset.png" class title="This is an example image">
-
-<p>一、特点</p>
-<p>按照特点来看</p>
-<ul>
-<li>List：元素有序（存入和取出顺序一致），可以索引（角标）操作元素，元素可以重复</li>
-<li>Set：元素不能重复，无序</li>
-</ul>
-<p>二、种类</p>
-<ul>
-<li><p>List</p>
-<ul>
-<li>底层是数组，查询快，增删慢<ul>
-<li>Vector，线程安全，效率低</li>
-<li>ArrayList，线程不安全，效率高</li>
-</ul>
-</li>
-<li>底层是链表，查询慢，增删快<ul>
-<li>LinkedList，线程不安全，效率高</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Set</p>
-<ul>
-<li><p>底层是哈希表</p>
-<p>HashSet，保证元素唯一性，存入的类需要覆写hashcode()和equals()方法</p>
-<p>先判断hashcode()，再判断equals()</p>
-</li>
-<li><p>底层是二叉树</p>
-<p>TreeSet，保证元素排序，两种排序方式，比较器优先使用</p>
-<ul>
-<li>自然顺序，让对象所属的类实现Compareble接口，覆盖compareTo()方法，无参构造</li>
-<li>让集合自身具备比较功能，比较器实现Comparator接口，覆盖compare()方法</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>其中，Vector虽安全，但不适用于高并发。HashSet底层为HashMap，在add元素时，以键的形式放入，值为PRESENT。TreeSet的核心在排序，不排序用HashSet。TreeSet有两种排序方式，方式一是被排序类实现Compareble接口（实现equals()、hashcode()、compareTo()方法），方式二为传入比较器，比较器需要实现Comparator接口（实现compare()方法）。TreeSet底层为TreeMap，两种排序方式比较器优先级较高。</p>
-<h3 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h3><p>HashMap为Java中非常重要和常用的一种数据结构，下面将重点介绍HashMap的底层原理及方法实现。</p>
-<p>Java8以前：数组+链表</p>
-<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E9%93%BE%E8%A1%A8hash.png" class title="This is an example image">
-
-<p>操作为非同步，效率较高。<strong>数组默认16</strong>，存储链表头节点，数组位置的获得方式是hash(key.hashCode())%len，计算键的哈希值再算出%数组长度的值。实际中通过位运算来实现。其中数组的类型为Entry&lt;K,V&gt;，当发生哈希冲突时，则将数组中的Entry设置为新值的next，新值放在数组中，旧值在新值的链表上。</p>
-<p>最坏的情况下，链表会集中在一个数组，这样查找的时间复杂度从O(1)变为O(n)。</p>
-<p>Java8及以后：链表+数组+红黑树</p>
-<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E7%BA%A2%E9%BB%91%E6%A0%91hash.png" class title="This is an example image">
-
-<p>当数组中某个位置链表长度大于TREEIFY_THRESHOLD常量时，链表转换为红黑树，最坏情况下的性能从O(n)提高到O(logn)。数组类型变为Node，当链表大小<strong>超过</strong>TREEIFY_THRESHOLD（<strong>默认是8</strong>）时，链表被改造成红黑树。当红黑树元素被删除<strong>低于</strong>UNTREEIFY_THRESHOLD（<strong>默认是6</strong>）时，红黑树被转成链表。HashMap在首次使用时才被初始化，可以扩容，当插入一个元素，若对应位置数组没有元素，则新建；如果有，则判断是树还是链表，按照相应方式插入。若链表元素超过阈值，则树化；若插入值的键重复，就更新值。</p>
-<h4 id="put方法"><a href="#put方法" class="headerlink" title="put方法"></a>put方法</h4><p>HashMap的put方法逻辑是：</p>
-<ol>
-<li>若HashMap未被初始化 ，进行初始化</li>
-<li>对key求hash值，计算下标</li>
-<li>如果没有碰撞，直接放入桶中</li>
-<li>如果碰撞了，以链表的方式链接到 后面</li>
-<li>如果链表长度超过阈值（8），把链表转成红黑树</li>
-<li>如果链表的长度低于6，把红黑树转成链表</li>
-<li>如果key对应节点存在，替换旧值</li>
-<li>如果桶满了（容量16*负载因子0.75），需要resize（扩容2倍重排）</li>
-</ol>
-<h4 id="get方法"><a href="#get方法" class="headerlink" title="get方法"></a>get方法</h4><p>先计算hash值找到对应的桶，然后在链表或者红黑树中通过equals方法找到对应的节点，找到值并返回。</p>
-<h4 id="扩容resize-方法"><a href="#扩容resize-方法" class="headerlink" title="扩容resize()方法"></a>扩容resize()方法</h4><p>在构造哈希表时，若不指明初始大小，默认为16，若大小达到了容量16*负载因子0.75，用大数组去替代小数组，重新调整hashmap大小为原来2倍，比较耗时。</p>
-<ul>
-<li>在多线程环境下，调整大小会存在条件竞争，容易造成<strong>死锁</strong></li>
-<li>rehashing是一个比较耗时的过程</li>
-</ul>
-<h4 id="如何减少碰撞"><a href="#如何减少碰撞" class="headerlink" title="如何减少碰撞"></a>如何减少碰撞</h4><ul>
-<li><p>使用扰动函数：促使元素位置分布均匀，减少碰撞几率</p>
-</li>
-<li><p>使用final对象，并采用合适的equals()和hashCode()方法</p>
-<p>使用String、Integer等类作为键很好，防止键值改变，放入和获取到的键不一样，就不能获取到</p>
-</li>
-</ul>
-<p>哈希散列的过程：可以看到<strong>hashmap允许键为null</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> h;</span><br><span class="line">	<span class="keyword">return</span> (key == <span class="keyword">null</span>) ? <span class="number">0</span> : (h=key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>将hashCode右移16位，去除低位，与原数据异或，混合原始哈希码的高位和低位，加大低位随机性，散列更均匀，计算下标使用(数组长度-1)&amp;hash，数组长度总为2^n（传入值时替换为最接近2的n次方的值），等价于对长度取模，效率更高。    </p>
-<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/hash%E6%95%A3%E5%88%97.png" class title="This is an example image">
-
-<h4 id="Dos攻击"><a href="#Dos攻击" class="headerlink" title="Dos攻击"></a>Dos攻击</h4><p>在JDK7以前，如果对方知道我方使用哈希算法，可以发送大量哈希值相同的请求来导致严重的哈希碰撞，然后不停访问这些key就可以显著影响服务器的性能（大量占用CPU），这样形成了一次拒绝服务供给（DoS）。这样将最坏性能从O（N）优化至O（logN），有较大的改善。</p>
-<p>那么怎么进一步处理呢？</p>
-<ol>
-<li>限制POST和GET请求参数个数</li>
-<li>限制POST请求的请求体大小</li>
-<li>Web Application FireWall（WAF）</li>
-</ol>
-<p>对于JDK7，HashMap会动态的使用一个专门的TreeMap实现来替换掉它。</p>
-<h4 id="多线程下的HashMap"><a href="#多线程下的HashMap" class="headerlink" title="多线程下的HashMap"></a>多线程下的HashMap</h4><p>由于HashMap不是线程安全的，在多线程下会出现问题，有</p>
-<ul>
-<li><p>多线程put操作后，get操作导致死循环</p>
-<p>rehash时容易出现环状链表</p>
-</li>
-<li><p>多线程put非null元素后，get操作得到null值</p>
-</li>
-<li><p>多线程put操作，导致元素丢失</p>
-</li>
-</ul>
-<h4 id="红黑树"><a href="#红黑树" class="headerlink" title="红黑树"></a>红黑树</h4><blockquote>
-<p>引用自博客<code>https://my.oschina.net/hosee/blog/618828</code></p>
+          <h1 id="Java基础"><a href="#Java基础" class="headerlink" title="Java基础"></a>Java基础</h1><p>根据网上博客和黑马的一些资料，整理了下面的JavaSE的知识点</p>
+<blockquote>
+<p><a href="https://blog.csdn.net/ThinkWon/article/details/104390612" target="_blank" rel="noopener">https://blog.csdn.net/ThinkWon/article/details/104390612</a></p>
+<p>《黑马程序员Java学习》</p>
 </blockquote>
-<p>要了解红黑树是什么，为什么要有红黑树。</p>
-<p>红黑树是二叉查找树，不同的是在每个结点上增加一个存储位来表示颜色，Red或Black。而红黑树的特点是通过对任何一条从根到叶子的路径上各个结点的着色方式的限制，红黑树确保没有一条路径比其他路径长出两倍，树是接近平衡的。</p>
-<p>二叉查找树简单理解是：</p>
-<ul>
-<li>若有左子树，则左子树上所有结点的值均小于根节点值 </li>
-<li>若有右子树，则右子树上所有结点的值均大于根节点值</li>
-<li>任意节点的左、右子树分别为二叉查找树</li>
-<li>没有键值相等的节点</li>
-</ul>
-<p>一般普通的二叉查找树高度为log(N)，但如果二叉查找树退化为一个链表，最坏时间会变成O（N）,那么红黑树如何保证树相对平衡呢？介绍其5个性质：</p>
-<ol>
-<li>每个节点要么红、要么黑</li>
-<li>根节点是黑</li>
-<li>叶节点是黑的</li>
-<li>若一个节点是红，两个儿子都是黑的（不存在两个连续的红色节点）</li>
-<li>对任意节点，其到叶节点尾端指针的每条路径都包含相同数目的黑节点</li>
-</ol>
-<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E7%BA%A2%E9%BB%91%E6%A0%91%E5%9B%BE.png" class title="This is an example image">
-
-<p>数学证明红黑树的操作时间复杂度最差为O(logN)。</p>
-<h4 id="HashMap与HashTable"><a href="#HashMap与HashTable" class="headerlink" title="HashMap与HashTable"></a>HashMap与HashTable</h4><p>因为HashMap在多线程下不安全，而线程安全的类有HashTable，其线程安全原因是使用了synchronized修饰符，锁为调用者的this，与Collections.synchronizedMap(hashMap)几乎无区别，只是锁不一样，synchronizedMap锁为Object类的mutex，hashMap方法均用synchronized(mutex)加锁。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Hashtable</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">Dictionary</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;, <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> V <span class="title">get</span><span class="params">(Object key)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> V <span class="title">put</span><span class="params">(K key, V value)</span> </span>&#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>但HashTable在多线程下效率较低，因此又引入了ConcurrentHashMap。</p>
-<h4 id="HashMap与ConcurrentHashMap"><a href="#HashMap与ConcurrentHashMap" class="headerlink" title="HashMap与ConcurrentHashMap"></a>HashMap与ConcurrentHashMap</h4><p>那么该如何优化HashTable呢？</p>
-<p><strong>通过锁细粒度化，将整锁拆解成多个锁进行优化</strong>。</p>
-<p>早期的ConcurrentHashMap通过分段锁Segment实现</p>
-<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/segment.png" class title="This is an example image">
-
-<p>在HashMap的基础上，外面多了一层数组结构，有多个Segment（一种可重入锁），每个Segment中有多段数据（HashEntry），当一个线程占用一个锁时，位于此Segment上的其他数据也可以被访问到。默认分配<strong>16</strong>个Segment，理论上比HashTable效率高16倍。将HashMap的table数组逻辑上拆分为多个子数组，每个子数组配置一个Segment，线程只有在获取到某把分段锁后，才能获取到其中的子数组，其他没有该Segment的线程访问其中数据被阻塞，而访问没有被Segment锁住的数据不会被阻塞。</p>
-<p>而当前的ConcurrentHashMap，使用CAS+Synchronized使锁更细化</p>
-<h1 id="Java高级"><a href="#Java高级" class="headerlink" title="Java高级"></a>Java高级</h1>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -533,7 +576,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-05 23:33:51" itemprop="dateModified" datetime="2020-03-05T23:33:51+08:00">2020-03-05</time>
+                <time title="修改时间：2020-03-08 22:38:57" itemprop="dateModified" datetime="2020-03-08T22:38:57+08:00">2020-03-08</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -563,91 +606,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/02/25/%E5%B7%A6%E7%A5%9E%E7%AE%97%E6%B3%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，Spring Boot，并发编程，网络编程">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/25/%E5%B7%A6%E7%A5%9E%E7%AE%97%E6%B3%95/" class="post-title-link" itemprop="url">左神算法</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-25 09:51:49" itemprop="dateCreated datePublished" datetime="2020-02-25T09:51:49+08:00">2020-02-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-06 10:56:05" itemprop="dateModified" datetime="2020-03-06T10:56:05+08:00">2020-03-06</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="OJ处理技巧"><a href="#OJ处理技巧" class="headerlink" title="OJ处理技巧"></a>OJ处理技巧</h1><p>类名为public class Main</p>
-<p>较好的做法是将要用到的类都封装好，不要放在Main类中，主类只需要持有要用到的类的对象，然后调用即可。</p>
-<p>StringBuilder类的append方法，res.append(str1).append(str2)比res.append(str1+str2)效率高。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/02/25/%E5%B7%A6%E7%A5%9E%E7%AE%97%E6%B3%95/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -778,7 +736,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-03 21:05:22" itemprop="dateModified" datetime="2020-03-03T21:05:22+08:00">2020-03-03</time>
+                <time title="修改时间：2020-03-11 17:04:34" itemprop="dateModified" datetime="2020-03-11T17:04:34+08:00">2020-03-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1015,97 +973,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/01/07/Java%E7%88%AC%E8%99%AB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，Spring Boot，并发编程，网络编程">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/01/07/Java%E7%88%AC%E8%99%AB/" class="post-title-link" itemprop="url">Java爬虫</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-01-07 15:26:50" itemprop="dateCreated datePublished" datetime="2020-01-07T15:26:50+08:00">2020-01-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-01-29 09:49:34" itemprop="dateModified" datetime="2020-01-29T09:49:34+08:00">2020-01-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="实现场景"><a href="#实现场景" class="headerlink" title="实现场景"></a>实现场景</h2><p>​    通过 selenium 实现模拟人为操作自动化依据，工作经验，学历要求，公司规模，行业领域抓取拉钩薪资范围。只针对网页，不受防爬的影响。</p>
-<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><ul>
-<li><p><a href="http://npm.taobao.org/mirrors/chromedriver" target="_blank" rel="noopener">Chrome WebDriver</a></p>
-</li>
-<li><p>Selenium</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.seleniumhq.selenium<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>selenium-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.141.59<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/01/07/Java%E7%88%AC%E8%99%AB/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2019/12/29/SpringBoot-%E5%AD%A6%E4%B9%A0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1183,12 +1050,89 @@
   
   
 
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2019/12/29/markdown%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="未名Hugh">
+      <meta itemprop="description" content="技术博客，Java，Spring Boot，并发编程，网络编程">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="未名的奇妙旅程">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/12/29/markdown%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">markdown使用</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-29 11:04:12" itemprop="dateCreated datePublished" datetime="2019-12-29T11:04:12+08:00">2019-12-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-03 16:49:03" itemprop="dateModified" datetime="2020-03-03T16:49:03+08:00">2020-03-03</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="markdown在hexo中使用"><a href="#markdown在hexo中使用" class="headerlink" title="markdown在hexo中使用"></a>markdown在hexo中使用</h1><h2 id="markdown工具"><a href="#markdown工具" class="headerlink" title="markdown工具"></a>markdown工具</h2><h3 id="个人使用工具：Typora"><a href="#个人使用工具：Typora" class="headerlink" title="个人使用工具：Typora"></a>个人使用工具：<strong>Typora</strong></h3><ol>
+<li>基于Windows下载</li>
+<li>偏好设置 </li>
+</ol>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><h3 id="部署步骤"><a href="#部署步骤" class="headerlink" title="部署步骤"></a>部署步骤</h3><p>​    博客部署至远端</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo deploy -g</span><br></pre></td></tr></table></figure>
+
+<p>​    将hexo文件夹源代码（写作所在文件夹）push至github仓库</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m “message”</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/12/29/markdown%E4%BD%BF%E7%94%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
   </div>
 
   
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
-  </nav>
 
 
 
@@ -1255,20 +1199,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1310,7 +1254,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共133.4k字</span>
+  <span class="post-count">博客全站共133.5k字</span>
 </div>
         
 

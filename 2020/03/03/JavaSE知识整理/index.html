@@ -47,12 +47,12 @@
   };
 </script>
 
-  <meta name="description" content="Java基础Java基本语法、特性数据类型运算符流程控制语句方法main方法public static void main(String[] args) main方法是Java程序的入口，public表示任何类和对象可以访问，static表示方法随类而加载，可使用类名来调用，void表明没有返回值，main为JVM识别的特殊方法名，不是关键字。字符串数组args可以用来输入参数。main为最先加载">
+  <meta name="description" content="Java基础根据网上博客和黑马的一些资料，整理了下面的JavaSE的知识点  https:&#x2F;&#x2F;blog.csdn.net&#x2F;ThinkWon&#x2F;article&#x2F;details&#x2F;104390612 《黑马程序员Java学习》">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JavaSE知识整理">
 <meta property="og:url" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/index.html">
 <meta property="og:site_name" content="未名的奇妙旅程">
-<meta property="og:description" content="Java基础Java基本语法、特性数据类型运算符流程控制语句方法main方法public static void main(String[] args) main方法是Java程序的入口，public表示任何类和对象可以访问，static表示方法随类而加载，可使用类名来调用，void表明没有返回值，main为JVM识别的特殊方法名，不是关键字。字符串数组args可以用来输入参数。main为最先加载">
+<meta property="og:description" content="Java基础根据网上博客和黑马的一些资料，整理了下面的JavaSE的知识点  https:&#x2F;&#x2F;blog.csdn.net&#x2F;ThinkWon&#x2F;article&#x2F;details&#x2F;104390612 《黑马程序员Java学习》">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/list%E4%B8%8Eset.png">
 <meta property="og:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E9%93%BE%E8%A1%A8hash.png">
@@ -61,7 +61,7 @@
 <meta property="og:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E7%BA%A2%E9%BB%91%E6%A0%91%E5%9B%BE.png">
 <meta property="og:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/segment.png">
 <meta property="article:published_time" content="2020-03-03T14:00:20.000Z">
-<meta property="article:modified_time" content="2020-03-05T12:53:18.041Z">
+<meta property="article:modified_time" content="2020-03-10T14:23:56.048Z">
 <meta property="article:author" content="未名Hugh">
 <meta property="article:tag" content="JavaSE">
 <meta name="twitter:card" content="summary">
@@ -245,7 +245,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-05 20:53:18" itemprop="dateModified" datetime="2020-03-05T20:53:18+08:00">2020-03-05</time>
+                <time title="修改时间：2020-03-10 22:23:56" itemprop="dateModified" datetime="2020-03-10T22:23:56+08:00">2020-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -270,16 +270,351 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Java基础"><a href="#Java基础" class="headerlink" title="Java基础"></a>Java基础</h1><h2 id="Java基本语法、特性"><a href="#Java基本语法、特性" class="headerlink" title="Java基本语法、特性"></a>Java基本语法、特性</h2><h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><h3 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h3><h3 id="流程控制语句"><a href="#流程控制语句" class="headerlink" title="流程控制语句"></a>流程控制语句</h3><h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><h4 id="main方法"><a href="#main方法" class="headerlink" title="main方法"></a>main方法</h4><p>public static void main(String[] args)</p>
+        <h1 id="Java基础"><a href="#Java基础" class="headerlink" title="Java基础"></a>Java基础</h1><p>根据网上博客和黑马的一些资料，整理了下面的JavaSE的知识点</p>
+<blockquote>
+<p><a href="https://blog.csdn.net/ThinkWon/article/details/104390612" target="_blank" rel="noopener">https://blog.csdn.net/ThinkWon/article/details/104390612</a></p>
+<p>《黑马程序员Java学习》</p>
+</blockquote>
+<a id="more"></a>
+
+<h2 id="Java基本语法、特性"><a href="#Java基本语法、特性" class="headerlink" title="Java基本语法、特性"></a>Java基本语法、特性</h2><h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><h4 id="Java有哪些数据类型"><a href="#Java有哪些数据类型" class="headerlink" title="Java有哪些数据类型"></a>Java有哪些数据类型</h4><p>Java中数据类型分为基础数据类型与引用数据类型</p>
+<ul>
+<li>基础数据类型<ul>
+<li>数值型<ul>
+<li>整数类型，<strong>默认int</strong><ul>
+<li>byte：1字节</li>
+<li>short：2字节</li>
+<li>int：4字节</li>
+<li>long：8字节</li>
+</ul>
+</li>
+<li>浮点数类型，<strong>默认double</strong><ul>
+<li>float：4字节</li>
+<li>double：8字节</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>字符型<ul>
+<li>char：2字节，用单引号括</li>
+</ul>
+</li>
+<li>布尔型<ul>
+<li>boolean：1字节，只有2个值</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>引用数据类型<ul>
+<li>类(class)</li>
+<li>接口(interface)</li>
+<li>数组([])</li>
+</ul>
+</li>
+</ul>
+<h4 id="float与double"><a href="#float与double" class="headerlink" title="float与double"></a>float与double</h4><p>float f = 1.1;会报错吗？</p>
+<p>会，1.1默认为double，这里相当于向下转型，造成精度损失，需要更改为float f = 1.1f或者float f = (float)1.1</p>
+<h4 id="short-s1-1-s1-s1-1-有错吗-short-s1-1-s1-1-有错吗"><a href="#short-s1-1-s1-s1-1-有错吗-short-s1-1-s1-1-有错吗" class="headerlink" title="short s1 = 1; s1 = s1 + 1;有错吗?short s1 = 1; s1 += 1;有错吗"></a>short s1 = 1; s1 = s1 + 1;有错吗?short s1 = 1; s1 += 1;有错吗</h4><p>s1 = s1+1有错，因为1为int类型，不能将int隐式的转换为低精度的short，所以需要类型转换。</p>
+<p>s1 += 1，这里相当于强制类型转换，s1 = (short)(s1 + 1)，使用 ++ 或者 += 相当于执行了类型转换</p>
+<h4 id="Math-round-11-5-等于多少？Math-round-11-5-等于多少"><a href="#Math-round-11-5-等于多少？Math-round-11-5-等于多少" class="headerlink" title="Math.round(11.5) 等于多少？Math.round(-11.5)等于多少"></a>Math.round(11.5) 等于多少？Math.round(-11.5)等于多少</h4><p>Math.round(11.5)的返回值是 12，Math.round(-11.5)的返回值是-11。四舍五入的原理是在参数上加 0.5 然后进行下取整。</p>
+<h3 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h3><h4 id="最有效率的方式计算2乘以8"><a href="#最有效率的方式计算2乘以8" class="headerlink" title="最有效率的方式计算2乘以8"></a>最有效率的方式计算2乘以8</h4><p>2 &lt;&lt; 3，左移几位相当于2乘以几次方，位运算效率最高。</p>
+<p>而<code>&gt;&gt;</code>表示右移，右移几位就是除以2的几次幂，高位保持原来的数字，而对于<code>&gt;&gt;&gt;</code>，无论高位是什么，用<code>0</code>来补齐，因此是无符号位右移。</p>
+<h4 id="计算-6"><a href="#计算-6" class="headerlink" title="计算~6"></a>计算~6</h4><p><code>~6</code>相当于对6逐位取反，6全部取反+1得到-6，<code>~6=-7</code></p>
+<h4 id="amp-和-amp-amp-的区别"><a href="#amp-和-amp-amp-的区别" class="headerlink" title="&amp;和&amp;&amp;的区别"></a>&amp;和&amp;&amp;的区别</h4><p>&amp;运算符的作用是</p>
+<ol>
+<li>按位与 ，num1&amp;num2相当于将每个数的二进制位相与</li>
+<li>逻辑与运算，boolean f1 &amp; f2，两个同时为真返回真</li>
+</ol>
+<p>而&amp;&amp;是短路的与运算，boolean f1 &amp; f2，如果左边的f1为假，则直接返回假，屏蔽了f2，逻辑或（|）与短路运算符（||）作用也类似。</p>
+<h3 id="流程控制语句"><a href="#流程控制语句" class="headerlink" title="流程控制语句"></a>流程控制语句</h3><h4 id="switch的作用类型"><a href="#switch的作用类型" class="headerlink" title="switch的作用类型"></a>switch的作用类型</h4><p>在JDK5之前，switch(expr)中的expr只能是基础数据类型中的byte、short、int、char，在JDK5引入了枚举类型enum，在JDK7后，可以为字符串String，但长整形long不可以。因此总的为byte、short、int、char、enum、String。</p>
+<h4 id="break-continue-return-的区别及作用"><a href="#break-continue-return-的区别及作用" class="headerlink" title="break ,continue ,return 的区别及作用"></a>break ,continue ,return 的区别及作用</h4><p>break：结束当前的循环体，不再执行此循环</p>
+<p>continue：跳出本次循环，继续执行下一个循环</p>
+<p>return：结束当前的方法，直接返回</p>
+<h4 id="在-Java-中，如何跳出当前的多重嵌套循环"><a href="#在-Java-中，如何跳出当前的多重嵌套循环" class="headerlink" title="在 Java 中，如何跳出当前的多重嵌套循环"></a>在 Java 中，如何跳出当前的多重嵌套循环</h4><p>给外面的循环定义一个名称，在需要跳出的地方使用break 循环名即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">loop1:</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">10</span>; j++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (j == <span class="number">5</span>)</span><br><span class="line">            <span class="keyword">break</span> loop1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><h4 id="main方法"><a href="#main方法" class="headerlink" title="main方法"></a>main方法</h4><p>public static void main(String[] args)</p>
 <p>main方法是Java程序的入口，public表示任何类和对象可以访问，static表示方法随类而加载，可使用类名来调用，void表明没有返回值，main为JVM识别的特殊方法名，不是关键字。字符串数组args可以用来输入参数。main为最先加载的方法（不一定最先执行），因此需要被静态调用。</p>
 <p>是否有其他写法？</p>
 <p>public与static可以交换顺序，也可以定义为final，也可以用synchronized来修饰main方法。</p>
 <h4 id="在main方法执行前输出"><a href="#在main方法执行前输出" class="headerlink" title="在main方法执行前输出"></a>在main方法执行前输出</h4><p>可以使用静态代码块，静态代码块在类加载时被调用</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">	<span class="keyword">static</span>&#123;</span><br><span class="line">		Sout(<span class="string">"Hello1"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	main()&#123;</span><br><span class="line">		Sout(<span class="string">"Hello2"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-
-
-<h2 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h2><h3 id="static"><a href="#static" class="headerlink" title="static"></a>static</h3><h3 id="final"><a href="#final" class="headerlink" title="final"></a>final</h3><h3 id="this"><a href="#this" class="headerlink" title="this"></a>this</h3><h2 id="面向对象"><a href="#面向对象" class="headerlink" title="面向对象"></a>面向对象</h2><h3 id="面向对象思想"><a href="#面向对象思想" class="headerlink" title="面向对象思想"></a>面向对象思想</h3><h3 id="匿名对象"><a href="#匿名对象" class="headerlink" title="匿名对象"></a>匿名对象</h3><h3 id="封装"><a href="#封装" class="headerlink" title="封装"></a>封装</h3><h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h3><h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><h3 id="多态"><a href="#多态" class="headerlink" title="多态"></a>多态</h3><h3 id="抽象类"><a href="#抽象类" class="headerlink" title="抽象类"></a>抽象类</h3><h3 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h3><h3 id="内部类"><a href="#内部类" class="headerlink" title="内部类"></a>内部类</h3><h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><h3 id="List与Set"><a href="#List与Set" class="headerlink" title="List与Set"></a>List与Set</h3><p>Collection下有List、Set和Queue，重点说明List与Set的区别。</p>
+<h4 id="函数的重载与覆盖"><a href="#函数的重载与覆盖" class="headerlink" title="函数的重载与覆盖"></a>函数的重载与覆盖</h4><ul>
+<li>重载：重载发生于<strong>一个类</strong>中，若同名的方法有不同的输入参数列表（参数类型不同，参数个数不同或均不同）视为重载</li>
+<li>覆盖：也称为覆写，重写，override，发生在<strong>子类和父类</strong>之间，要求子类重写方法与父类有相同的参数列表和返回类型，子类方法权限大于等于父类方法（父类方法不能被private修饰），子类方法声明异常不能多于父类异常（其子类或子集）。</li>
+</ul>
+<h3 id="修饰符"><a href="#修饰符" class="headerlink" title="修饰符"></a>修饰符</h3><h4 id="四种访问修饰符及区别"><a href="#四种访问修饰符及区别" class="headerlink" title="四种访问修饰符及区别"></a>四种访问修饰符及区别</h4><p>用访问修饰符来保护对类、变量、方法和构造方法的访问，支持四种访问权限。</p>
+<ul>
+<li>public：对所有类可见，使用对象为类、接口、变量、方法</li>
+<li>default：默认的，在一个包中可见，使用对象为类、接口、变量、方法</li>
+<li>protected：对同一个包内和子类可见。使用对象为内部类，变量，方法，不能修饰外部类</li>
+<li>private：在同一个类内可见。使用对象为变量，方法，不能修饰外部类</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">修饰符</th>
+<th align="center">同一类中</th>
+<th align="center">同一包中</th>
+<th align="center">子类中</th>
+<th align="center">不同包中</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">public</td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">√</td>
+</tr>
+<tr>
+<td align="center">protected</td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">×</td>
+</tr>
+<tr>
+<td align="center">default</td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">×</td>
+<td align="center">×</td>
+</tr>
+<tr>
+<td align="center">private</td>
+<td align="center">√</td>
+<td align="center">×</td>
+<td align="center">×</td>
+<td align="center">×</td>
+</tr>
+</tbody></table>
+<h2 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h2><h3 id="static"><a href="#static" class="headerlink" title="static"></a>static</h3><h4 id="static作用"><a href="#static作用" class="headerlink" title="static作用"></a>static作用</h4><ol>
+<li>创建独立于具体对象的域变量或者方法，随类而加载，可以直接用类名调用</li>
+<li>形成静态代码块优化程序性能。在类被加载时，按照static块出现顺序执行，只加载一次，可以将只需要进行一次的初始化操作放在static中</li>
+</ol>
+<h4 id="static特点"><a href="#static特点" class="headerlink" title="static特点"></a>static特点</h4><ol>
+<li>static是一个修饰符，修饰成员（成员变量和成员函数）</li>
+<li>static修饰的成员被所有对象共享</li>
+<li>static优先于对象存在，随类的第一次使用而加载，且只加载一次</li>
+<li>static修饰的成员多了一种调用方式，即直接被类名调用</li>
+<li>static变量值在类加载时分配空间，以后创建类对象时不会重新分配，可以对其任意赋值</li>
+</ol>
+<h4 id="static应用场景"><a href="#static应用场景" class="headerlink" title="static应用场景"></a>static应用场景</h4><ol>
+<li>修饰成员变量</li>
+<li>修饰成员方法</li>
+<li>静态代码块</li>
+<li>修饰类（只能修饰内部类即静态内部类）</li>
+<li>静态导包</li>
+</ol>
+<h4 id="static注意事项"><a href="#static注意事项" class="headerlink" title="static注意事项"></a>static注意事项</h4><ol>
+<li>静态方法只能访问静态成员，静态方法可直接被类名调用，非静态既可以访问静态，又可以访问非静态</li>
+<li>静态 方法中不能出现this与static</li>
+<li>主函数是静态的，不要在主函数中创建其他函数</li>
+</ol>
+<h4 id="方法调用顺序"><a href="#方法调用顺序" class="headerlink" title="方法调用顺序"></a>方法调用顺序</h4><p>父类静态代码块-&gt;子类静态代码块-&gt;子类静态方法-&gt;父类非静态代码块-&gt;父类构造方法-&gt;子类非静态代码块-&gt;子类构造方法</p>
+<h3 id="final"><a href="#final" class="headerlink" title="final"></a>final</h3><h4 id="final作用"><a href="#final作用" class="headerlink" title="final作用"></a>final作用</h4><p>用于修饰类、属性和方法</p>
+<ul>
+<li><p>被final修饰的<strong>类不可以被继承</strong></p>
+<p>关键字final置于定义前</p>
+</li>
+<li><p>被final修饰的<strong>方法不可以被重写</strong></p>
+<p>防止任何继承类修改其定义，处于设计的考虑</p>
+</li>
+<li><p>被final修饰的变量不可以被改变，<strong>不可变的是变量的引用</strong>，而不是引用指向的内容（针对对象）</p>
+<p>一般会加静态，全局变量。固定常量一律用final修饰。<strong>不能改变的数据类型需要是基本数据类型</strong>，对常量定义时需要对其赋值。对对象的引用表明此引用不能指向另一个对象，但对象本身可以被修改。</p>
+</li>
+</ul>
+<p>允许在参数列表中以声明的方式将参数指定为final，意味着无法在方法中更改参数引用所指向的对象。可以读参数，无法改参数，主要用来<strong>向匿名内部类传递数据</strong>。</p>
+<h4 id="final-finally-finalize区别"><a href="#final-finally-finalize区别" class="headerlink" title="final finally finalize区别"></a>final finally finalize区别</h4><ul>
+<li>final可以修饰类、方法、变量，修饰类表明该类不能被继承，修饰方法表明该方法不能被重写，修饰变量表明该变量为常量不能重新被赋值，但若修饰的是对象的引用，不可变的是引用。</li>
+<li>finally一般作用在try-catch代码块中，处理异常时将一定要执行的方法放在finally中，表示不管是否出现异常，该代码块都一定会执行（存在try语句，在try语句中没有执行System.exist(0)），一般放关闭资源的代码。</li>
+<li>finalize是Object类的方法，一般由垃圾回收器调用，当调用Syetem.gc()的时候，由垃圾回收器调用finalize()，回收垃圾，是一个对象是否可回收的最后判断。</li>
+</ul>
+<h3 id="this与super"><a href="#this与super" class="headerlink" title="this与super"></a>this与super</h3><h4 id="this关键字使用"><a href="#this关键字使用" class="headerlink" title="this关键字使用"></a>this关键字使用</h4><p>this的含义：代表本类对象引用，可以理解成<strong>指向对象本身的一个指针</strong>。</p>
+<p>this的用法</p>
+<ol>
+<li><p>普通的直接引用，this相当于当前对象本身</p>
+</li>
+<li><p>构造函数中，形参与成员变量重名，用this区分</p>
+</li>
+<li><p>在构造函数中引用本类的其他构造函数</p>
+<p>this(待传入参数，可为空)，只能放在构造函数的第一行，不可与super()同时出现</p>
+</li>
+</ol>
+<h4 id="super关键字使用"><a href="#super关键字使用" class="headerlink" title="super关键字使用"></a>super关键字使用</h4><p>super为指向超（父）类对象的指针，此超类为离当前类最近的一个父类。</p>
+<p>super的用法与this类似</p>
+<ol>
+<li><p>普通的直接引用，使用super.xxx来引用父类成员</p>
+</li>
+<li><p>子类中的成员变量与父类中成员变量重名时，用super()区分</p>
+</li>
+<li><p>引用父类构造函数</p>
+<p>super(参数)，调用父类中构造函数，在子类的构造函数第一行默认为super()，如果有this()，则没有super()，因为二者均需要出现在构造函数第一行</p>
+</li>
+</ol>
+<h4 id="this与super-1"><a href="#this与super-1" class="headerlink" title="this与super"></a>this与super</h4><ol>
+<li>this指当前对象，super指父类对象</li>
+<li>this在本类中调用本来方法，super在子类中调用父类方法</li>
+<li>this与super均要放在构造函数的第一行</li>
+<li>this与super不能出现在一个构造函数中，因为this()中调用其他构造函数，其他构造函数中有super()</li>
+<li>二者均不可在static环境中使用，如static变量，static方法，static代码块</li>
+</ol>
+<h2 id="面向对象"><a href="#面向对象" class="headerlink" title="面向对象"></a>面向对象</h2><h3 id="面向对象思想"><a href="#面向对象思想" class="headerlink" title="面向对象思想"></a>面向对象思想</h3><h4 id="面向对象和面向过程的区别"><a href="#面向对象和面向过程的区别" class="headerlink" title="面向对象和面向过程的区别"></a>面向对象和面向过程的区别</h4><p>面向过程：具体化的，流程化的，为了解决问题，需要一步步分析和实现</p>
+<p>面向对象：模型化的，将过程的实现抽象为多个类，直接去调用类的属性和方法，不用去一步步实现，面向对象的底层是面向过程，将面向过程抽象成类并进行封装，就是面向对象了</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>优点</th>
+<th>缺点</th>
+<th>应用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>面向过程</td>
+<td>性能更高，没有调用类的资源消耗。</td>
+<td>没有面向对象易维护、复用、扩展</td>
+<td>单片机，嵌入式开发，Linux/Unix</td>
+</tr>
+<tr>
+<td>面向对象</td>
+<td>易维护、易复用、易扩展，系统耦合性更低</td>
+<td>性能比面向过程低</td>
+<td>需求变化多，互联网应用</td>
+</tr>
+</tbody></table>
+<h4 id="面向对象特征"><a href="#面向对象特征" class="headerlink" title="面向对象特征"></a>面向对象特征</h4><p>面向对象的特征主要有4个方面，抽象，封装，继承和多态</p>
+<p>抽象：将一类对象的<strong>共同特征</strong>总结出来构造类的过程，包括<strong>数据抽象</strong>和<strong>行为抽象</strong>两方面，抽象只关注对象的属性和行为，并不关心其实现细节。</p>
+<p>封装：将一个对象的<strong>属性私有化</strong>，同时对外提供可以<strong>访问属性的方法</strong>。在类中编写方法对实现细节进行封装，隐藏一切可隐藏的，只对外暴露最简单的编程<strong>接口</strong>。</p>
+<p>继承：从父类继承属性与方法到子类，子类可以增加新的数据和功能，方便复用，继承会增加类之间的耦合性。（里氏替换原则）</p>
+<p>多态：某一种事物具有多种形态，用父类类型指向子类对象，一个对象对应着不同类型。</p>
+<h4 id="面向对象的基本原则"><a href="#面向对象的基本原则" class="headerlink" title="面向对象的基本原则"></a>面向对象的基本原则</h4><ol>
+<li><p>单一职责原则</p>
+<p>一个类只有一个职责，内部高内聚</p>
+</li>
+<li><p>接口隔离原则</p>
+<p>一个类对另一个类的依赖建立在最小的接口上</p>
+</li>
+<li><p>依赖倒转原则</p>
+<p>抽象不应该依赖细节，细节应该依赖抽象，<strong>面向接口编程</strong>。依赖关系的三种传递：接口传递、构造方法传递、setter方法传递</p>
+</li>
+<li><p>里氏替换原则</p>
+<p>与继承相关，任何时候子类都能替换父类</p>
+</li>
+<li><p>开放封闭原则</p>
+<p>模块和函数应该对<strong>扩展开放</strong>（对提供方），对<strong>修改关闭</strong>（对使用方），<strong>用抽象构建框架，用实现扩展细节</strong></p>
+</li>
+<li><p>迪米特法则（最少知道原则）</p>
+<p>一个类对自己依赖的类知道越少越好，陌生的类最好不要以局部变量形式出现在类的内部</p>
+</li>
+<li><p>合成复用原则</p>
+<p>尽量使用合成/聚合的方式，而不是继承</p>
+</li>
+</ol>
+<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><h4 id="继承的好处"><a href="#继承的好处" class="headerlink" title="继承的好处"></a>继承的好处</h4><ol>
+<li>提高了代码的复用性</li>
+<li>让类与类之间有了联系，为多态提供了前提</li>
+</ol>
+<h4 id="继承的注意事项"><a href="#继承的注意事项" class="headerlink" title="继承的注意事项"></a>继承的注意事项</h4><ol>
+<li><p>Java中支持单继承，不直接支持多继承</p>
+<p>多继承会出现父类成员变量调用的不确定性，可以多实现</p>
+</li>
+<li><p>子类中有父类非private的属性和方法</p>
+</li>
+<li><p>子类可以对父类的属性和功能进行扩展</p>
+</li>
+<li><p>子类可以对父类方法进行覆盖</p>
+</li>
+</ol>
+<h3 id="多态"><a href="#多态" class="headerlink" title="多态"></a>多态</h3><h4 id="多态的特点与实现方式"><a href="#多态的特点与实现方式" class="headerlink" title="多态的特点与实现方式"></a>多态的特点与实现方式</h4><p>程序中的引用变量所指向的具体类型和调用方法只有在程序运行时才能确定，这样可以实现引用变量绑定到不同的类上，让程序可以选择多个运行状态。</p>
+<p>利用父类或接口引用变量指向子类或具体实现类的对象，提高程序的扩展性。</p>
+<p>方法<strong>重载</strong>（overload）实现的是<strong>编译</strong>时的多态性（也称<strong>前绑定</strong>），根据参数列表的不同来区分不同的函数；方法<strong>覆盖</strong>（override）实现的是<strong>运行</strong>时的多态性（也称<strong>后绑定</strong>），运行时的多态是面向对象最精髓的（引用变量调用的方法只有在运行时才能确定）。</p>
+<p>实现多态需要做到</p>
+<ul>
+<li><p>继承（子类继承父类）</p>
+</li>
+<li><p>方法重写（子类重写父类中的<strong>已有</strong>或抽象方法）</p>
+</li>
+<li><p>向上转型（父类型引用子类对象，接口类型引用实现类的对象，相同的调用会根据子类对象不同而表现不同的行为）</p>
+</li>
+</ul>
+<h3 id="抽象类与接口"><a href="#抽象类与接口" class="headerlink" title="抽象类与接口"></a>抽象类与接口</h3><h4 id="抽象类和接口的对比"><a href="#抽象类和接口的对比" class="headerlink" title="抽象类和接口的对比"></a>抽象类和接口的对比</h4><p>从设计层面来说，抽象类是对<strong>类的抽象</strong>，是一种模板设计；接口是<strong>行为的抽象</strong>，是一种行为的规范</p>
+<p>相同点</p>
+<ul>
+<li>接口和抽象类<strong>不能直接实例化</strong></li>
+<li>位于继承的顶端，用于被其他类实现或继承</li>
+<li>都包含抽象方法，其子类必须覆写这些抽象方法</li>
+</ul>
+<p>不同点</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>抽象类</th>
+<th>接口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>声明</td>
+<td>abstract关键字</td>
+<td>interface关键字</td>
+</tr>
+<tr>
+<td>实现</td>
+<td>子类使用extends继承</td>
+<td>子类使用implements实现</td>
+</tr>
+<tr>
+<td>构造器</td>
+<td>可以有</td>
+<td>没有</td>
+</tr>
+<tr>
+<td>访问修饰符</td>
+<td>方法可以为任意访问修饰符</td>
+<td>接口方法默认为public，不允许定义为private或protected</td>
+</tr>
+<tr>
+<td>多继承</td>
+<td>只能继承一个类</td>
+<td>可以多实现</td>
+</tr>
+<tr>
+<td>抽象方法</td>
+<td>可以有非抽象方法</td>
+<td>全为抽象方法</td>
+</tr>
+</tbody></table>
+<p>选择抽象类或者接口，遵循如下原则</p>
+<ul>
+<li>行为模型总是通过接口而不是抽象类定义，通常<strong>优先使用接口</strong>，少使用抽象类</li>
+<li>选择抽象类的情况：需要定义子类的行为，又要为子类提供通用的功能</li>
+</ul>
+<h4 id="普通类与抽象类区别"><a href="#普通类与抽象类区别" class="headerlink" title="普通类与抽象类区别"></a>普通类与抽象类区别</h4><ul>
+<li>普通类中不能有抽象方法，抽象类中可以包含抽象方法</li>
+<li>普通类可以直接实例化，抽象类不能直接实例化</li>
+</ul>
+<h4 id="抽象类能用final修饰吗"><a href="#抽象类能用final修饰吗" class="headerlink" title="抽象类能用final修饰吗"></a>抽象类能用final修饰吗</h4><p>不能，定义抽象类的目的是让其他类继承，而final关键字修饰的类不能被继承，二者相违背，因此抽象类不能被final修饰</p>
+<h3 id="对象"><a href="#对象" class="headerlink" title="对象"></a>对象</h3><h4 id="创建一个对象用什么关键字？对象实例与对象引用有何不同？"><a href="#创建一个对象用什么关键字？对象实例与对象引用有何不同？" class="headerlink" title="创建一个对象用什么关键字？对象实例与对象引用有何不同？"></a>创建一个对象用什么关键字？对象实例与对象引用有何不同？</h4><p>创建类使用关键字new，对象实例存在于堆内存中，而对象引用指向对象实例，对象引用可以指向一个对象实例或者指向空，而一个对象实例可以有多个对象引用指向它。</p>
+<h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><h4 id="成员变量与局部变量区别"><a href="#成员变量与局部变量区别" class="headerlink" title="成员变量与局部变量区别"></a>成员变量与局部变量区别</h4><p>成员变量定义在方法外部，局部变量定义在类的方法或代码块中。</p>
+<ul>
+<li>作用域：成员变量针对整个类有效，局部变量只在方法或代码块中有效</li>
+<li>存储位置：成员变量存储在堆内存中，局部变量存储在栈中</li>
+<li>生命周期：成员变量周期与对象一样，局部变量周期与方法一样</li>
+<li>初始值：成员变量默认有初始值，局部变量没有默认初始值，使用前需要赋值</li>
+<li>使用原则：就近原则，先在局部范围找，接着在成员中找</li>
+</ul>
+<h4 id="静态变量和实例变量区别"><a href="#静态变量和实例变量区别" class="headerlink" title="静态变量和实例变量区别"></a>静态变量和实例变量区别</h4><h3 id="匿名对象"><a href="#匿名对象" class="headerlink" title="匿名对象"></a>匿名对象</h3><h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h3><h4 id="在Java中定义一个不做事且没有参数的构造方法的作用"><a href="#在Java中定义一个不做事且没有参数的构造方法的作用" class="headerlink" title="在Java中定义一个不做事且没有参数的构造方法的作用"></a>在Java中定义一个不做事且没有参数的构造方法的作用</h4><p>在执行子类的构造方法前，默认执行super()，若父类中只有有参数的构造方法，则编译会报错，因为程序在父类中找不到相应方法来执行，因此需要在父类中加上一个不做事的空参的构造方法</p>
+<h4 id="在调用子类构造方法之前会先调用父类没有参数的构造方法，其目的是？"><a href="#在调用子类构造方法之前会先调用父类没有参数的构造方法，其目的是？" class="headerlink" title="在调用子类构造方法之前会先调用父类没有参数的构造方法，其目的是？"></a>在调用子类构造方法之前会先调用父类没有参数的构造方法，其目的是？</h4><p>子类与父类有较强的耦合性，在初始化子类前，需要相应对父类进行初始化，此函数可以帮助子类做初始化工作</p>
+<h4 id="一个类的构造方法的作用是什么？若一个类没有声明构造方法，该程序能正确执行吗？为什么？"><a href="#一个类的构造方法的作用是什么？若一个类没有声明构造方法，该程序能正确执行吗？为什么？" class="headerlink" title="一个类的构造方法的作用是什么？若一个类没有声明构造方法，该程序能正确执行吗？为什么？"></a>一个类的构造方法的作用是什么？若一个类没有声明构造方法，该程序能正确执行吗？为什么？</h4><p>构造方法的主要作用是完成对类对象的<strong>初始化</strong>工作。若没有显式声明构造方法，程序也能正确执行，因为每个类中有一个默认的空参的构造方法，但当自己定义了构造方法后，就没有该默认构造方法了。</p>
+<h4 id="构造方法有哪些特性？"><a href="#构造方法有哪些特性？" class="headerlink" title="构造方法有哪些特性？"></a>构造方法有哪些特性？</h4><ul>
+<li>名字与类相同</li>
+<li>没有返回值，不能用void声明函数</li>
+<li>在new对象时自动调用该方法</li>
+</ul>
+<h3 id="内部类"><a href="#内部类" class="headerlink" title="内部类"></a>内部类</h3><h3 id="常见类"><a href="#常见类" class="headerlink" title="常见类"></a>常见类</h3><h4 id="Object中的方法"><a href="#Object中的方法" class="headerlink" title="Object中的方法"></a>Object中的方法</h4><h4 id="String的equals与"><a href="#String的equals与" class="headerlink" title="String的equals与=="></a>String的equals与==</h4><h4 id="String不变性的理解"><a href="#String不变性的理解" class="headerlink" title="String不变性的理解"></a>String不变性的理解</h4><h4 id="String重写equals而不重写hashcode的问题"><a href="#String重写equals而不重写hashcode的问题" class="headerlink" title="String重写equals而不重写hashcode的问题"></a>String重写equals而不重写hashcode的问题</h4><h4 id="String、StringBuffer、StringBuilder区别"><a href="#String、StringBuffer、StringBuilder区别" class="headerlink" title="String、StringBuffer、StringBuilder区别"></a>String、StringBuffer、StringBuilder区别</h4><h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><h3 id="List与Set"><a href="#List与Set" class="headerlink" title="List与Set"></a>List与Set</h3><p>Collection下有List、Set和Queue，重点说明List与Set的区别。</p>
 <img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/list%E4%B8%8Eset.png" class title="This is an example image">
 
 <p>一、特点</p>
@@ -407,11 +742,11 @@
 <p>但HashTable在多线程下效率较低，因此又引入了ConcurrentHashMap。</p>
 <h4 id="HashMap与ConcurrentHashMap"><a href="#HashMap与ConcurrentHashMap" class="headerlink" title="HashMap与ConcurrentHashMap"></a>HashMap与ConcurrentHashMap</h4><p>那么该如何优化HashTable呢？</p>
 <p><strong>通过锁细粒度化，将整锁拆解成多个锁进行优化</strong>。</p>
-<p>早期的ConcurrentHashMap通过分段锁Segment实现</p>
+<p>早期的ConcurrentHashMap通过<strong>分段锁Segment</strong>实现</p>
 <img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/segment.png" class title="This is an example image">
 
 <p>在HashMap的基础上，外面多了一层数组结构，有多个Segment（一种可重入锁），每个Segment中有多段数据（HashEntry），当一个线程占用一个锁时，位于此Segment上的其他数据也可以被访问到。默认分配<strong>16</strong>个Segment，理论上比HashTable效率高16倍。将HashMap的table数组逻辑上拆分为多个子数组，每个子数组配置一个Segment，线程只有在获取到某把分段锁后，才能获取到其中的子数组，其他没有该Segment的线程访问其中数据被阻塞，而访问没有被Segment锁住的数据不会被阻塞。</p>
-<p>而当前的ConcurrentHashMap，使用CAS+Synchronized使锁更细化</p>
+<p>而当前的ConcurrentHashMap，使用<strong>CAS+Synchronized使锁更细化</strong></p>
 <h1 id="Java高级"><a href="#Java高级" class="headerlink" title="Java高级"></a>Java高级</h1>
     </div>
 
@@ -496,7 +831,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java基础"><span class="nav-number">1.</span> <span class="nav-text">Java基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java基本语法、特性"><span class="nav-number">1.1.</span> <span class="nav-text">Java基本语法、特性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据类型"><span class="nav-number">1.1.1.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运算符"><span class="nav-number">1.1.2.</span> <span class="nav-text">运算符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#流程控制语句"><span class="nav-number">1.1.3.</span> <span class="nav-text">流程控制语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法"><span class="nav-number">1.1.4.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#main方法"><span class="nav-number">1.1.4.1.</span> <span class="nav-text">main方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在main方法执行前输出"><span class="nav-number">1.1.4.2.</span> <span class="nav-text">在main方法执行前输出</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关键字"><span class="nav-number">1.2.</span> <span class="nav-text">关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#static"><span class="nav-number">1.2.1.</span> <span class="nav-text">static</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#final"><span class="nav-number">1.2.2.</span> <span class="nav-text">final</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#this"><span class="nav-number">1.2.3.</span> <span class="nav-text">this</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#面向对象"><span class="nav-number">1.3.</span> <span class="nav-text">面向对象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#面向对象思想"><span class="nav-number">1.3.1.</span> <span class="nav-text">面向对象思想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#匿名对象"><span class="nav-number">1.3.2.</span> <span class="nav-text">匿名对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#封装"><span class="nav-number">1.3.3.</span> <span class="nav-text">封装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构造方法"><span class="nav-number">1.3.4.</span> <span class="nav-text">构造方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#继承"><span class="nav-number">1.3.5.</span> <span class="nav-text">继承</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多态"><span class="nav-number">1.3.6.</span> <span class="nav-text">多态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抽象类"><span class="nav-number">1.3.7.</span> <span class="nav-text">抽象类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接口"><span class="nav-number">1.3.8.</span> <span class="nav-text">接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内部类"><span class="nav-number">1.3.9.</span> <span class="nav-text">内部类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集合"><span class="nav-number">1.4.</span> <span class="nav-text">集合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#List与Set"><span class="nav-number">1.4.1.</span> <span class="nav-text">List与Set</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HashMap"><span class="nav-number">1.4.2.</span> <span class="nav-text">HashMap</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#put方法"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">put方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get方法"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">get方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#扩容resize-方法"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">扩容resize()方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何减少碰撞"><span class="nav-number">1.4.2.4.</span> <span class="nav-text">如何减少碰撞</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Dos攻击"><span class="nav-number">1.4.2.5.</span> <span class="nav-text">Dos攻击</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多线程下的HashMap"><span class="nav-number">1.4.2.6.</span> <span class="nav-text">多线程下的HashMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#红黑树"><span class="nav-number">1.4.2.7.</span> <span class="nav-text">红黑树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HashMap与HashTable"><span class="nav-number">1.4.2.8.</span> <span class="nav-text">HashMap与HashTable</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HashMap与ConcurrentHashMap"><span class="nav-number">1.4.2.9.</span> <span class="nav-text">HashMap与ConcurrentHashMap</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java高级"><span class="nav-number">2.</span> <span class="nav-text">Java高级</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java基础"><span class="nav-number">1.</span> <span class="nav-text">Java基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java基本语法、特性"><span class="nav-number">1.1.</span> <span class="nav-text">Java基本语法、特性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据类型"><span class="nav-number">1.1.1.</span> <span class="nav-text">数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Java有哪些数据类型"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">Java有哪些数据类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#float与double"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">float与double</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#short-s1-1-s1-s1-1-有错吗-short-s1-1-s1-1-有错吗"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">short s1 &#x3D; 1; s1 &#x3D; s1 + 1;有错吗?short s1 &#x3D; 1; s1 +&#x3D; 1;有错吗</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Math-round-11-5-等于多少？Math-round-11-5-等于多少"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">Math.round(11.5) 等于多少？Math.round(-11.5)等于多少</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运算符"><span class="nav-number">1.1.2.</span> <span class="nav-text">运算符</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#最有效率的方式计算2乘以8"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">最有效率的方式计算2乘以8</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#计算-6"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">计算~6</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#amp-和-amp-amp-的区别"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">&amp;和&amp;&amp;的区别</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#流程控制语句"><span class="nav-number">1.1.3.</span> <span class="nav-text">流程控制语句</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#switch的作用类型"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">switch的作用类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#break-continue-return-的区别及作用"><span class="nav-number">1.1.3.2.</span> <span class="nav-text">break ,continue ,return 的区别及作用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在-Java-中，如何跳出当前的多重嵌套循环"><span class="nav-number">1.1.3.3.</span> <span class="nav-text">在 Java 中，如何跳出当前的多重嵌套循环</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法"><span class="nav-number">1.1.4.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#main方法"><span class="nav-number">1.1.4.1.</span> <span class="nav-text">main方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在main方法执行前输出"><span class="nav-number">1.1.4.2.</span> <span class="nav-text">在main方法执行前输出</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#函数的重载与覆盖"><span class="nav-number">1.1.4.3.</span> <span class="nav-text">函数的重载与覆盖</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修饰符"><span class="nav-number">1.1.5.</span> <span class="nav-text">修饰符</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#四种访问修饰符及区别"><span class="nav-number">1.1.5.1.</span> <span class="nav-text">四种访问修饰符及区别</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关键字"><span class="nav-number">1.2.</span> <span class="nav-text">关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#static"><span class="nav-number">1.2.1.</span> <span class="nav-text">static</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#static作用"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">static作用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#static特点"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">static特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#static应用场景"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">static应用场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#static注意事项"><span class="nav-number">1.2.1.4.</span> <span class="nav-text">static注意事项</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#方法调用顺序"><span class="nav-number">1.2.1.5.</span> <span class="nav-text">方法调用顺序</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#final"><span class="nav-number">1.2.2.</span> <span class="nav-text">final</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#final作用"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">final作用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#final-finally-finalize区别"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">final finally finalize区别</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#this与super"><span class="nav-number">1.2.3.</span> <span class="nav-text">this与super</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#this关键字使用"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">this关键字使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#super关键字使用"><span class="nav-number">1.2.3.2.</span> <span class="nav-text">super关键字使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#this与super-1"><span class="nav-number">1.2.3.3.</span> <span class="nav-text">this与super</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#面向对象"><span class="nav-number">1.3.</span> <span class="nav-text">面向对象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#面向对象思想"><span class="nav-number">1.3.1.</span> <span class="nav-text">面向对象思想</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#面向对象和面向过程的区别"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">面向对象和面向过程的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#面向对象特征"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">面向对象特征</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#面向对象的基本原则"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">面向对象的基本原则</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#继承"><span class="nav-number">1.3.2.</span> <span class="nav-text">继承</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#继承的好处"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">继承的好处</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#继承的注意事项"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">继承的注意事项</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多态"><span class="nav-number">1.3.3.</span> <span class="nav-text">多态</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#多态的特点与实现方式"><span class="nav-number">1.3.3.1.</span> <span class="nav-text">多态的特点与实现方式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抽象类与接口"><span class="nav-number">1.3.4.</span> <span class="nav-text">抽象类与接口</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#抽象类和接口的对比"><span class="nav-number">1.3.4.1.</span> <span class="nav-text">抽象类和接口的对比</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#普通类与抽象类区别"><span class="nav-number">1.3.4.2.</span> <span class="nav-text">普通类与抽象类区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#抽象类能用final修饰吗"><span class="nav-number">1.3.4.3.</span> <span class="nav-text">抽象类能用final修饰吗</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象"><span class="nav-number">1.3.5.</span> <span class="nav-text">对象</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建一个对象用什么关键字？对象实例与对象引用有何不同？"><span class="nav-number">1.3.5.1.</span> <span class="nav-text">创建一个对象用什么关键字？对象实例与对象引用有何不同？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#变量"><span class="nav-number">1.3.6.</span> <span class="nav-text">变量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#成员变量与局部变量区别"><span class="nav-number">1.3.6.1.</span> <span class="nav-text">成员变量与局部变量区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#静态变量和实例变量区别"><span class="nav-number">1.3.6.2.</span> <span class="nav-text">静态变量和实例变量区别</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#匿名对象"><span class="nav-number">1.3.7.</span> <span class="nav-text">匿名对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构造方法"><span class="nav-number">1.3.8.</span> <span class="nav-text">构造方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#在Java中定义一个不做事且没有参数的构造方法的作用"><span class="nav-number">1.3.8.1.</span> <span class="nav-text">在Java中定义一个不做事且没有参数的构造方法的作用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在调用子类构造方法之前会先调用父类没有参数的构造方法，其目的是？"><span class="nav-number">1.3.8.2.</span> <span class="nav-text">在调用子类构造方法之前会先调用父类没有参数的构造方法，其目的是？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一个类的构造方法的作用是什么？若一个类没有声明构造方法，该程序能正确执行吗？为什么？"><span class="nav-number">1.3.8.3.</span> <span class="nav-text">一个类的构造方法的作用是什么？若一个类没有声明构造方法，该程序能正确执行吗？为什么？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#构造方法有哪些特性？"><span class="nav-number">1.3.8.4.</span> <span class="nav-text">构造方法有哪些特性？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内部类"><span class="nav-number">1.3.9.</span> <span class="nav-text">内部类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见类"><span class="nav-number">1.3.10.</span> <span class="nav-text">常见类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Object中的方法"><span class="nav-number">1.3.10.1.</span> <span class="nav-text">Object中的方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#String的equals与"><span class="nav-number">1.3.10.2.</span> <span class="nav-text">String的equals与&#x3D;&#x3D;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#String不变性的理解"><span class="nav-number">1.3.10.3.</span> <span class="nav-text">String不变性的理解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#String重写equals而不重写hashcode的问题"><span class="nav-number">1.3.10.4.</span> <span class="nav-text">String重写equals而不重写hashcode的问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#String、StringBuffer、StringBuilder区别"><span class="nav-number">1.3.10.5.</span> <span class="nav-text">String、StringBuffer、StringBuilder区别</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集合"><span class="nav-number">1.4.</span> <span class="nav-text">集合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#List与Set"><span class="nav-number">1.4.1.</span> <span class="nav-text">List与Set</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HashMap"><span class="nav-number">1.4.2.</span> <span class="nav-text">HashMap</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#put方法"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">put方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#get方法"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">get方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#扩容resize-方法"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">扩容resize()方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何减少碰撞"><span class="nav-number">1.4.2.4.</span> <span class="nav-text">如何减少碰撞</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Dos攻击"><span class="nav-number">1.4.2.5.</span> <span class="nav-text">Dos攻击</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多线程下的HashMap"><span class="nav-number">1.4.2.6.</span> <span class="nav-text">多线程下的HashMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#红黑树"><span class="nav-number">1.4.2.7.</span> <span class="nav-text">红黑树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HashMap与HashTable"><span class="nav-number">1.4.2.8.</span> <span class="nav-text">HashMap与HashTable</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HashMap与ConcurrentHashMap"><span class="nav-number">1.4.2.9.</span> <span class="nav-text">HashMap与ConcurrentHashMap</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java高级"><span class="nav-number">2.</span> <span class="nav-text">Java高级</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -512,20 +847,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -567,7 +902,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共133.4k字</span>
+  <span class="post-count">博客全站共133.5k字</span>
 </div>
         
 
