@@ -5,20 +5,6 @@ tags: Linux
 categories: Linux
 ---
 
-## Linux视频学习笔记
-
-> [尚硅谷韩顺平老师视频讲解](https://www.bilibili.com/video/av21303002?p=1)笔记
->
-> [Sunxz007Github](https://github.com/Sunxz007/Linux-note-follow-Hanshunping)笔记
-
-课程内容如下图所示
-
-{% asset_img 课程内容.png This is an example image %}
-
-<!-- more -->
-
-
-
 ## Linux下安装jdk8
 
 ### 卸载Linux自带OpenJDK
@@ -32,6 +18,8 @@ categories: Linux
 ```
 rpm -qa | grep java
 ```
+
+<!-- more -->
 
 命令说明：
 

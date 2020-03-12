@@ -5122,17 +5122,727 @@ SELECT @用户变量名:=值;
     SELECT @用户变量名;	
 ~~~
 
+2、局部变量
 
+作用域：仅仅在定义它的begin end中有效
+
+应用在 begin end中的第一句话
+
+~~~sql
+1、声明
+  DECLARE 变量名 类型;
+  DECLARE 变量名 类型 DEFAULT 值;
+2、赋值
+  方式一：通过SET或SELECT
+      SET 局部变量名=值;或
+      SET 局部变量名:=值;或
+      SELECT @局部变量名:=值;
+  方式二：通过SELECT INTO
+      SELECT 字段 INTO 局部变量名
+      FROM 表;
+3、使用
+  SELECT 局部变量名;
+~~~
+
+#### 对比用户变量和局部变量
+
+|          | 作用域      | 定义和使用的位置                 | 语法                          |
+| -------- | ----------- | -------------------------------- | ----------------------------- |
+| 用户变量 | 当前会话    | 会话中的任何地方                 | 必须加@符号                   |
+| 局部变量 | BEGIN END中 | 只能在BEGIN END 中，且为第一句话 | 一般不用加@符号，需要限定类型 |
+
+案例：声明两个变量并赋初值，求和，并打印
+
+~~~sql
+#1、用户变量
+SET @m = 1;
+SET @n = 2;
+SET @sum = @m + @n;
+SELECT @sum;
+#语法报错，需要使用在BEGIN END中
+#2、局部变量
+DECLARE m INT DEFAULT 1;
+DECLARE n INT DEFAULT 2;
+DECLARE SUM INT;
+SET SUM=m+n;
+~~~
+
+## 存储过程和函数
+
+类似Java中的方法
+
+
+
+### 存储过程
+
+#### 存储过程创建与调用
+
+含义：一组预先编译好的SQL语句的集合，理解成批处理语句
+
+好处：
+
+1. 提高代码的重用性
+2. 简化操作
+3. 减少了编译次数并且减少了和数据库服务器的连接次数，提高了效率
+
+一、创建语法
+
+~~~java
+create procedure 存储过程名(in|out|inout 参数名  参数类型,...)
+begin
+	存储过程体（一组合法的SQL语句）
+end
+~~~
+
+注意：
+
+1、参数列表包括三部分
+
+参数模式 参数名 参数类型
+
+举例：
+
+IN stuname VARCHAR(20)
+
+参数模式：
+
+IN：该参数可以作为输入，即该参数需要调入方传入值
+
+OUT：该参数可以作为输出，即该参数可以作为返回值
+
+INOUT：该参数即可以作为输入又可以作为输出，该参数既需要传入值，又可以返回值
+
+2、如果存储过程体只有一句话，begin end可以省略
+
+存储过程中的每条sql语句的结尾必须加分号。存储过程的结尾可以使用DELIMITER重新设置
+
+语法：
+
+DELIMITER 结束标记
+
+DELIMITER $
+
+二、调用语法
+
+CALL 存储过程名（实参列表）；
+
+1、空参列表
+
+案例：插入到admin表中5条记录
+
+~~~sql
+#1、创建存储过程
+DELIMITER $
+CREATE PROCEDURE myp1()
+BEGIN
+	INSERT INTO admin(username,`password`)
+	VALUES('john1','0000'),('lili','0000'),('rose','0000'),('jack','0000'),('tom','0000');
+END $
+#2、调用
+CALL myp1()$
+~~~
+
+2、创建带in模式参数的存储过程
+
+案例1：创建存储过程实现根据女神名，查询对应的男神信息
+
+~~~sql
+#1、创建
+DELIMITER $
+CREATE PROCEDURE myp2(IN beautyName VARCHAR(20))
+BEGIN
+	SELECT bo.*
+	FROM boys bo
+	RIGHT JOIN beauty b
+	ON bo.id = b.`boyfriend_id`
+	WHERE b.name=beautyName;
+END $
+#2、调用
+CALL myp2('小昭');
+~~~
+
+案例2：创建存储过程实现用户是否登录成功
+
+思路：先创建存储过程来查询表中与输入信息相同的个数（count(*)），然后为了将个数赋值给变量，声明了int类型的变量result，然后用if语句来判断如果个数>0，则输出成功。
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE myp4(IN username VARCHAR(20),IN PASSWORD VARCHAR(20))
+BEGIN
+	#声明并初始化
+	DECLARE result INT DEFAULT 0;
+	SELECT COUNT(*) INTO result#赋值 select into用法
+	FROM admin 
+	#出现冲突时，使用表名.变量名的形式
+	WHERE admin.username = username
+	AND admin.password = PASSWORD;
+	#使用
+	SELECT IF(result>0,'成功','失败');
+END $
+
+CALL myp4('张飞','8888');
+~~~
+
+3、创建带out模式的存储过程
+
+案例1：根据女神名，返回对应的男神名
+
+思路：查询后的结果利用select into 参数名进行传递，然后调用时可以定义用户变量在begin end外面接收，然后输出即可。
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE myp5(IN beautyName VARCHAR(20),OUT boyName VARCHAR(20))
+BEGIN
+	SELECT bo.`boyName` INTO boyName
+	FROM `boys` bo
+	INNER JOIN `beauty` b
+	ON bo.`id` = b.`boyfriend_id`
+	WHERE b.`name`=beautyName;
+END $
+#调用
+SET @bName;
+CALL myp5('小昭',@bName);
+SELECT @bName;
+~~~
+
+案例2：根据女神名，返回对应的男神名和男神魅力值
+
+注意：为了输出多个OUT，需要在select写完后，再INTO后面加变量1，变量2。
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE myp6(IN beautyName VARCHAR(20),OUT boyName VARCHAR(20),OUT userCP INT)
+BEGIN
+	SELECT bo.`boyName` ,bo.`userCP` INTO boyName,userCP
+	FROM `boys` bo
+	INNER JOIN `beauty` b
+	ON bo.`id` = b.`boyfriend_id`
+	WHERE b.`name`=beautyName;
+END $
+
+CALL myp6('小昭',@bName,@userCP);
+SELECT @bName,@userCP;
+~~~
+
+4、创建带inout模式参数的存储过程
+
+案例1：传入a和b两个值，最终a和b都翻倍并返回
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE myp7(INOUT a INT, INOUT b INT)
+BEGIN
+	SET a=a*2;
+	SET b=b*2;
+END $
+
+SET @m=10;
+SET @n=20;
+CALL myp7(@m,@n);
+SELECT @m,@n;
+~~~
+
+#### 存储过程删除
+
+语法：drop procedure 存储过程名
+
+#### 查看存储过程的信息
+
+show create procedure 存储过程名
+
+#### 存储过程练习
+
+1、创建存储过程实现传入用户名和密码，插入到admin表中
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE test_pro1(IN username VARCHAR(20), IN PASSWORD VARCHAR(20))
+BEGIN
+	INSERT INTO admin(admin.username,admin.`password`)
+	VALUES(username,PASSWORD);
+END $
+
+CALL test_pro1('admin','0000');
+~~~
+
+2、创建存储过程或函数实现传入女神编号，返回女神名称和女神电话
+
+有复制，用select 字段 into 变量名
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE test_pro2(IN beautyID INT,OUT beautyName VARCHAR(20),OUT beautyPhone VARCHAR(20))
+BEGIN
+	SELECT `name` ,`phone` INTO beautyName,beautyPhone
+	FROM `beauty`
+	WHERE id=beautyID;
+END $
+
+CALL test_pro2(12,@name,@phone);
+SELECT @name,@phone;
+~~~
+
+3、创建存储过程或函数实现传入两个女神生日，返回大小
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE test_pro3(IN birth1 DATETIME, IN birth2 DATETIME, OUT result INT)
+BEGIN
+	SELECT DATEDIFF(birth1,birth2) INTO result;
+END $
+
+CALL test_pro3('1988-1-1',NOW(),@result);
+SELECT @result;
+~~~
+
+4、创建存储过程或函数传入一个日期，格式化成xx年xx月xx日并返回
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE test_pro4(IN mydate DATETIME, OUT str VARCHAR(20))
+BEGIN
+	SELECT DATE_FORMAT(mydate,'%y年%m月%d日') INTO str;
+END $
+
+CALL test_pro4(NOW(),@str);
+SELECT @str;
+~~~
+
+5、创建存储过程或函数传入女神名称，返回：女神 and 男神 格式的字符串
+
+如：传入 小昭
+
+返回：小昭 and 张无忌
+
+思路：正常查询，其中字符串拼接使用CONCAT函数，中间用逗号隔开，输出存入变量，查询用右外连接，加上筛选条件。
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE test_pro5(IN beautyName VARCHAR(20), OUT str VARCHAR(50))
+BEGIN
+	SELECT CONCAT(beautyName,' and ',boyName) INTO str
+	FROM boys bo
+	RIGHT JOIN beauty b
+	ON bo.id=b.boyfriend_id
+	WHERE b.name=beautyName;
+END $
+
+CALL test_pro5('小昭',@str);
+SELECT @str;
+~~~
+
+但是这样写的话，当boyName为null的时候，拼接在一起也是null，因此最好使用ifnull来进行判断，只要有为空可能的字段，要是跟其他字符串拼接或者要使用它，最好加上IFNULL判断。
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE test_pro5(IN beautyName VARCHAR(20), OUT str VARCHAR(50))
+BEGIN
+	SELECT CONCAT(beautyName,' and ',IFNULL(boyName,'null')) INTO str
+	FROM boys bo
+	RIGHT JOIN beauty b
+	ON bo.id=b.boyfriend_id
+	WHERE b.name=beautyName;
+END $
+~~~
+
+6、创建存储过程或函数，根据传入的条目数和起始索引，查询beauty表的记录
+
+其中用到了分页，limit 【offset】，size
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE test_pro6(IN size INT, IN startIndex INT)
+BEGIN
+	SELECT * FROM beauty LIMIT startIndex,size;
+END $
+
+CALL test_pro6(3,5);
+~~~
+
+### 函数
+
+与存储过程的区别是：
+
+- 存储过程：可以有0个返回，也可以有多个返回，适合做批量插入、批量更新
+- 函数：有且仅有1个返回，适合做处理数据后返回一个结果
+
+#### 函数创建
+
+1、创建语法
+
+create function 函数名（参数列表）**returns** 返回类型
+
+begin
+
+​	函数体
+
+end
+
+注意：
+
+- 参数列表包含两部分，参数名  参数类型
+
+- 函数体：肯定会有return语句，如果没有会报错，如果return语句不放在函数体最后不报错，但不建议
+- 函数体中仅有一句话，可以省略begin end
+- 使用delimiter语句设置结束标记
+
+#### 函数调用
+
+执行语句并显示返回值
+
+语法：
+
+select 函数名（参数列表）
+
+1、无参有返回
+
+案例：返回公司的员工个数
+
+~~~sql
+DELIMITER $
+CREATE FUNCTION myf1() RETURNS INT
+BEGIN
+	DECLARE c INT DEFAULT 0;#定义变量
+	SELECT COUNT(*) INTO c#赋值
+	FROM employees;
+	RETURN c;
+END $
+#调用
+SELECT myf1();
+~~~
+
+2、有参有返回
+
+案例1：根据员工名，返回它的工资
+
+~~~sql
+DELIMITER $
+CREATE FUNCTION myf2(empName VARCHAR(20)) RETURNS DOUBLE
+BEGIN
+	SET @sal=0;#定义用户变量
+	SELECT salary INTO @sal#赋值
+	FROM employees
+	WHERE last_name = empName;
+	RETURN @sal;#返回值
+END $
+
+SELECT myf2('Kochhar');
+~~~
+
+案例2：根据部门名，返回该部门的平均工资
+
+规律：
+
+- 记得写returns 变量 类型
+- 在begin end中定义变量（declare sal double）or （set @sal double）
+- 利用select 字段 into 变量赋值
+- 最后return 变量。
+
+~~~sql
+DELIMITER $
+CREATE FUNCTION myf3(depName VARCHAR(20)) RETURNS DOUBLE
+BEGIN
+	#定义返回值
+	DECLARE sal DOUBLE;
+	SELECT AVG(salary) INTO sal
+	FROM employees e
+	JOIN departments d ON e.`department_id`=d.`department_id`
+	WHERE d.`department_name`= depName;
+	RETURN sal;
+END $
+
+SELECT myf3('IT');
+~~~
+
+#### 查看函数
+
+语法
+
+show create function 函数名;
+
+#### 删除函数
+
+语法
+
+drop function 函数名；
+
+#### 函数练习
+
+案例：创建函数，实现传入两个float，返回二者之和
+
+这里给变量赋值，可以使用set 变量=语句，也可以使用select 语句 into 变量名
+
+~~~sql
+DELIMITER $
+CREATE FUNCTION myf4(num1 FLOAT,num2 FLOAT) RETURNS FLOAT
+BEGIN
+	DECLARE num3 FLOAT;
+	SET num3 = num1 + num2;
+	RETURN num3;
+END $
+
+SELECT myf4(1,2);
+~~~
+
+## 流程控制结构
+
+- 顺序结构：程序从上往下一次执行
+- 分支结构：程序从两条或多条路径中选择一条去执行
+- 循环结构：程序在满足一定条件的基础上，重复执行一段代码
+
+### 分支结构
+
+#### IF函数
+
+功能：实现简单的双分支
+
+select If(表达式1，表达式2，表达式3)
+
+执行顺序：如果IF函数成立，则IF函数返回表达式2的值，否则返回表达式3的值
+
+应用在任何地方
+
+#### CASE结构
+
+情况1：类似于java中的switch语句，一般用于实现等值判断
+
+语法：
+
+case 变量|表达式|字段
+
+when 要判断的值 then 返回的值1或语句1【；】
+
+when 要判断的值 then 返回的值2或语句2【；】
+
+…
+
+else 要返回的值 n或语句n【；】
+
+end 【case;】
+
+情况2：类似于java中的多重IF语句，一般用于实现区间判断
+
+case 
+
+when 要判断的条件1 then 返回的值1或语句1【；】
+
+when 要判断的条件2 then 返回的值2或语句2【；】
+
+…
+
+else 要返回的值 n或语句n【；】
+
+end 【case；】
+
+特点：
+
+1. 可以作为表达式，嵌套在其他语句中使用，可以放在任何地方，begin end中或外面
+
+   可以作为**独立的语句**使用，只能放在begin end中
+
+2. 如果when中的值满足或条件成立，则执行对应的then后面的语句，并且结束case 
+
+   如果都不满足，则执行else中的语句或值
+
+3. else可以省略，如果else省略了，并且所有的when条件都不满足，则返回null
+
+案例：创建存储过程，根据传入的成绩来显示等级，如传入成绩：90-100，显示A；80-90，显示B；60-80，显示C；否则显示D
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE test_case(IN score INT)
+BEGIN
+	CASE 
+	WHEN score>=90 AND score<=100 THEN SELECT 'A';
+	WHEN score>=80 THEN SELECT 'B';
+	WHEN score>=60 THEN SELECT 'C';
+	ELSE SELECT 'D';
+	END CASE;
+END $
+
+CALL test_case(55);
+~~~
+
+#### IF结构
+
+功能：实现多重分支
+
+语法：
+
+if 条件1 then 语句1；
+
+elseif 条件2 then 语句2；
+
+…
+
+【else 语句n;】
+
+end if;
+
+应用场景：应用在begin end中
+
+案例：根据传入的成绩，来显示等级，比如传入成绩：90-100，返回A；80-90，返回B；60-80，返回C；否则返回D
+
+~~~sql
+DELIMITER $	 
+CREATE FUNCTION test_if(score INT) RETURNS CHAR
+BEGIN
+	IF score>=90 AND score<=100 THEN RETURN 'A';
+	ELSEIF score>=80 THEN RETURN 'B';
+	ELSEIF score>=60 THEN RETURN 'C';
+	ELSE RETURN 'D';
+	END IF;
+END $
+
+SELECT test_if(86);
+~~~
+
+### 循环结构
+
+分类：while、loop、repeat
+
+循环控制：
+
+iterate类似于continue，继续，结束本次循环，继续下一次
+
+leave类似于break，跳出，结束当前所在的循环
+
+#### while
+
+语法：
+
+【标签：】while 循环条件 do
+
+​	循环体;
+
+end while【标签】；
+
+#### loop
+
+语法：
+
+【标签：】loop
+
+​	循环体；
+
+end loop【标签】；
+
+可以用来模拟简单的死循环
+
+#### repeat
+
+类似于do while，至少执行一次
+
+语法：
+
+【标签：】repeat
+
+​	循环体；
+
+until 结束循环的条件
+
+end repeat 【标签】；
+
+#### 循环的使用
+
+没有添加循环控制语句
+
+案例：批量插入，根据次数插入到admin表中多条记录
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE pro_while1(IN insertCount INT)
+BEGIN
+	#定义循环变量i，int类型初始值为1
+	DECLARE i INT DEFAULT 1;
+	WHILE i<=insertCount DO
+		INSERT INTO admin(username,`password`) VALUES(CONCAT('rose',i),'666');
+		SET i=i+1;
+	END WHILE; 
+END $
+
+CALL pro_while1(10);
+~~~
+
+添加leave语句
+
+案例：批量插入，根据次数插入到admin表中多条记录，如果次数>20则停止
+
+这里配合了IF结构来使用
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE test_while1(IN insertCount INT)
+BEGIN
+	DECLARE i INT DEFAULT 1;
+	a:WHILE i<=insertCount DO
+		INSERT INTO admin(username,`password`) VALUES(CONCAT('hua',i),'0000');
+		IF i>=20 THEN LEAVE a;
+		END IF;
+		SET i=i+1;
+	END WHILE a;	
+END $
+
+CALL test_while1(30);
+~~~
+
+添加iterate语句
+
+案例：批量插入，根据次数插入到admin表中多条记录，只插入偶数次
+
+思路：在不为偶数次的时候，iterate退出即可。
+
+~~~sql
+DELIMITER $
+CREATE PROCEDURE test_while2(IN insertCount INT)
+BEGIN
+	DECLARE i INT DEFAULT 0;
+	a:WHILE i<=insertCount DO
+		SET i=i+1;
+		IF MOD(i,2)!=0 THEN ITERATE a;
+		END IF;
+		INSERT INTO admin(username,`password`) VALUES(CONCAT('xi',i),'0000');
+	END WHILE a;	
+END $
+
+CALL test_while2(20);
+~~~
+
+#### 循环总结
+
+{% asset_img 循环.png This is an example image %}
 
 ## 重要函数
 
-### IFNULL
+### IFNULL【重要】
 
 IFNULL（变量名，常量）
 
 如果变量为空，则用常量代替。
 
+只要有为空可能的字段，要是跟其他字符串拼接或者要使用它，最好加上IFNULL判断。
 
+### SET NAMES gbk;
+
+要是字符集报错，一般需要重新设置字符集
+
+### DATEDIFF（time1,time2）
+
+返回两个datetime类型的时间差，返回为整数
+
+### NOW()
+
+返回现在的时间，datetime类型
+
+### CONCAT()
+
+拼接字符串，中间用逗号隔开
+
+### LIMIT
+
+limit 【offset】，size
+
+用来分页，其中offset为开始的地方，从0开始，size表示数据量。
 
 ## 牛客网题目	
 
