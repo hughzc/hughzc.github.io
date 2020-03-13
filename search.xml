@@ -263,20 +263,11 @@
 <h4 id="break-continue-return-的区别及作用"><a href="#break-continue-return-的区别及作用" class="headerlink" title="break ,continue ,return 的区别及作用"></a>break ,continue ,return 的区别及作用</h4><p>break：结束当前的循环体，不再执行此循环</p>
 <p>continue：跳出本次循环，继续执行下一个循环</p>
 <p>return：结束当前的方法，直接返回</p>
-<h4 id="在-Java-中，如何跳出当前的多重嵌套循环"><a href="#在-Java-中，如何跳出当前的多重嵌套循环" class="headerlink" title="在 Java 中，如何跳出当前的多重嵌套循环"></a>在 Java 中，如何跳出当前的多重嵌套循环</h4><p>给外面的循环定义一个名称，在需要跳出的地方使用break 循环名即可</p>
+<h4 id="在-Java-中，如何跳出当前的多重嵌套循环"><a href="#在-Java-中，如何跳出当前的多重嵌套循环" class="headerlink" title="在 Java 中，如何跳出当前的多重嵌套循环"></a>在 Java 中，如何跳出当前的多重嵌套循环</h4><p>给外面的循环定义一个标签，在需要跳出的地方使用break 循环名即可</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">loop1:</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">10</span>; j++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (j == <span class="number">5</span>)</span><br><span class="line">            <span class="keyword">break</span> loop1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><h4 id="main方法"><a href="#main方法" class="headerlink" title="main方法"></a>main方法</h4><p>public static void main(String[] args)</p>
-<p>main方法是Java程序的入口，public表示任何类和对象可以访问，static表示方法随类而加载，可使用类名来调用，void表明没有返回值，main为JVM识别的特殊方法名，不是关键字。字符串数组args可以用来输入参数。main为最先加载的方法（不一定最先执行），因此需要被静态调用。</p>
-<p>是否有其他写法？</p>
-<p>public与static可以交换顺序，也可以定义为final，也可以用synchronized来修饰main方法。</p>
-<h4 id="在main方法执行前输出"><a href="#在main方法执行前输出" class="headerlink" title="在main方法执行前输出"></a>在main方法执行前输出</h4><p>可以使用静态代码块，静态代码块在类加载时被调用</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">	<span class="keyword">static</span>&#123;</span><br><span class="line">		Sout(<span class="string">"Hello1"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	main()&#123;</span><br><span class="line">		Sout(<span class="string">"Hello2"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="函数的重载与覆盖"><a href="#函数的重载与覆盖" class="headerlink" title="函数的重载与覆盖"></a>函数的重载与覆盖</h4><ul>
-<li>重载：重载发生于<strong>一个类</strong>中，若同名的方法有不同的输入参数列表（参数类型不同，参数个数不同或均不同）视为重载</li>
-<li>覆盖：也称为覆写，重写，override，发生在<strong>子类和父类</strong>之间，要求子类重写方法与父类有相同的参数列表和返回类型，子类方法权限大于等于父类方法（父类方法不能被private修饰），子类方法声明异常不能多于父类异常（其子类或子集）。</li>
-</ul>
+
 <h3 id="修饰符"><a href="#修饰符" class="headerlink" title="修饰符"></a>修饰符</h3><h4 id="四种访问修饰符及区别"><a href="#四种访问修饰符及区别" class="headerlink" title="四种访问修饰符及区别"></a>四种访问修饰符及区别</h4><p>用访问修饰符来保护对类、变量、方法和构造方法的访问，支持四种访问权限。</p>
 <ul>
 <li>public：对所有类可见，使用对象为类、接口、变量、方法</li>
@@ -539,7 +530,37 @@
 <li>初始值：成员变量默认有初始值，局部变量没有默认初始值，使用前需要赋值</li>
 <li>使用原则：就近原则，先在局部范围找，接着在成员中找</li>
 </ul>
-<h4 id="静态变量和实例变量区别"><a href="#静态变量和实例变量区别" class="headerlink" title="静态变量和实例变量区别"></a>静态变量和实例变量区别</h4><h3 id="匿名对象"><a href="#匿名对象" class="headerlink" title="匿名对象"></a>匿名对象</h3><h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h3><h4 id="在Java中定义一个不做事且没有参数的构造方法的作用"><a href="#在Java中定义一个不做事且没有参数的构造方法的作用" class="headerlink" title="在Java中定义一个不做事且没有参数的构造方法的作用"></a>在Java中定义一个不做事且没有参数的构造方法的作用</h4><p>在执行子类的构造方法前，默认执行super()，若父类中只有有参数的构造方法，则编译会报错，因为程序在父类中找不到相应方法来执行，因此需要在父类中加上一个不做事的空参的构造方法</p>
+<h4 id="静态变量和实例变量区别"><a href="#静态变量和实例变量区别" class="headerlink" title="静态变量和实例变量区别"></a>静态变量和实例变量区别</h4><p>静态变量，随类的加载而加载，被当前类所有对象共享，内存中只有一份。</p>
+<p>实例变量：随每次创建对象而创建，有几个对象就有几个实例变量。</p>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><h4 id="main方法"><a href="#main方法" class="headerlink" title="main方法"></a>main方法</h4><p>public static void main(String[] args)</p>
+<p>main方法是Java程序的入口，public表示任何类和对象可以访问，static表示方法随类而加载，可使用类名来调用，void表明没有返回值，main为JVM识别的特殊方法名，不是关键字。字符串数组args可以用来输入参数。main为最先加载的方法（不一定最先执行），因此需要被静态调用。</p>
+<p>是否有其他写法？</p>
+<p>public与static可以交换顺序，也可以定义为final，也可以用synchronized来修饰main方法。</p>
+<h4 id="在main方法执行前输出"><a href="#在main方法执行前输出" class="headerlink" title="在main方法执行前输出"></a>在main方法执行前输出</h4><p>可以使用静态代码块，静态代码块在类加载时被调用</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">	<span class="keyword">static</span>&#123;</span><br><span class="line">		Sout(<span class="string">"Hello1"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	main()&#123;</span><br><span class="line">		Sout(<span class="string">"Hello2"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="函数的重载与覆盖"><a href="#函数的重载与覆盖" class="headerlink" title="函数的重载与覆盖"></a>函数的重载与覆盖</h4><p>都是实现多态的方式。</p>
+<ul>
+<li>重载：重载发生于<strong>一个类</strong>中，若同名的方法有不同的输入参数列表（参数类型不同，参数个数不同或均不同）视为重载，编译时的多态性，前绑定</li>
+<li>覆盖：也称为覆写，重写，override，发生在<strong>子类和父类</strong>之间，要求子类重写方法与父类有相同的参数列表和返回类型，子类方法权限大于等于父类方法（父类方法不能被private修饰），子类方法声明异常不能多于父类异常（其子类或子集）。运行时的多态性，后绑定，精髓。</li>
+</ul>
+<h4 id="静态方法和实例方法有何不同？"><a href="#静态方法和实例方法有何不同？" class="headerlink" title="静态方法和实例方法有何不同？"></a>静态方法和实例方法有何不同？</h4><ol>
+<li>调用方式不同，实例方法只能通过对象.方法调用，而静态方法多了类名.方法，无需创建对象。</li>
+<li>访问成员变量限制，在静态方法中只能访问静态成员（静态成员变量和静态方法），不能访问实例成员，而实例方法没有此限制。</li>
+</ol>
+<h4 id="和-equals-的区别是什么"><a href="#和-equals-的区别是什么" class="headerlink" title="== 和 equals 的区别是什么"></a>== 和 equals 的区别是什么</h4><p>==比较的是地址，equals分两种情况</p>
+<ul>
+<li>该类覆写了equals方法，比较的是值或内容</li>
+<li>该类没有覆写equals方法，比较的仍然为地址</li>
+</ul>
+<h4 id="hashCode-与-equals"><a href="#hashCode-与-equals" class="headerlink" title="hashCode 与 equals"></a>hashCode 与 equals</h4><p>将对象加入Set或Map集合中，必须要覆写hashCode或equals方法。通过hashCode计算哈希散列值，寻找在桶中的位置，然后在该桶处的链表或树上通过equals方法来寻找是否有相同的节点，如果有就进行替换（HashMap的put方法逻辑）。覆写hashCode与equals需要确保</p>
+<ul>
+<li>两个相等对象的哈希值相同</li>
+<li>两个相等对象返回equals返回true</li>
+<li>哈希值相等的对象不一定相等</li>
+</ul>
+<p>这样在重写equals时必须重写hashCode，哈希值不等的对象即使有相同的数据也不等。</p>
+<h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h3><h4 id="在Java中定义一个不做事且没有参数的构造方法的作用"><a href="#在Java中定义一个不做事且没有参数的构造方法的作用" class="headerlink" title="在Java中定义一个不做事且没有参数的构造方法的作用"></a>在Java中定义一个不做事且没有参数的构造方法的作用</h4><p>在执行子类的构造方法前，默认执行super()，若父类中只有有参数的构造方法，则编译会报错，因为程序在父类中找不到相应方法来执行，因此需要在父类中加上一个不做事的空参的构造方法</p>
 <h4 id="在调用子类构造方法之前会先调用父类没有参数的构造方法，其目的是？"><a href="#在调用子类构造方法之前会先调用父类没有参数的构造方法，其目的是？" class="headerlink" title="在调用子类构造方法之前会先调用父类没有参数的构造方法，其目的是？"></a>在调用子类构造方法之前会先调用父类没有参数的构造方法，其目的是？</h4><p>子类与父类有较强的耦合性，在初始化子类前，需要相应对父类进行初始化，此函数可以帮助子类做初始化工作</p>
 <h4 id="一个类的构造方法的作用是什么？若一个类没有声明构造方法，该程序能正确执行吗？为什么？"><a href="#一个类的构造方法的作用是什么？若一个类没有声明构造方法，该程序能正确执行吗？为什么？" class="headerlink" title="一个类的构造方法的作用是什么？若一个类没有声明构造方法，该程序能正确执行吗？为什么？"></a>一个类的构造方法的作用是什么？若一个类没有声明构造方法，该程序能正确执行吗？为什么？</h4><p>构造方法的主要作用是完成对类对象的<strong>初始化</strong>工作。若没有显式声明构造方法，程序也能正确执行，因为每个类中有一个默认的空参的构造方法，但当自己定义了构造方法后，就没有该默认构造方法了。</p>
 <h4 id="构造方法有哪些特性？"><a href="#构造方法有哪些特性？" class="headerlink" title="构造方法有哪些特性？"></a>构造方法有哪些特性？</h4><ul>
@@ -547,7 +568,46 @@
 <li>没有返回值，不能用void声明函数</li>
 <li>在new对象时自动调用该方法</li>
 </ul>
-<h3 id="内部类"><a href="#内部类" class="headerlink" title="内部类"></a>内部类</h3><h3 id="常见类"><a href="#常见类" class="headerlink" title="常见类"></a>常见类</h3><h4 id="String的equals、-与intern"><a href="#String的equals、-与intern" class="headerlink" title="String的equals、==与intern"></a>String的equals、==与intern</h4><p>==的作用</p>
+<h3 id="内部类"><a href="#内部类" class="headerlink" title="内部类"></a>内部类</h3><h4 id="内部类定义"><a href="#内部类定义" class="headerlink" title="内部类定义"></a>内部类定义</h4><p>将类定义在内的内部，方便访问外部类中成员。外部类要访问内部类中成员，必须新建外部类对象。内部类可以访问外部类中数据的原理是持有外部类的this引用。</p>
+<h4 id="内部类种类"><a href="#内部类种类" class="headerlink" title="内部类种类"></a>内部类种类</h4><ul>
+<li><p>成员内部类（成员位置上非静态类）</p>
+<p>需要先创建外部类对象，再创建内部类对象</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Outer.Inner in = <span class="keyword">new</span> Outer().<span class="keyword">new</span> Inner();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>局部内部类（定义在方法中的内部类）</p>
+<p>可访问外部类中所有方法</p>
+</li>
+<li><p>匿名内部类（没有名字的内部类，开发较多）</p>
+</li>
+<li><p>静态内部类（static修饰）</p>
+<p>不可以访问外部类中的非静态变量，外部类可通过外部类的对象调用，不用新建内部类对象</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Outer.StaticInner inner = <span class="keyword">new</span> Outer.StaticInner();</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="匿名内部类"><a href="#匿名内部类" class="headerlink" title="匿名内部类"></a>匿名内部类</h4><ul>
+<li>必须继承一个抽象类或接口</li>
+<li>不能定义任何静态成员与静态方法</li>
+<li>所在方法的形参被匿名内部类使用，需要用final修饰</li>
+<li>匿名内部类不能是抽象的，必须实现继承的类或实现的接口所有的抽象方法</li>
+</ul>
+<p>创建方式如下</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">new</span> 类/接口&#123; </span><br><span class="line">  <span class="comment">//匿名内部类实现部分</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="内部类优点"><a href="#内部类优点" class="headerlink" title="内部类优点"></a>内部类优点</h4><ul>
+<li>方便访问其外部类中所有数据</li>
+<li>不被其他包中的类所见，封装性较好</li>
+</ul>
+<h4 id="局部内部类和匿名内部类访问局部变量的时候，为什么变量必须要加上final？"><a href="#局部内部类和匿名内部类访问局部变量的时候，为什么变量必须要加上final？" class="headerlink" title="局部内部类和匿名内部类访问局部变量的时候，为什么变量必须要加上final？"></a>局部内部类和匿名内部类访问局部变量的时候，为什么变量必须要加上final？</h4><p>因为生命周期不同，局部变量存储在栈中，在方法执行结束后，非final的局部变量被销毁，但局部内部类对此变量引用仍然存在，这样当要调用的时候就会出错，增加final可以延长局部变量的生命周期。</p>
+<h3 id="值传递"><a href="#值传递" class="headerlink" title="值传递"></a>值传递</h3><p>值传递指在方法调用时，传递的是参数列表值的拷贝</p>
+<p>引用传递指方法调用时，传递的是引用的地址</p>
+<h4 id="当一个对象被当作参数传递到一个方法后，此方法可改变这个对象的属性，并可返回变化后的结果，那么这里到底是值传递还是引用传递"><a href="#当一个对象被当作参数传递到一个方法后，此方法可改变这个对象的属性，并可返回变化后的结果，那么这里到底是值传递还是引用传递" class="headerlink" title="当一个对象被当作参数传递到一个方法后，此方法可改变这个对象的属性，并可返回变化后的结果，那么这里到底是值传递还是引用传递"></a>当一个对象被当作参数传递到一个方法后，此方法可改变这个对象的属性，并可返回变化后的结果，那么这里到底是值传递还是引用传递</h4><p>值传递，Java语言的传递只支持值传递，当对象实例被传入方法，方法得到的只是参数的拷贝，因此方法中参数的值为此对象实例的一个引用，对象的属性可以在被调用时改变，但对对象引用的改变无法传递给调用者。</p>
+<ul>
+<li>方法不能修改一个<strong>基本数据类型</strong>的参数（即数值型或布尔型》</li>
+<li>方法可以改变一个对象参数的状态（存储在堆内存中）</li>
+<li>方法不能让对象参数的引用</li>
+</ul>
+<h3 id="常见类"><a href="#常见类" class="headerlink" title="常见类"></a>常见类</h3><h4 id="String的equals、-与intern"><a href="#String的equals、-与intern" class="headerlink" title="String的equals、==与intern"></a>String的equals、==与intern</h4><p>==的作用</p>
 <ol>
 <li>判断基础数据类型的</li>
 <li>判断引用是否指向堆内存的同一地址</li>
@@ -653,10 +713,13 @@
 </ol>
 <h4 id="get方法"><a href="#get方法" class="headerlink" title="get方法"></a>get方法</h4><p>先计算hash值找到对应的桶，然后在链表或者红黑树中通过equals方法找到对应的节点，找到值并返回。</p>
 <h4 id="扩容resize-方法"><a href="#扩容resize-方法" class="headerlink" title="扩容resize()方法"></a>扩容resize()方法</h4><p>在构造哈希表时，若不指明初始大小，默认为16，若大小达到了容量16*负载因子0.75，用大数组去替代小数组，重新调整hashmap大小为原来2倍，比较耗时。</p>
+<p>具体逻辑为创建一个大小为原数组大小2倍的新数组，要原数组中的元素重新计算在新数组中的索引，然后添加至新数组中。</p>
 <ul>
 <li>在多线程环境下，调整大小会存在条件竞争，容易造成<strong>死锁</strong></li>
 <li>rehashing是一个比较耗时的过程</li>
 </ul>
+<h4 id="cpu占用100-的问题"><a href="#cpu占用100-的问题" class="headerlink" title="cpu占用100%的问题"></a>cpu占用100%的问题</h4><p>出现在JDK7，因为在JDK7中链表元素的插入采用的是头插法，即如果插入元素的顺序为1,2,3，链表的顺序是3-&gt;2-&gt;1，然后在扩容的时候，当两个线程均新建了一个新的数组，一个数组将链表元素放入到新数组中，由于从头节点开始放，因此此时的顺序是1-&gt;2-&gt;3，而对于第二个链表，其当前记录指针e若指向3，e的next指向2，此时会让3再指向2，这样相当于形成了一个循环链表，这样当使用get()方法的时候，就会死循环。</p>
+<p>JDK8后，链表插入采用尾插入的方法，这样便解决了死循环问题，但在多线程下HashMap仍然会存在节点丢失等问题，因此不能在单线程下使用。</p>
 <h4 id="如何减少碰撞"><a href="#如何减少碰撞" class="headerlink" title="如何减少碰撞"></a>如何减少碰撞</h4><ul>
 <li><p>使用扰动函数：促使元素位置分布均匀，减少碰撞几率</p>
 </li>
@@ -722,7 +785,7 @@
 
 <p>在HashMap的基础上，外面多了一层数组结构，有多个Segment（一种可重入锁），Segment继承自ReentrantLock，每个Segment中有多段数据（HashEntry），当一个线程占用一个锁时，位于此Segment上的其他数据也可以被访问到。默认分配<strong>16</strong>个Segment，理论上比HashTable效率高16倍。将HashMap的table数组逻辑上拆分为多个子数组，每个子数组配置一个Segment，线程只有在获取到某把分段锁后，才能获取到其中的子数组，其他没有该Segment的线程访问其中数据被阻塞，而访问没有被Segment锁住的数据不会被阻塞。</p>
 <p>而当前的ConcurrentHashMap，使用<strong>CAS+Synchronized使锁更细化</strong></p>
-
+<img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E6%96%B0con.png" class title="This is an example image">
 
 <p>使用CAS+synchronized为保证并发安全，数据结构使用数组+链表/红黑树，synchronized锁定的是当前链表或树的首节点，只要没有哈希冲突，效率就可以被进一步提高。许多参数与HashMap类似，如树化和反树化参数。也有一些特有的参数，如sizeCtl，是大小控制的标识符，-1表示正在初始化，-n表示有n-1个线程在执行扩容操作，正数或零表示还没有初始化，数值表示下一次初始化或扩容大小，此参数有volatile修饰，在多线程间可见。</p>
 <p>相比于HashMap可以添加null键，ConcurrentHashMap不允许添加null键和null值，其对数组元素的更新使用CAS操作。</p>
@@ -748,7 +811,21 @@
 <li>ConcurrentHashMap线程安全，CAS+synchronized，数组+链表+红黑树</li>
 <li>HashMap的key、value均可为null，而其他两个类不支持</li>
 </ul>
-<h1 id="Java高级"><a href="#Java高级" class="headerlink" title="Java高级"></a>Java高级</h1>]]></content>
+<h2 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h2><h3 id="创建型模式"><a href="#创建型模式" class="headerlink" title="创建型模式"></a>创建型模式</h3><h4 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h4><p>单例模式的需求为一个类只允许产生一个对象，实现的方式有饿汉式，懒汉式与嵌套类式。</p>
+<p>饿汉式</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton1</span></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> Singleton1 instance = <span class="keyword">new</span> Singleton1();</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">singleton1</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton1 <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>基本思路为直接创建好一个私有的静态的对象，私有构造函数，创建一个public的静态方法去返回此对象（静态方法只能访问静态成员）。这种方法的优点是线程安全，缺点为如果不用到getInstance()方法，仍然会创建一个对象，增加开销。</p>
+<p>懒汉式</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton2</span></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton1 instance = <span class="keyword">null</span>;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">singleton1</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton2 <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(instance == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">synchronized</span>(Singleton2<span class="class">.<span class="keyword">class</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(instance == <span class="keyword">null</span>)&#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> Singleton2;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>基本思路也为创建一个私有静态对象，但一开始不初始，私有构造函数，创建public的静态方法返回此对象，需要加上双重验证，加synchronized是为了保证线程安全，外面加上一层判断是为了提高效率，其中因为new这个语句不是原子性的，为了避免语句重排，出现s没有被初始化就返回的情况，需要让instance被volatile修饰，利用内存屏障保证不重排语句。优点是节约了资源，缺点是写法比较复杂，写错了容易线程不安全。</p>
+<p>嵌套内部类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton3</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">singleton1</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Holder</span></span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> instance = <span class="keyword">new</span> Singleton3();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton3 <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Holder.instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在饿汉式基础上将对象构造放进内部类中，这样不调用内部类的时候不新建对象。</p>
+<p>基本思路为私有构造方法，定义一个私有的静态类，避免其他类访问，直接类名调用，此类中持有外部类的私有静态实例，外部类提供方法，返回内部类中的对象。这样静态类只在被调用时加载一次，因此只有一个对象。优点是不使用getInstance方法不实例化，节约资源。缺点是第一次加载比较慢。</p>
+]]></content>
       <categories>
         <category>JavaSE</category>
       </categories>
@@ -1626,11 +1703,11 @@
 
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//直观打印折纸</span></span><br><span class="line"><span class="comment">//本质上是树的中序遍历，左结点为下，右结点为上，头节点为下</span></span><br><span class="line"><span class="comment">//用递归实现，功能是中序打印二叉树，需要传入当前树的高度，左还是右</span></span><br><span class="line"><span class="comment">//因为只有两种可能，所以可以用布尔类型的变量来表示</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printAllFolds</span><span class="params">(<span class="keyword">int</span> N)</span></span>&#123;</span><br><span class="line">    printProcess(<span class="number">1</span>,N,<span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printProcess</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> n, <span class="keyword">boolean</span> b)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//base case</span></span><br><span class="line">    <span class="keyword">if</span> (i &gt; n)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="comment">//left,cur,right</span></span><br><span class="line">    printProcess(i+<span class="number">1</span>,n,<span class="keyword">true</span>);</span><br><span class="line">    System.out.println(b ? <span class="string">"下"</span> : <span class="string">"上"</span>);</span><br><span class="line">    printProcess(i+<span class="number">1</span>,n,<span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="在二叉树中找到一个节点的后继节点"><a href="#在二叉树中找到一个节点的后继节点" class="headerlink" title="在二叉树中找到一个节点的后继节点"></a>在二叉树中找到一个节点的后继节点</h4><p>现在树结点多了一个parent结点，指向父节点，头节点的parent指向null。只给一个在二叉树中某个节点node，实现返回node的后继节点的函数。在二叉树的后序遍历的序列中，node的下一个节点叫做node的后继节点。</p>
+<h3 id="在二叉树中找到一个节点的后继节点"><a href="#在二叉树中找到一个节点的后继节点" class="headerlink" title="在二叉树中找到一个节点的后继节点"></a>在二叉树中找到一个节点的后继节点</h3><p>现在树结点多了一个parent结点，指向父节点，头节点的parent指向null。只给一个在二叉树中某个节点node，实现返回node的后继节点的函数。在二叉树的后序遍历的序列中，node的下一个节点叫做node的后继节点。</p>
 <p>中序遍历为左、中、右，考虑当前节点为中的情况，因此如果有右子树，后继节点应该是右子树的最左结点。当前节点如果为左，其为父节点的左孩子，则父节点就是后继节点。如果当前节点为右，表明其所在的左子树已被遍历完，需要找到某个节点，其为父节点的左孩子，返回此父节点。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Node <span class="title">getNextNode</span><span class="params">(Node node)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(node == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">//node有右子树，找到右子树最左节点</span></span><br><span class="line">    <span class="keyword">if</span>(node.right != <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> getLeftMost(node.right);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//没有右子树</span></span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        Node parent = node.parent;<span class="comment">//拿到父节点</span></span><br><span class="line">        <span class="comment">//只要此节点不为父节点的左子树</span></span><br><span class="line">        <span class="comment">//跳到node是parent左节点停，返回parent</span></span><br><span class="line">        <span class="comment">//加上Parent不为空是为了兼顾没有后继的情况</span></span><br><span class="line">        <span class="comment">//其中parent不为空要放在前面，不然就算空了，因为parent左孩子不为node，循环仍继续</span></span><br><span class="line">        <span class="keyword">while</span> (parent != <span class="keyword">null</span> &amp;&amp; parent.left != node)&#123;</span><br><span class="line">            <span class="comment">//当前节点不是父节点的左孩子则继续</span></span><br><span class="line">            node = parent;</span><br><span class="line">            parent = node.parent;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> parent;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//找最左节点</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Node <span class="title">getLeftMost</span><span class="params">(Node node)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(node == <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> node;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (node.left != <span class="keyword">null</span>)&#123;</span><br><span class="line">        node = node.left;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> node;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="树的先序方式序列化与反序列化"><a href="#树的先序方式序列化与反序列化" class="headerlink" title="树的先序方式序列化与反序列化"></a>树的先序方式序列化与反序列化</h4><p>中、左、右。将遍历的结果用字符串进行记录。当一个节点的左子树为空时，可以用一个特殊符号来记录，如#。</p>
+<h3 id="树的序列化"><a href="#树的序列化" class="headerlink" title="树的序列化"></a>树的序列化</h3><h4 id="树的先序方式序列化与反序列化"><a href="#树的先序方式序列化与反序列化" class="headerlink" title="树的先序方式序列化与反序列化"></a>树的先序方式序列化与反序列化</h4><p>中、左、右。将遍历的结果用字符串进行记录。当一个节点的左子树为空时，可以用一个特殊符号来记录，如#。</p>
 <p>序列化思路：利用递归来进行中序遍历，如果是空节点，则添加#！，如果不为空，添加value!，然后遍历左子树与右子树。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">serialByPre</span><span class="params">(Node head)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (head == <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"#!"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//中、左、右的递归</span></span><br><span class="line">    String res = head.value + <span class="string">"!"</span>;</span><br><span class="line">    res += serialByPre(head.left);</span><br><span class="line">    res += serialByPre(head.right);</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -1644,10 +1721,23 @@
 <p>按层方式反序列化 思路：将字符串分割，建造头节点并放入队列中，记录头节点。从队列中弹出一个节点，建造其左子树与右子树，如果左子树不为空，加入队列；如果右子树不为空，加入队列。此处用index+数组来控制当前要利用的字符串。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//按层方式反序列化</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Node <span class="title">reconByLevelString</span><span class="params">(String levelStr)</span></span>&#123;</span><br><span class="line">        <span class="comment">//将字符串分割</span></span><br><span class="line">        String[] str = levelStr.split(<span class="string">"!"</span>);</span><br><span class="line">        <span class="keyword">int</span> value = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">//产生头节点，并放进队列中</span></span><br><span class="line">        Node res = generateNode(str[value++]);</span><br><span class="line">        Node head = res;</span><br><span class="line">        Queue&lt;Node&gt; queue = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">        queue.offer(head);</span><br><span class="line">        <span class="keyword">while</span> (!queue.isEmpty())&#123;</span><br><span class="line">            head = queue.poll();</span><br><span class="line">            head.left = generateNode(str[value++]);</span><br><span class="line">            head.right = generateNode(str[value++]);</span><br><span class="line">            <span class="keyword">if</span> (head.left != <span class="keyword">null</span>)&#123;</span><br><span class="line">                queue.offer(head.left);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (head.right != <span class="keyword">null</span>)&#123;</span><br><span class="line">                queue.offer(head.right);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="判断树是否为平衡二叉树"><a href="#判断树是否为平衡二叉树" class="headerlink" title="判断树是否为平衡二叉树"></a>判断树是否为平衡二叉树</h4><p>平衡二叉树中，在任何一个节点，左子树与右子树高度差，不超过1。</p>
+<h3 id="判断树的类型"><a href="#判断树的类型" class="headerlink" title="判断树的类型"></a>判断树的类型</h3><h4 id="判断树是否为平衡二叉树"><a href="#判断树是否为平衡二叉树" class="headerlink" title="判断树是否为平衡二叉树"></a>判断树是否为平衡二叉树</h4><p>平衡二叉树中，在任何一个节点，左子树与右子树高度差，不超过1。</p>
 <p>思路：以每一个节点为头节点的树为平衡二叉树，总体才是，对当前节点，需要其左子树为平衡二叉树，右子树为平衡二叉树，两个子树高度差不超过1，才是平衡二叉树。可以用树的后序遍历递归方式解决，当前函数需要给下一级函数传递当前子树是否平衡，树的高度，如果树不平衡，则高度没有用。可以将是否平衡与树的高度信息进行封装。关键是看函数功能是什么，需要传递什么参数。</p>
 <p>平衡性用来解决效率问题。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isB</span><span class="params">(Node head)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> process(head).isB;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ReturnData <span class="title">process</span><span class="params">(Node head)</span></span>&#123;</span><br><span class="line">    <span class="comment">//空树是高度为0的平衡树</span></span><br><span class="line">    <span class="keyword">if</span> (head == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ReturnData(<span class="keyword">true</span>, <span class="number">0</span>);</span><br><span class="line">    ReturnData leftData = process(head.left);</span><br><span class="line">    <span class="comment">//左子树不平衡，则直接不平衡</span></span><br><span class="line">    <span class="comment">//在不满足时高度为0是因为高度用不上</span></span><br><span class="line">    <span class="keyword">if</span> (!leftData.isB) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ReturnData(<span class="keyword">false</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ReturnData rightData = process(head.right);</span><br><span class="line">    <span class="keyword">if</span> (!rightData.isB)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ReturnData(<span class="keyword">false</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//左、右树均平衡</span></span><br><span class="line">    <span class="keyword">if</span> (Math.abs(leftData.h - rightData.h) &gt; <span class="number">1</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ReturnData(<span class="keyword">false</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//在满足的时候，子结构要给父过程提供高度，为二者中较高的+1</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ReturnData(<span class="keyword">true</span>,Math.max(leftData.h, rightData.h)+<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="判断一棵二叉树是否是搜索二叉树"><a href="#判断一棵二叉树是否是搜索二叉树" class="headerlink" title="判断一棵二叉树是否是搜索二叉树"></a>判断一棵二叉树是否是搜索二叉树</h4><p>如果为搜索二叉树，则其中序遍历的输出一定是升序的，那么中序遍历树，如果当前节点的值小于上一个节点的值，则不为搜索二叉树，因此需要记录上一个节点的值 ，第一个节点的上一个节点为Integer的最小值，当遍历到节点比上一个节点小，返回假，否则更新上一个节点值为当前节点值，遍历下一个节点。当将树遍历完后，返回真。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//判断是否是搜索二叉树，用中序遍历非递归改</span></span><br><span class="line"><span class="comment">//只要在返回的时候，判断是否比前一个数大即可</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isBST</span><span class="params">(Node head)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (head == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    Stack&lt;Node&gt; stack = <span class="keyword">new</span> Stack();</span><br><span class="line">    <span class="keyword">int</span> pre = Integer.MIN_VALUE;</span><br><span class="line">    <span class="keyword">while</span> (!stack.isEmpty() || head != <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span> (head != <span class="keyword">null</span>)&#123;</span><br><span class="line">            stack.push(head);</span><br><span class="line">            head = head.left;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="comment">//弹出一个元素</span></span><br><span class="line">            head = stack.pop();</span><br><span class="line">            <span class="keyword">if</span> (head.value &lt; pre)&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            pre = head.value;</span><br><span class="line">            head = head.right;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="判断一棵二叉树是否为完全二叉树"><a href="#判断一棵二叉树是否为完全二叉树" class="headerlink" title="判断一棵二叉树是否为完全二叉树"></a>判断一棵二叉树是否为完全二叉树</h4><p>思路：利用层级优先遍历，一个节点的左右子树有四种不同状态，如果左有且右有，则继续判断；如果左有，右没有，则后面不能出现叶子节点；如果左没有，右有，肯定不是；如果左没有，右没有，后面不能出现叶子节点。</p>
+<p>因此有两种是绝对不可能的</p>
+<ul>
+<li>左没有，右有</li>
+<li>之前有右边没有的，后来有非空节点</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isCBT</span><span class="params">(Node head)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (head == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    <span class="comment">//双端链表，实现队列</span></span><br><span class="line">    Queue&lt;Node&gt; queue = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">    <span class="comment">//表示是否开启了情况2</span></span><br><span class="line">    <span class="keyword">boolean</span> leaf = <span class="keyword">false</span>;</span><br><span class="line">    Node l = <span class="keyword">null</span>;</span><br><span class="line">    Node r = <span class="keyword">null</span>;</span><br><span class="line">    queue.offer(head);</span><br><span class="line">    <span class="keyword">while</span> (!queue.isEmpty())&#123;</span><br><span class="line">        head = queue.poll();</span><br><span class="line">        l = head.left;</span><br><span class="line">        r = head.right;</span><br><span class="line">        <span class="comment">//有右没左或子节点不全且之后有非叶节点</span></span><br><span class="line">        <span class="keyword">if</span> ((leaf &amp;&amp; (l !=<span class="keyword">null</span> || r != <span class="keyword">null</span>)) || (l == <span class="keyword">null</span> &amp;&amp; r !=<span class="keyword">null</span>))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (l != <span class="keyword">null</span>)</span><br><span class="line">            queue.offer(l);</span><br><span class="line">        <span class="keyword">if</span> (r != <span class="keyword">null</span>)&#123;</span><br><span class="line">            queue.offer(r);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="comment">//右为空，开启状态2</span></span><br><span class="line">            leaf = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
 
 <h1 id="剑指Offer"><a href="#剑指Offer" class="headerlink" title="剑指Offer"></a>剑指Offer</h1><h2 id="数组-1"><a href="#数组-1" class="headerlink" title="数组"></a>数组</h2><h3 id="数组中重复数字"><a href="#数组中重复数字" class="headerlink" title="数组中重复数字"></a>数组中重复数字</h3><h4 id="允许修改数组"><a href="#允许修改数组" class="headerlink" title="允许修改数组"></a>允许修改数组</h4><p>长度为n的数组里所有数字均出现在o~n-1的范围内，数组内某些数字是重复的，但不知道几个重复了，也不知道数字重复了几次。找出数组中任意一个重复的数字。如 ，长度为7的数组{2,3,1,0,2,5,3}，对应的输出为重复数字为2或者3。</p>
 <p>方法1：使用哈希表，如果一个元素添加进哈希表了，就返回此元素，如果没有加入过，就加入。</p>
@@ -4528,11 +4618,166 @@
 <p>将工资按照时间排序，找出第一个和最后一个，然后二者相减。考察的是<strong>select的子句查询</strong>。最外层的select不用加from表，因为用不到。</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> </span><br><span class="line">(<span class="keyword">select</span> salary <span class="keyword">from</span> salaries <span class="keyword">where</span> emp_no = <span class="number">10001</span> <span class="keyword">order</span> <span class="keyword">by</span> from_date <span class="keyword">desc</span> <span class="keyword">limit</span> <span class="number">1</span>)</span><br><span class="line">-(<span class="keyword">select</span> salary <span class="keyword">from</span> salaries <span class="keyword">where</span> emp_no = <span class="number">10001</span> <span class="keyword">order</span> <span class="keyword">by</span> from_date <span class="keyword">asc</span> <span class="keyword">limit</span> <span class="number">1</span>)</span><br><span class="line"><span class="keyword">as</span> growth;</span><br></pre></td></tr></table></figure>
 
-
-
 <h2 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h2><h3 id="MySQL客户端"><a href="#MySQL客户端" class="headerlink" title="MySQL客户端"></a>MySQL客户端</h3><ul>
 <li>F12 将选中语句自动换行</li>
 </ul>
+<h1 id="MySQL高级"><a href="#MySQL高级" class="headerlink" title="MySQL高级"></a>MySQL高级</h1><h2 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h2><p>MySQL默认InnoDB</p>
+<h3 id="MyISAM与InnoDB"><a href="#MyISAM与InnoDB" class="headerlink" title="MyISAM与InnoDB"></a>MyISAM与InnoDB</h3><table>
+<thead>
+<tr>
+<th>对比</th>
+<th align="left">MyISAM</th>
+<th>InnoDB</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主外键</td>
+<td align="left">不支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>事务</td>
+<td align="left">不支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>行表锁</td>
+<td align="left">表锁，操作一条数据锁整个表，不适合高并发</td>
+<td>行锁，操作只锁一行，不对其他行有影响。适合<strong>高并发</strong></td>
+</tr>
+<tr>
+<td>缓存</td>
+<td align="left">只缓存索引，不缓存真实数据</td>
+<td>缓存索引与真实数据，对内存要求高，而且内存大小对性能有决定性影响</td>
+</tr>
+<tr>
+<td>表空间</td>
+<td align="left">小</td>
+<td>大</td>
+</tr>
+<tr>
+<td>关注点</td>
+<td align="left"><strong>性能</strong></td>
+<td><strong>事务</strong></td>
+</tr>
+<tr>
+<td>默认安装</td>
+<td align="left">是</td>
+<td>是</td>
+</tr>
+</tbody></table>
+<p>阿里巴巴大部分mysql数据库使用的为percona的原型加以修改，percona提升了高负载下InnoDB性能，更多的诊断与控制行为。</p>
+<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>性能下降SQL慢，如果执行时间长或者等待时间长</p>
+<ul>
+<li>查询语句写的烂</li>
+<li>索引失效</li>
+<li>关联查询太多join（设计缺陷或不得已的需求）</li>
+<li>服务器调优及各个参数设置（缓冲、线程数等）</li>
+</ul>
+<img src="/2020/02/09/MySQL/sql%E9%A1%BA%E5%BA%8F.png" class title="This is an example image">
+
+<p>sql的执行顺序为</p>
+<ol>
+<li>from</li>
+<li>join</li>
+<li>where</li>
+<li>group by</li>
+<li>having</li>
+<li>select</li>
+<li>order by</li>
+<li>limit</li>
+</ol>
+<h3 id="join分类"><a href="#join分类" class="headerlink" title="join分类"></a>join分类</h3><img src="/2020/02/09/MySQL/%E5%B7%A6%E5%A4%96%E5%8F%B3%E5%A4%96%E5%85%A8%E5%A4%96.png" class title="This is an example image">
+
+<img src="/2020/02/09/MySQL/%E4%B8%89%E7%A7%8D%E8%BF%9E%E6%8E%A5.png" class title="This is an example image">
+
+<p>在左外，右外，全连接上加筛选得到。</p>
+<h3 id="索引是的认识"><a href="#索引是的认识" class="headerlink" title="索引是的认识"></a>索引是的认识</h3><p>索引Index是帮助MySQL高效获取数据的数据结构，即索引的本质是<strong>数据结构</strong>。    </p>
+<p>索引的目的是提高查询效率，可以类比字典。直观理解为<strong>排好序</strong>的<strong>快速查找</strong>数据结构。影响where的查找与order后的排序。</p>
+<p>数据库分别维护着索引与数据，索引指向数据。</p>
+<p>二叉查找树，左子树所有节点值比当前值小，右子树所有节点值比当前值大，左右子树分别为二叉查找树。为了检验，可以用中序遍历，得到为递增序列就是二叉查找树。这样用二叉查找树，每次可以过滤一半数据，而树的节点指向了数据。</p>
+<p>因为索引本身也很大，一般以索引文件的形式存在于磁盘上。 </p>
+<p>平常说的索引，一般默认指B树（多路搜索树，不一定为二叉）结构组织的索引。</p>
+<h3 id="索引的优势与劣势"><a href="#索引的优势与劣势" class="headerlink" title="索引的优势与劣势"></a>索引的优势与劣势</h3><p>优势</p>
+<ul>
+<li>提高数据<strong>检索的效率</strong>，降低数据库的IO成本</li>
+<li>通过索引对数据<strong>排序</strong>，降低数据排序的成本，降低CPU消耗</li>
+</ul>
+<p>劣势</p>
+<ul>
+<li>索引列占据空间</li>
+<li>索引虽然提高了查询速度，但会降低更新表的速度，因为索引需要更新</li>
+<li>索引只是提高效率的一个因素，还需要优化索引建立或优化查询</li>
+</ul>
+<h3 id="MySQL索引分类"><a href="#MySQL索引分类" class="headerlink" title="MySQL索引分类"></a>MySQL索引分类</h3><p>1、单值索引</p>
+<p>一个索引只包含单个列，一个表可以有多个单列索引</p>
+<p>2、唯一索引</p>
+<p>索引值必须要唯一，但允许有空值</p>
+<p>3、复合索引</p>
+<p>一个索引包含多个列</p>
+<h3 id="索引语法"><a href="#索引语法" class="headerlink" title="索引语法"></a>索引语法</h3><h4 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h4><p>create [unique] index indexName on mytable(columnname(length));</p>
+<p>alter table mytable add [unique] index [indexName] on (columnname(length));</p>
+<h4 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h4><p>drop index [indexName] on mytable;</p>
+<h4 id="查看"><a href="#查看" class="headerlink" title="查看"></a>查看</h4><p>show index from table_name\G</p>
+<h4 id="详细添加索引"><a href="#详细添加索引" class="headerlink" title="详细添加索引"></a>详细添加索引</h4><p>alter table tbl_name add primary key(column_list)：添加一个主键，以为索引必须唯一，且不能为空</p>
+<p>alter table tbl_name add unique index_name(column_list)：创建索引值必须唯一（除了null，null可能出现多次）</p>
+<p>alter table tbl_name add index index_name (column_list)：添加普通索引，索引值可出现多次</p>
+<p>alter table tbl_name add fulltext index_name (column_list)：该语句指定了索引为fulltext，用于全文索引</p>
+<h3 id="MySQL索引结构"><a href="#MySQL索引结构" class="headerlink" title="MySQL索引结构"></a>MySQL索引结构</h3><p>1、BTree索引</p>
+<p>B树与B+树。</p>
+<p>对B+树，<strong>真实数据只存在于叶子节点</strong>，<strong>非叶子节点不存储真实的数据</strong>，只存储指引搜索方向的数据项。树中每一层都是不同的磁盘块，读取算一次IO，树的高度越高，IO次数越多。</p>
+<p>2、Hash索引</p>
+<p>3、full-text全文索引</p>
+<p>4、R-Tree索引</p>
+<h4 id="为什么用B-树而不用红黑树"><a href="#为什么用B-树而不用红黑树" class="headerlink" title="为什么用B+树而不用红黑树"></a>为什么用B+树而不用红黑树</h4><p>红黑树的旋转涉及到整棵树，因此需要将全部数据加载进内存，而索引结构通常很大，一般以索引文件存在于硬盘中，因此红黑树不太适合索引的设计，而B树（B与B+）分块从磁盘中读取文件，适用于外部数据的读取，更适合索引的结构设计。</p>
+<h4 id="B-树与B-树区别"><a href="#B-树与B-树区别" class="headerlink" title="B-树与B+树区别"></a>B-树与B+树区别</h4><p>B-树与B+树均为平衡多路查找树，避免了二叉查找树树高度过高IO频繁的问题，所有叶节点高度相同，因此树是平衡的（左、右两树高度差不超过1）。</p>
+<p>B-树在所有节点上既存储数据又存储索引。而B+树在B树的基础之上，仅用叶子节点存储数据，非叶子节点的关键字个数与指针相同，可存储更多关键字，所有的叶子节点有指针指向下一个节点。</p>
+<p>这样，B+树的优势为：更有利于对数据库的<strong>扫描</strong>与<strong>范围查询</strong>（叶子节点存在指针）。</p>
+<p>B树的优势为：在某些查询条件下，查询效率更高，为O(1)。</p>
+<p>数据结构没有好坏之分，只有合不合适。</p>
+<p>因此，对于Mysql这种关系型数据库，表与表之间的关联性很强，利用一个表的字段去遍历另一个表的数据是非常常见的操作，因此使用B+树方便去遍历与范围查找，比较符合关系型数据库的应用场景。</p>
+<p>而对于MongoDB，其为NoSQL数据库的一种，文档型数据库，用类似JSON的方式存储数据，用键的形式去获取数据效率较高，数据量很大而且注重效率。B-树的key与data有对应关系，且单次查询效率更高，因此可以使用B-树更符合这种非关系型数据库的应用场景。</p>
+<p>而hash索引的效率理论上要更高，而Mysql不适用hash索引的原因是hash索引只支持IN或者=的查询，无法支持范围查询，因此也不太符合关系型数据库的需求。</p>
+<h3 id="建立索引情况"><a href="#建立索引情况" class="headerlink" title="建立索引情况"></a>建立索引情况</h3><h4 id="建立索引情况-1"><a href="#建立索引情况-1" class="headerlink" title="建立索引情况"></a>建立索引情况</h4><ol>
+<li><strong>主键</strong>自动建立唯一索引</li>
+<li><strong>频繁</strong>作为<strong>查询</strong>条件的字段应该创建索引</li>
+<li>查询中与其他表相关联的字段，<strong>外键</strong>关系创立索引</li>
+<li>在高并发下倾向于创建<strong>组合索引</strong></li>
+<li>查询中<strong>排序</strong>的字段，排序字段若通过索引访问将大大提高排序速度</li>
+<li>查询中统计或者分组字段</li>
+</ol>
+<h4 id="不建立索引情况"><a href="#不建立索引情况" class="headerlink" title="不建立索引情况"></a>不建立索引情况</h4><ol>
+<li><p><strong>where条件里用不到</strong>的字段不要创建索引</p>
+</li>
+<li><p>表<strong>记录太少</strong></p>
+</li>
+<li><p>经常增删改的表</p>
+</li>
+<li><p>若某个数据列包括太多重复内容，建立索引无太大效果</p>
+<p>数据重复且平均分配的值建索引效果不大</p>
+</li>
+</ol>
+<h3 id="性能分析"><a href="#性能分析" class="headerlink" title="性能分析"></a>性能分析</h3><h4 id="Mysql-Query-Optimizer"><a href="#Mysql-Query-Optimizer" class="headerlink" title="Mysql Query Optimizer"></a>Mysql Query Optimizer</h4><p>Mysql自带的分析工具，负责SELECT语句优化器，主要功能，提供Mysql认为最优的数据检索方式，但不认为DBA认为是最优的</p>
+<h4 id="Mysql常见瓶颈"><a href="#Mysql常见瓶颈" class="headerlink" title="Mysql常见瓶颈"></a>Mysql常见瓶颈</h4><ul>
+<li>CPU：CPU在饱和的时候一般发生在数据装入内存或从磁盘读取数据的时候</li>
+<li>IO：磁盘I/O瓶颈发生在装入数据远大于内容容量的时候</li>
+<li>服务器硬件性能瓶颈：top，free，iostat与vmstat来查看系统性能状态</li>
+</ul>
+<h4 id="explain"><a href="#explain" class="headerlink" title="explain"></a>explain</h4><p>是什么？（查看执行计划）</p>
+<p>使用explain关键字可以模拟优化器执行SQL查询语句，从而知道Mysql如何处理你的SQL语句，分析你的查询语句或是表结构的性能瓶颈。</p>
+<p>能干嘛 ？</p>
+<ul>
+<li>表的读取顺序</li>
+<li>数据读取操作的操作类型</li>
+<li>哪些索引可以使用</li>
+<li>哪些索引被实际使用</li>
+<li>表之间的引用</li>
+<li>每张表有多少行被优化器查询</li>
+</ul>
+<p>怎么用？</p>
+<p><strong>explain+SQL语句</strong></p>
+<p>表头信息</p>
+<p>id|select_type|table|type|possible_keys|key|key_len|ref|rows|Extra</p>
 ]]></content>
       <categories>
         <category>MySQL</category>
@@ -7425,6 +7670,7 @@ getLast();</code></pre><p> <strong>jdk1.6</strong></p>
 <h4 id="检查是否配置成功"><a href="#检查是否配置成功" class="headerlink" title="检查是否配置成功"></a>检查是否配置成功</h4><p>键入：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">java -version</span><br></pre></td></tr></table></figure>
 
+<h2 id="Linux下安装MySQL"><a href="#Linux下安装MySQL" class="headerlink" title="Linux下安装MySQL"></a>Linux下安装MySQL</h2><p>使用rpm，</p>
 <h2 id="Linux命令"><a href="#Linux命令" class="headerlink" title="Linux命令"></a>Linux命令</h2><h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
 <li>pwd 查看当前目录路径</li>
 <li>ls -al 展示本目录下所有文件</li>
