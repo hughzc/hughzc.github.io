@@ -718,6 +718,7 @@
 <li>在多线程环境下，调整大小会存在条件竞争，容易造成<strong>死锁</strong></li>
 <li>rehashing是一个比较耗时的过程</li>
 </ul>
+<h4 id="负载因子"><a href="#负载因子" class="headerlink" title="负载因子"></a>负载因子</h4><p>为何负载因子要选为0.75，而不是更高的1，或者更小的0.5呢。如果负载因子选为1，则resize()的阈值会变得比较高，更不容易扩容，减少了rehash的成本，但是这样桶中元素更密集，哈希碰撞更严重，降低了查询效率。如果选为0.5，则resize()的阈值变得很低，扩容频繁，虽然桶中元素分布更散列，但扩容成本变高。因此为了权衡扩容成本与查询效率，选了折中的数字0.75。</p>
 <h4 id="cpu占用100-的问题"><a href="#cpu占用100-的问题" class="headerlink" title="cpu占用100%的问题"></a>cpu占用100%的问题</h4><p>出现在JDK7，因为在JDK7中链表元素的插入采用的是头插法，即如果插入元素的顺序为1,2,3，链表的顺序是3-&gt;2-&gt;1，然后在扩容的时候，当两个线程均新建了一个新的数组，一个数组将链表元素放入到新数组中，由于从头节点开始放，因此此时的顺序是1-&gt;2-&gt;3，而对于第二个链表，其当前记录指针e若指向3，e的next指向2，此时会让3再指向2，这样相当于形成了一个循环链表，这样当使用get()方法的时候，就会死循环。</p>
 <p>JDK8后，链表插入采用尾插入的方法，这样便解决了死循环问题，但在多线程下HashMap仍然会存在节点丢失等问题，因此不能在单线程下使用。</p>
 <h4 id="如何减少碰撞"><a href="#如何减少碰撞" class="headerlink" title="如何减少碰撞"></a>如何减少碰撞</h4><ul>
@@ -825,6 +826,10 @@
 
 <p>在饿汉式基础上将对象构造放进内部类中，这样不调用内部类的时候不新建对象。</p>
 <p>基本思路为私有构造方法，定义一个私有的静态类，避免其他类访问，直接类名调用，此类中持有外部类的私有静态实例，外部类提供方法，返回内部类中的对象。这样静态类只在被调用时加载一次，因此只有一个对象。优点是不使用getInstance方法不实例化，节约资源。缺点是第一次加载比较慢。</p>
+<p>枚举类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Singleton4 &#123;</span><br><span class="line">    INSTANCE;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//调用时</span></span><br><span class="line">Singleton4 s = Singleton4.INSTANCE;</span><br></pre></td></tr></table></figure>
+
+<p>写法简单，调用方便。</p>
 ]]></content>
       <categories>
         <category>JavaSE</category>
@@ -1251,8 +1256,30 @@
 </li>
 <li>volatile仅能实现变量的修改可见性，<strong>不确保原子性</strong>；而synchronized可以保证变量修改的可见性和原子性</li>
 <li>volatile不会造成线程阻塞，而synchronized会</li>
-<li>volatile标记的变量不会被编译期优化，synchronized标记的变量可以被编译期优化</li>
+<li>volatile标记的变量不会被编译器优化，synchronized标记的变量可以被编译器优化</li>
 </ol>
+<h4 id="无法禁止指令重排的synchronized如何保证有序性"><a href="#无法禁止指令重排的synchronized如何保证有序性" class="headerlink" title="无法禁止指令重排的synchronized如何保证有序性"></a>无法禁止指令重排的synchronized如何保证有序性</h4><ol>
+<li>有序性是什么</li>
+</ol>
+<p>对于有序性的理解为，本线程内观察，所有操作都是天然有序的；若在另一个线程中观察此线程，所有操作都是无序的。在本线程中有序是因为根据as-if-serial语义，不管怎么重排序，单线程程序执行的结构都不能被改变，因此可以认为重排序在单线程内部可忽略。</p>
+<ol start="2">
+<li>synchronized如何保障有序</li>
+</ol>
+<p>而synchronized虽然不禁止指令重排，但是其为排他的可重入锁，一个线程持有了锁后，其他线程是不能访问到临界区资源的，这样被synchronized修饰的方法相当于单线程执行，因此符合as-id-serial语义下的有序性。</p>
+<ol start="3">
+<li>指令重排的原因与影响</li>
+</ol>
+<p>更具体来讲，synchronized虽然保证了单线程内的有序性，但因为指令的重排序，一个线程操作的结果对另一个线程会影响。那么为什么要指令重排序呢？</p>
+<ul>
+<li>指令重排存在的原因是计算机为了提升一些语句的处理效率，会将不满足happens-before的语句进行重排序，提高了处理效率（在一些语句停顿的时候先加载其他语句）。heppens-before保证的是可见性。</li>
+</ul>
+<p>在多线程环境中，由于有多个线程的并发操作，可能会导致线程安全问题，这样在多线程下，语句的重排序可能会造成线程安全问题，如懒汉式instance不被volatile修饰的问题。</p>
+<ol start="4">
+<li>如何解决</li>
+</ol>
+<p>为了不让某些语句进行重排序，使用volatile关键字，利用内存屏障禁止相关语句重排序，这样就保证了语句的有序性。</p>
+<p>因此从宏观上，synchronized通过排它锁保证了单线程下的有序性，但因为此线程的结果会对其他线程造成影响，有时候synchronized需要配合volatile一起使用。这样才能更好的达到有序性。</p>
+<p>而CAS操作，其为轻量级的锁，一般需要让临界区资源变量被volatile修饰，保证其可见性，然后通过compare and set的方式对其进行操作。</p>
 <h3 id="CAS-Compare-and-Swap"><a href="#CAS-Compare-and-Swap" class="headerlink" title="CAS(Compare and Swap)"></a>CAS(Compare and Swap)</h3><p>​    乐观锁最常见的实现方式，默认没有数据冲突，如果有就回滚数据并重新提交。</p>
 <p>CAS是一种高效实现数据安全性的方法</p>
 <ul>
@@ -4693,7 +4720,7 @@
 <img src="/2020/02/09/MySQL/%E4%B8%89%E7%A7%8D%E8%BF%9E%E6%8E%A5.png" class title="This is an example image">
 
 <p>在左外，右外，全连接上加筛选得到。</p>
-<h3 id="索引是的认识"><a href="#索引是的认识" class="headerlink" title="索引是的认识"></a>索引是的认识</h3><p>索引Index是帮助MySQL高效获取数据的数据结构，即索引的本质是<strong>数据结构</strong>。    </p>
+<h3 id="索引的认识"><a href="#索引的认识" class="headerlink" title="索引的认识"></a>索引的认识</h3><p>索引Index是帮助MySQL高效获取数据的数据结构，即索引的本质是<strong>数据结构</strong>。    </p>
 <p>索引的目的是提高查询效率，可以类比字典。直观理解为<strong>排好序</strong>的<strong>快速查找</strong>数据结构。影响where的查找与order后的排序。</p>
 <p>数据库分别维护着索引与数据，索引指向数据。</p>
 <p>二叉查找树，左子树所有节点值比当前值小，右子树所有节点值比当前值大，左右子树分别为二叉查找树。为了检验，可以用中序遍历，得到为递增序列就是二叉查找树。这样用二叉查找树，每次可以过滤一半数据，而树的节点指向了数据。</p>
@@ -4768,8 +4795,8 @@
 <p>使用explain关键字可以模拟优化器执行SQL查询语句，从而知道Mysql如何处理你的SQL语句，分析你的查询语句或是表结构的性能瓶颈。</p>
 <p>能干嘛 ？</p>
 <ul>
-<li>表的读取顺序</li>
-<li>数据读取操作的操作类型</li>
+<li>表的读取顺序：id</li>
+<li>数据读取操作的操作类型：select_type</li>
 <li>哪些索引可以使用</li>
 <li>哪些索引被实际使用</li>
 <li>表之间的引用</li>
@@ -4779,6 +4806,149 @@
 <p><strong>explain+SQL语句</strong></p>
 <p>表头信息</p>
 <p>id|select_type|table|type|possible_keys|key|key_len|ref|rows|Extra</p>
+<p><strong>id</strong></p>
+<p>select查询的序列号，包含一组数字，表示查询中执行的select子句或操作表的顺序</p>
+<p>三种情况</p>
+<ul>
+<li>id<strong>相同</strong>，<strong>执行顺序由上至下</strong></li>
+<li>id<strong>不同</strong>，如果是子查询，id的序号会递增，<strong>id值越大优先级越高</strong></li>
+<li>id不同，同时存在（大的先行，相同的从上至下）</li>
+</ul>
+<p>衍生=derived</p>
+<p><strong>select_type</strong></p>
+<ol>
+<li>simple：简单的select查询，不包括子查询或者union</li>
+<li>primary：查询中若包含复杂的子部分，最外层查询被标记</li>
+<li>subquery：在select或where列表包含了子查询</li>
+<li>derived：在from列表中包含的子查询被标记为derived（衍生），Mysql会递归执行这些子查询，将结果放在<strong>临时表</strong>中</li>
+<li>union：若第二个select出现在union之后，被标记为union；若union包含在from子句的子查询中，外层select将被标记为derived</li>
+<li>union result：从union表获取结果的select</li>
+</ol>
+<p>table：这行数据关于哪张表</p>
+<p><strong>type</strong></p>
+<p>访问类型排列</p>
+<p>显示查询使用了何种类型，从最好到最差以此是</p>
+<p>system&gt;const&gt;eq_ref&gt;ref&gt;range&gt;index&gt;All</p>
+<p>一般得保证查询至少达到<strong>range</strong>级别，<strong>最好能到ref</strong></p>
+<p>system：表只有一行记录（等于系统表），为const类型的特例，平时不会出现</p>
+<p>const：通过索引一次就找到了，const用于比较primary_key或者unique索引。因为只匹配一行数据，所以很快。如将索引置于where列表中，Mysql就能将该查询优化为常量</p>
+<p>eq_ref：唯一性<strong>索引扫描</strong>，对于每个索引键，<strong>表中只有一条记录与之匹配</strong>，常见于主键或唯一索引扫描</p>
+<p>ref：<strong>非唯一性索引扫描</strong>，返回匹配某个单独值的所有行。本质上也是一种<strong>索引访问</strong>，它返回所有匹配某个单独值的行，然而，可能会找到<strong>多个符合条件的行</strong>，应属于查找与扫描的混合体。</p>
+<p>range：只检索给定范围的行，使用一个索引来选择行。一般为出现了between，and，&lt;，&gt;，in等的查询</p>
+<p>index：full index scan，index与all区别为index类型只遍历索引树，通常比all快。（index从索引中读，all从硬盘中读）</p>
+<p>all：全表扫描</p>
+<p><strong>possible_keys与key</strong></p>
+<ul>
+<li>是否使用到索引</li>
+<li>索引竞争时，最后用到哪个索引</li>
+</ul>
+<p>possible_key：显示可能应用在这个表上的索引，<strong>不一定被实际使用</strong></p>
+<p>key：实际使用的索引，如果没null，没有使用到索引。查询中若使用了<strong>覆盖索引</strong>，该索引仅出现在key列表中。（<strong>查询的字段与建立的复合索引匹配</strong>）</p>
+<p><strong>key_len</strong></p>
+<p>表示索引中使用的字节数，可通过该列计算查询中使用的索引长度。在不损失精度下，越短越好。索引字段的最大可能长度，<strong>并非实际使用长度</strong>。根据表定义计算而得，不是通过表内检索出的。</p>
+<p><strong>ref</strong></p>
+<p> 显示索引的哪一列被使用，如果可能的话，是一个常数。哪些列或常量被用于查找索引列上的值。</p>
+<p><strong>rows</strong></p>
+<p>根据表统计信息及索引选用情况，大致估算出找到所需的记录所需要读取的行数（越小越好） </p>
+<p><strong>Extra</strong></p>
+<p>包含不适合在其他列中显示但十分重要的信息</p>
+<ul>
+<li><p><strong>Using filesort</strong>：说明mysql会对数据使用一个外部的索引排序，而不是按照表内的索引顺序读取。Mysql无法使用索引完成的排序操作称为 “文件排序”。出现了<strong>不好</strong>！如索引顺序为col1，col2，col3，排序时从col3开始</p>
+</li>
+<li><p><strong>Using temporary</strong>：使用了临时表保存中间结果，Mysql在对查询结果排序时使用临时表。常见于排序order by和分组查询group by。出现了<strong>很不好</strong>！<strong>group by的个数和顺序最好和索引相同</strong>！</p>
+</li>
+<li><p><strong>Using index</strong>：相应的select操作中使用了覆盖索引，避免访问了表的数据行，<strong>效率不错</strong>！如果同时出现using where，说明索引被用来执行索引键值的查找；如果没有，说明索引用来读取数据而非执行查找动作。</p>
+<p>覆盖索引：建立了索引，且查询的列与索引的顺序与个数正好匹配。如果要使用覆盖索引，select列表中只取出所需要的列，不可select *。</p>
+</li>
+<li><p>Using where：使用了where</p>
+</li>
+<li><p>using join buffer：使用了连接缓存</p>
+</li>
+<li><p>impossible where：where子句的值为false</p>
+</li>
+<li><p>select tables optimized away：优化索引操作</p>
+</li>
+<li><p>distinct：优化distinct操作</p>
+</li>
+</ul>
+<h3 id="索引优化"><a href="#索引优化" class="headerlink" title="索引优化"></a>索引优化</h3><h4 id="索引分析"><a href="#索引分析" class="headerlink" title="索引分析"></a>索引分析</h4><h5 id="单表"><a href="#单表" class="headerlink" title="单表"></a>单表</h5><p>先检验是否能查询出结果，再看如何优化</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="keyword">IF</span> <span class="keyword">NOT</span> <span class="keyword">EXISTS</span> <span class="string">`article`</span>(</span><br><span class="line">	<span class="keyword">id</span> <span class="built_in">INT</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> PRIMARY <span class="keyword">KEY</span> AUTO_INCREMENT,</span><br><span class="line">	author_id <span class="built_in">INT</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">	category_id <span class="built_in">INT</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">	views <span class="built_in">INT</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">	comments <span class="built_in">INT</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">	title VARBINARY(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">	<span class="keyword">content</span> <span class="built_in">TEXT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>	</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> article(<span class="string">`author_id`</span>,<span class="string">`category_id`</span>,<span class="string">`views`</span>,<span class="string">`comments`</span>,<span class="string">`title`</span>,<span class="string">`content`</span>) </span><br><span class="line"><span class="keyword">VALUES</span>(<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="string">'1'</span>,<span class="string">'1'</span>),(<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="string">'2'</span>,<span class="string">'2'</span>),(<span class="number">1</span>,<span class="number">1</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="string">'3'</span>,<span class="string">'3'</span>);</span><br></pre></td></tr></table></figure>
+
+<p>查询的为category_id为1，评论数&gt;1，views最多的作者id</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> <span class="keyword">id</span>,<span class="string">`author_id`</span> <span class="keyword">FROM</span> <span class="string">`article`</span> <span class="keyword">WHERE</span> <span class="string">`category_id`</span>=<span class="number">1</span> <span class="keyword">AND</span> <span class="string">`comments`</span>&gt;<span class="number">1</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> views <span class="keyword">DESC</span> <span class="keyword">LIMIT</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>查询结果为</p>
+<img src="/2020/02/09/MySQL/%E5%8D%95%E8%A1%A8%E4%BC%98%E5%8C%961.png" class title="This is an example image">
+
+<p>可以看出type为最差的All即全表扫描，Extra中有Using filesort，最坏的情况，需要优化。</p>
+<p>因此需要建立索引，在where后面出现的可以建立索引。</p>
+<p>尝试1：给where和order by后的`category_id，comments，views建立符合索引</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> idx_article_ccv <span class="keyword">ON</span> article(category_id,comments,views);</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/02/09/MySQL/%E5%8D%95%E8%A1%A8%E4%BC%98%E5%8C%962.png" class title="This is an example image">
+
+<p>这时候type为range，不是全表扫描了，但是Using filesort。因为是comment&gt;1，范围会导致索引失效，Mysql无法利用索引对views部分进行检索，后面的索引用不上。如果此时comment为=1，便可以用上。</p>
+<p>将当前索引删除</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">INDEX</span> idx_article_ccv <span class="keyword">ON</span> article;</span><br></pre></td></tr></table></figure>
+
+<p>尝试2：不将comment作为索引</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> idx_article_cv <span class="keyword">ON</span> article(category_id,views);</span><br></pre></td></tr></table></figure>
+
+<p>这时候，再次查看explain结果</p>
+<img src="/2020/02/09/MySQL/%E5%8D%95%E8%A1%A8%E4%BC%98%E5%8C%963.png" class title="This is an example image">
+
+<p>发现type为ref，用到了索引，而且没有全文扫描，达到效果。</p>
+<h5 id="两表"><a href="#两表" class="headerlink" title="两表"></a>两表</h5><p>两表连接时，当两个join时，索引该如何建立呢？</p>
+<p>当有两个表，使用left join的时候，连接条件为，发现两个表的type都为all，因此可以建立索引。</p>
+<p>左连接，索引加在右表，右表此时为ref，使用到了索引。</p>
+<p>左连接，索引加载左表，左表为index，效果没有加在右表上好。</p>
+<p>因为左连接的特性：左边一定有。left join条件用于确定如何从右边搜索行，左边一定都有。<strong>右边为关键点，一定要建立索引</strong>。</p>
+<p>因此，左连接，给右表建立索引；右连接，给左表建立索引。换而言之，有索引的表作为从表。</p>
+<p>join语句的优化：</p>
+<ul>
+<li>尽可能减少join语句中的循环次数，<strong>用小表驱动大表</strong>。</li>
+<li>优先优化NestedLoop的内层循环</li>
+<li>保证join语句中被驱动表上join条件字段已经被索引</li>
+<li>当无法保证被驱动表的join字段被索引且内存资源充足的情况下，不要太吝惜JoinBuffer的设置</li>
+</ul>
+<h4 id="索引失效"><a href="#索引失效" class="headerlink" title="索引失效"></a>索引失效</h4><ol>
+<li><p>全值匹配最好（where查询为全部索引）</p>
+</li>
+<li><p><strong>最佳左前缀法则</strong>（火车头不能丢，中间车厢不能断）</p>
+<p>如果索引了多列，要遵循最佳左前缀法则，查询从索引的<strong>最左前列开始</strong>并且<strong>不跳过索引中的列</strong></p>
+<p>如果索引顺序为i1，i2，i3，查询时候为i3，i2，i1，会被Mysql优化，仍然可以用索引查询</p>
+</li>
+<li><p><strong>不要在索引列上做任何操作</strong>（计算、函数、（自动或手动）<strong>类型转换</strong>）（<strong>索引操作就失效</strong>）</p>
+</li>
+<li><p>存储引擎不能使用索引中范围条件右边的列（<strong>范围之后全失效</strong>！）</p>
+</li>
+<li><p>尽量使用覆盖索引（只访问索引的查询，索引列和查询列一致），减少select *</p>
+</li>
+<li><p>mysql在使用不等于（!=或&lt;&gt;）的时候无法使用索引会导致全表扫描（少用不等）</p>
+</li>
+<li><p>is null,is not null也无法使用索引</p>
+</li>
+<li><p>like以<strong>通配符开头</strong>(%abc)，mysql索引失效（最好只在右边写%）</p>
+<p>如果需要用到左边%，用<strong>覆盖索引</strong>避免全表扫描（查询字段为索引中的一些或全部，不能超过）</p>
+</li>
+<li><p>字符串不加单引号索引失效（隐式类型转换）</p>
+</li>
+<li><p>用or连接时索引失效，<strong>少用or</strong></p>
+</li>
+</ol>
+<p>如果order by中用到的字段与前面用于筛选的不连续，会有filesort。核心就在于索引是否能被连贯的使用到。</p>
+<p>如索引为c1,c2,c3,c4</p>
+<p>查询为where c1 order by c3,c2会有filesort</p>
+<p>查询为where c1 c2 order by c3,c2不会有，因为c2被筛选了是连贯的</p>
+<p>定值是常量，范围之后是失效，最终看排序，一般order by给个范围</p>
+<p>group by基本需要排序，会有临时表产生</p>
+<p>一般建议</p>
+<ul>
+<li>对于单键索引，尽量选择针对当前query过滤性更好的索引</li>
+<li>选择组合索引时，当前Query过滤性最好的字段在索引字段顺序中，位置越靠前越好</li>
+<li>选择组合索引时，尽量选择可以能够包含当前query中的where字句中更多字段的索引</li>
+<li>尽可能通过分析统计信息和调整query的写法来达到选择合适索引的目的</li>
+</ul>
 ]]></content>
       <categories>
         <category>MySQL</category>
