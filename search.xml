@@ -354,7 +354,7 @@
 <h4 id="final-finally-finalize区别"><a href="#final-finally-finalize区别" class="headerlink" title="final finally finalize区别"></a>final finally finalize区别</h4><ul>
 <li>final可以修饰类、方法、变量，修饰类表明该类不能被继承，修饰方法表明该方法不能被重写，修饰变量表明该变量为常量不能重新被赋值，但若修饰的是对象的引用，不可变的是引用。</li>
 <li>finally一般作用在try-catch代码块中，处理异常时将一定要执行的方法放在finally中，表示不管是否出现异常，该代码块都一定会执行（存在try语句，在try语句中没有执行System.exist(0)），一般放关闭资源的代码。</li>
-<li>finalize是Object类的方法，一般由垃圾回收器调用，当调用Syetem.gc()的时候，由垃圾回收器调用finalize()，回收垃圾，是一个对象是否可回收的最后判断。</li>
+<li>finalize是Object类的方法，一般由垃圾回收器调用，当调用Syetem.gc()的时候，由垃圾回收器调用finalize()，回收垃圾，是一个对象是否可回收的最后判断，最后的自救机会，但只有一次。</li>
 </ul>
 <h3 id="this与super"><a href="#this与super" class="headerlink" title="this与super"></a>this与super</h3><h4 id="this关键字使用"><a href="#this关键字使用" class="headerlink" title="this关键字使用"></a>this关键字使用</h4><p>this的含义：代表本类对象引用，可以理解成<strong>指向对象本身的一个指针</strong>。</p>
 <p>this的用法</p>
@@ -936,6 +936,13 @@
 <figure class="highlight"><table><tr><td class="code"><pre><span class="line">    <span class="comment">/* What will be run. */</span></span><br><span class="line">    private Runnable target;</span><br><span class="line">    </span><br><span class="line">@Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">        if (target != null) &#123;</span><br><span class="line">            target.run();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
 <p>​    其会对target进行判断，当target不为空的时候，执行Runnable的run方法，但由于多态，当子类方法覆写了父类方法时，会优先执行子类方法。因此执行顺序为Thread子类&gt;Runnable方法&gt;Thread类</p>
+<h3 id="线程等待"><a href="#线程等待" class="headerlink" title="线程等待"></a>线程等待</h3><p>线程间进行协作的时候，一个线程可能会比较依赖于另一个线程的执行结果，为了实现这个效果，可以使用线程的等待join()方法，在Thread类中</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">join</span><span class="params">(<span class="keyword">long</span> millis)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">join</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
+
+<p>提供了无限期等待的无参方法和选择最长等待时间的有参方法，验证如下</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TaskJoin</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="keyword">static</span> <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">100000</span>; j++) &#123;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JoinTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TaskJoin tj = <span class="keyword">new</span> TaskJoin();</span><br><span class="line">        Thread t = <span class="keyword">new</span> Thread(tj);</span><br><span class="line">        t.start();</span><br><span class="line">        t.join();</span><br><span class="line">        System.out.println(tj.i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果没有join方法，输出的i的值会很小，而使用了join方法后，主线程会wait，直到线程任务执行完毕，join的本质是让调用线程（此处为主线程）wait在当前线程对象实例上，因此每次输出的值都是设定的100000，可以用于线程的顺序执行。</p>
 <h2 id="线程安全问题"><a href="#线程安全问题" class="headerlink" title="线程安全问题"></a>线程安全问题</h2><p>上文中介绍了为什么要用多线程及如何使用，但当多个线程操作一个资源时，会带来安全问题。如两个线程都在卖票，剩最后一张票的时候，会出现票数量&lt;0的情况。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ticket</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> num = <span class="number">10</span>;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span> (num &gt; <span class="number">0</span>)&#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    Thread.sleep(<span class="number">500</span>);</span><br><span class="line">                &#125;<span class="keyword">catch</span> (InterruptedException e)&#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(Thread.currentThread().getName()+<span class="string">" "</span>+num--);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -1503,7 +1510,7 @@
 <h5 id="如何使用-1"><a href="#如何使用-1" class="headerlink" title="如何使用"></a>如何使用</h5><p>在主线程上阻塞，任务线程执行一次后执行countDown()方法，当执行10次后，主线程继续运行</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TaskCoutDown</span>  <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> CountDownLatch cd = <span class="keyword">new</span> CountDownLatch(<span class="number">10</span>);</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//执行一次，检查一次</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">            System.out.println(<span class="string">"check"</span>);</span><br><span class="line">            <span class="comment">//进行计数</span></span><br><span class="line">            cd.countDown();</span><br><span class="line">        &#125;<span class="keyword">catch</span> (InterruptedException e)&#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CountDownTest</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TaskCoutDown tcd = <span class="keyword">new</span> TaskCoutDown();</span><br><span class="line">        ExecutorService es = Executors.newFixedThreadPool(<span class="number">10</span>);</span><br><span class="line">        <span class="comment">//执行 10次点火</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            es.submit(tcd);</span><br><span class="line">        &#125;</span><br><span class="line">        TaskCoutDown.cd.await();</span><br><span class="line">        System.out.println(<span class="string">"发射"</span>);</span><br><span class="line">        es.shutdown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="让几个线程按顺序执行"><a href="#让几个线程按顺序执行" class="headerlink" title="让几个线程按顺序执行"></a>让几个线程按顺序执行</h4>]]></content>
+]]></content>
       <categories>
         <category>并发</category>
       </categories>
@@ -5118,6 +5125,38 @@
 <li>t：返回前面多少条的记录</li>
 <li>g：后边搭配正则匹配表达式，大小写敏感</li>
 </ul>
+<h4 id="Show-Profile"><a href="#Show-Profile" class="headerlink" title="Show Profile"></a>Show Profile</h4><p>mysql提供的用来分析当前会话中语句执行的<strong>资源消耗</strong>情况，可以用于SQL的调优的测量。     </p>
+<p>默认情况下，参数处于关闭状态，并保存15次的运行结果。</p>
+<ol>
+<li><p>看当前是否支持</p>
+<p>show variables like ‘profiling’;默认为关闭，使用前需要开启</p>
+</li>
+<li><p>设置开启</p>
+<p>set profiling=on;</p>
+</li>
+<li><p>运行sql</p>
+</li>
+<li><p>查看结果</p>
+<p>show profiles</p>
+<p>包括Query_ID，Duration，Query</p>
+</li>
+<li><p>诊断sql</p>
+<p>show profile cpu,block io for query 上一步问题sql号码</p>
+<p>给出每个步骤的具体时间</p>
+</li>
+<li><p>日常开发需要注意的结论</p>
+<ul>
+<li>converting HEAP to MyISAM 查询结果太大，内存不够用往磁盘上搬</li>
+<li>Creating tmp table 创建临时表<ul>
+<li>拷贝数据至临时表</li>
+<li>用完再删除</li>
+</ul>
+</li>
+<li><strong>Copying to tmp table on disk</strong> 把内存中临时表复制到磁盘，危险！！！</li>
+<li>locked </li>
+</ul>
+</li>
+</ol>
 ]]></content>
       <categories>
         <category>MySQL</category>
@@ -6273,7 +6312,7 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Iterator it = coll.iterator();</span><br><span class="line">	<span class="keyword">while</span>(it.hasNext())</span><br><span class="line">		System.out.println(it.next());</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>使用for循环</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(Iterator it = coll.iterator();it.hasNext();) &#123;</span><br><span class="line">	System.***out\***.println(it.next());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(Iterator it = coll.iterator();it.hasNext();) &#123;</span><br><span class="line">	System.out.println(it.next());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 </li>
 </ol>
