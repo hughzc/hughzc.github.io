@@ -8010,7 +8010,6 @@ getLast();</code></pre><p> <strong>jdk1.6</strong></p>
 <h4 id="检查是否配置成功"><a href="#检查是否配置成功" class="headerlink" title="检查是否配置成功"></a>检查是否配置成功</h4><p>键入：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">java -version</span><br></pre></td></tr></table></figure>
 
-<h2 id="Linux下安装MySQL"><a href="#Linux下安装MySQL" class="headerlink" title="Linux下安装MySQL"></a>Linux下安装MySQL</h2><p>使用rpm，</p>
 <h2 id="Linux命令"><a href="#Linux命令" class="headerlink" title="Linux命令"></a>Linux命令</h2><h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
 <li>pwd 查看当前目录路径</li>
 <li>ls -al 展示本目录下所有文件</li>
