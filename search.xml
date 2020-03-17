@@ -830,6 +830,9 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Singleton4 &#123;</span><br><span class="line">    INSTANCE;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//调用时</span></span><br><span class="line">Singleton4 s = Singleton4.INSTANCE;</span><br></pre></td></tr></table></figure>
 
 <p>写法简单，调用方便。</p>
+<p>JDK中用到的单例模式为：Runtime类，使用getRuntime()，使用的饿汉式。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Runtime</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Runtime currentRuntime = <span class="keyword">new</span> Runtime();</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Runtime</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Runtime <span class="title">getRuntime</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> currentRuntime;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
         <category>JavaSE</category>
@@ -1164,6 +1167,7 @@
 
 <h4 id="synchronized和ReentrantLock区别"><a href="#synchronized和ReentrantLock区别" class="headerlink" title="synchronized和ReentrantLock区别"></a>synchronized和ReentrantLock区别</h4><ol>
 <li>synchronized是关键字，ReentrantLock是类</li>
+<li>synchronized的加锁解锁是隐式的，而重入锁的显式的</li>
 <li>ReentrantLock可以设置为公平锁，synchronized不行</li>
 <li>ReentrantLock可以设置锁的等待时间，避免死锁</li>
 <li>底层机制：sync操作对象头中Mark Word，lock调用Unsafe类中方法</li>
@@ -1440,7 +1444,66 @@
 <li>threadFactory：创建新线程，Executors.defaultThreadFactory()（使用这个创建，新线程有一样的优先级，且是非守护线程，同时设置了线程的名称）</li>
 </ul>
 <p>而其中的handle，是线程池的饱和策略</p>
-]]></content>
+<p>若阻塞队列满且没有空闲线程，若继续提交任务，需要策略去处理</p>
+<ul>
+<li>AbortPolicy：直接抛出异常，默认策略</li>
+<li>CallerRunsPolicy：由调用者的线程来执行任务</li>
+<li>DiscardOldestPolicy：丢弃队列中最靠前的任务，并执行当前任务</li>
+<li>DiscardPolicy：直接丢弃任务</li>
+<li>或自己定义，实现RejectExecutionHandler接口</li>
+</ul>
+<h4 id="新任务提交执行后线程池判断"><a href="#新任务提交执行后线程池判断" class="headerlink" title="新任务提交执行后线程池判断"></a>新任务提交执行后线程池判断</h4><ul>
+<li>若运行中线程数少于核心线程数，创建新线程处理任务</li>
+<li>若线程池数量大于等于核心线程数且小于最大线程数，将其放入等待队列，当等待队列满了再新建线程去执行任务</li>
+<li>若运行线程数量大于最大线程数，若等待队列已满，通过handler所指定策略执行任务</li>
+</ul>
+<h4 id="线程池状态"><a href="#线程池状态" class="headerlink" title="线程池状态"></a>线程池状态</h4><ul>
+<li><p>RUNNING：可以接受新提交的任务，也能处理阻塞队列中的任务</p>
+</li>
+<li><p>SHUTDOWN：不再接受新任务，可以处理存量任务</p>
+<p>在处于RUNNING状态时调用shutdown()方法</p>
+</li>
+<li><p>STOP：不再接受新的任务，也不处理存量任务（线程被中断）</p>
+<p>处于RUNNING或SHUNDOWN状态调用shutdownnow()方法</p>
+</li>
+<li><p>TIDYING：所有任务终止</p>
+<p>进行最后清理工作，有效线程数为0，进入此状态后调用terminated方法进入下一状态</p>
+</li>
+<li><p>TERMINATED：默认什么也不做，只作为一个标识</p>
+</li>
+</ul>
+<p>处于SHUTDOWN和STOP状态的线程，当线程池中工作线程数量为0时，进入TIDYING状态。</p>
+<h4 id="线程池大小"><a href="#线程池大小" class="headerlink" title="线程池大小"></a>线程池大小</h4><ul>
+<li><p>CPU密集型：线程数=核数或核数+1设定</p>
+<p>大幅增加线程导致许多不必要的开销</p>
+</li>
+<li><p>I/O密集型：线程数=CPU核数*（1+平均等待时间/平均工作时间）</p>
+</li>
+</ul>
+<h3 id="并发工具包"><a href="#并发工具包" class="headerlink" title="并发工具包"></a>并发工具包</h3><h4 id="Semaphore"><a href="#Semaphore" class="headerlink" title="Semaphore"></a>Semaphore</h4><h5 id="具体方法"><a href="#具体方法" class="headerlink" title="具体方法"></a>具体方法</h5><p>Semaphore信号量是对锁的拓展，synchronized或ReentrantLock都只允许一个线程访问一个资源，而信号量可以指定多个线程，其构造方法有</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Semaphore</span><span class="params">(<span class="keyword">int</span> permits)</span> </span>&#123;</span><br><span class="line">    sync = <span class="keyword">new</span> NonfairSync(permits);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Semaphore</span><span class="params">(<span class="keyword">int</span> permits, <span class="keyword">boolean</span> fair)</span> </span>&#123;</span><br><span class="line">    sync = fair ? <span class="keyword">new</span> FairSync(permits) : <span class="keyword">new</span> NonfairSync(permits);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>即在新建其对象时，必须指定信号的准入数，即同时可以申请多少个许可。其主要方法有</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">acquire</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">acquireUninterruptibly</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Boolean <span class="title">tryAcquire</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Boolean <span class="title">tryAcquire</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">release</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
+
+<p>acquire方法尝试去获得准入许可，若无法获得会等待，直到有线程释放许可或被中断。acquireUninterruptibly不响应中断。这两个方法类似于locks.interruptedLock和lock.lock。tryAcquire()尝试获得许可，成功返回true，失败返回false，不会等待，而tryAcquire()会尝试等待，类似于locks.tryLock()方法。release()用于线程在访问资源结束后，释放一个许可。</p>
+<h5 id="如何使用"><a href="#如何使用" class="headerlink" title="如何使用"></a>如何使用</h5><p>下面演示Semaphore的使用</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TaskSem</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Semaphore sem = <span class="keyword">new</span> Semaphore(<span class="number">5</span>);</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//1、获取semaphore</span></span><br><span class="line">            sem.acquire();</span><br><span class="line">            <span class="comment">//执行任务</span></span><br><span class="line">            Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">            System.out.println(Thread.currentThread().getId()+<span class="string">"完成任务"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">            sem.release();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SemaphoreTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//信号量的学习</span></span><br><span class="line">        ExecutorService es = Executors.newFixedThreadPool(<span class="number">20</span>);</span><br><span class="line">        TaskSem ts = <span class="keyword">new</span> TaskSem();</span><br><span class="line">        <span class="comment">//提交20次任务</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">20</span>; i++) &#123;</span><br><span class="line">            es.submit(ts);</span><br><span class="line">        &#125;</span><br><span class="line">        es.shutdown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>新建了一个允许5个的Semaphore，任务被执行前先获取许可，执行完后需要释放资源，因此将其放在finallt中。在20个线程的线程池中，将20个任务提交，但结果为5个一组来执行，</p>
+<p>因此可以看到Semaphore可以用在一些需要限流的场合，如数据库连接数是有限的，这样可以用信号量来控制最多同时访问的线程数。</p>
+<h4 id="CountDownLatch"><a href="#CountDownLatch" class="headerlink" title="CountDownLatch"></a>CountDownLatch</h4><p>倒计时器，常用来控制线程等待，让一个线程等待直到倒计时结束，再执行。</p>
+<h5 id="具体方法-1"><a href="#具体方法-1" class="headerlink" title="具体方法"></a>具体方法</h5><p>构造函数，需要传入等待计数</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">CountDownLatch</span><span class="params">(<span class="keyword">int</span> count)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (count &lt; <span class="number">0</span>) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"count &lt; 0"</span>);</span><br><span class="line">    <span class="keyword">this</span>.sync = <span class="keyword">new</span> Sync(count);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">countDown</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">await</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
+
+<p>当计数没有到达设定次数时，调用await()方法的线程会处于等待，其他线程调用一次countDown()方法，计数-1，当计数为0的时候，处于等待的方法继续进行</p>
+<h5 id="如何使用-1"><a href="#如何使用-1" class="headerlink" title="如何使用"></a>如何使用</h5><p>在主线程上阻塞，任务线程执行一次后执行countDown()方法，当执行10次后，主线程继续运行</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TaskCoutDown</span>  <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> CountDownLatch cd = <span class="keyword">new</span> CountDownLatch(<span class="number">10</span>);</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//执行一次，检查一次</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">            System.out.println(<span class="string">"check"</span>);</span><br><span class="line">            <span class="comment">//进行计数</span></span><br><span class="line">            cd.countDown();</span><br><span class="line">        &#125;<span class="keyword">catch</span> (InterruptedException e)&#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CountDownTest</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TaskCoutDown tcd = <span class="keyword">new</span> TaskCoutDown();</span><br><span class="line">        ExecutorService es = Executors.newFixedThreadPool(<span class="number">10</span>);</span><br><span class="line">        <span class="comment">//执行 10次点火</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            es.submit(tcd);</span><br><span class="line">        &#125;</span><br><span class="line">        TaskCoutDown.cd.await();</span><br><span class="line">        System.out.println(<span class="string">"发射"</span>);</span><br><span class="line">        es.shutdown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="让几个线程按顺序执行"><a href="#让几个线程按顺序执行" class="headerlink" title="让几个线程按顺序执行"></a>让几个线程按顺序执行</h4>]]></content>
       <categories>
         <category>并发</category>
       </categories>
@@ -4649,7 +4712,14 @@
 <h2 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h2><h3 id="MySQL客户端"><a href="#MySQL客户端" class="headerlink" title="MySQL客户端"></a>MySQL客户端</h3><ul>
 <li>F12 将选中语句自动换行</li>
 </ul>
-<h1 id="MySQL高级"><a href="#MySQL高级" class="headerlink" title="MySQL高级"></a>MySQL高级</h1><h2 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h2><p>MySQL默认InnoDB</p>
+<h1 id="MySQL高级"><a href="#MySQL高级" class="headerlink" title="MySQL高级"></a>MySQL高级</h1><h2 id="数据库范式"><a href="#数据库范式" class="headerlink" title="数据库范式"></a>数据库范式</h2><p>有点类似设计模式中设计原则，即如何设计设计模式，而数据库范式就是如何设计数据库，即设计数据库需要满足的规范。</p>
+<p>有第一范式、第二范式、第三范式、BC范式、第四范式和第五范式</p>
+<p>范式并不是越高越好，范式越高，数据库冗余越小，查询性能越低。一般满足第三范式即可。</p>
+<h3 id="第一范式"><a href="#第一范式" class="headerlink" title="第一范式"></a>第一范式</h3><p>数据库的每一列是原子性的，不可再分。即一个列中不应该还能再拆分为多个属性。</p>
+<h3 id="第二范式"><a href="#第二范式" class="headerlink" title="第二范式"></a>第二范式</h3><p>要满足第一范式，属性完全依赖于主键，不能部分依赖。如果有2个主键，有个属性只依赖于其中一个主键，就不满足第二范式。</p>
+<h3 id="第三范式"><a href="#第三范式" class="headerlink" title="第三范式"></a>第三范式</h3><p>要满足第二范式，属性不能依赖于其他非主键属性，只依赖于主键。</p>
+<p>简单来说，就是拆表。</p>
+<h2 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h2><p>MySQL默认InnoDB</p>
 <h3 id="MyISAM与InnoDB"><a href="#MyISAM与InnoDB" class="headerlink" title="MyISAM与InnoDB"></a>MyISAM与InnoDB</h3><table>
 <thead>
 <tr>
@@ -4948,6 +5018,105 @@
 <li>选择组合索引时，当前Query过滤性最好的字段在索引字段顺序中，位置越靠前越好</li>
 <li>选择组合索引时，尽量选择可以能够包含当前query中的where字句中更多字段的索引</li>
 <li>尽可能通过分析统计信息和调整query的写法来达到选择合适索引的目的</li>
+</ul>
+<p>最好的是全值匹配，要遵守最左前缀；索引上不要计算，范围之后会失效，like 百分放右边，不等空值还有or，索引失效</p>
+<h4 id="优化原则"><a href="#优化原则" class="headerlink" title="优化原则"></a>优化原则</h4><p>小表驱动大表，小的数据库驱动大的数据集。</p>
+<p>EXISTS</p>
+<ul>
+<li>SELECT … FROM table WHERE EXISTS(subquery)</li>
+</ul>
+<p>语法可理解为：<strong>将主查询的数据，放到子查询中做条件验证，根据验证结果（true或false）来决定主查询数据是否得以保留</strong>，当主查询的表比子查询中表更小时效率高，若主查询中数据多，用IN效率更高。即小表驱动大表。相当于IN查询的变种。</p>
+<img src="/2020/02/09/MySQL/exists.png" class title="This is an example image">
+
+<h4 id="order-by关键字优化"><a href="#order-by关键字优化" class="headerlink" title="order by关键字优化"></a>order by关键字优化</h4><ul>
+<li><p>尽量使用index方式排序，避免使用filesort</p>
+<ul>
+<li>Mysql支持支持两种方式的排序，Filesort和Index，Index效率高，指Mysql扫描索引本身完成排序，Filesort效率较低</li>
+<li>两种情况使用Index排序<ul>
+<li>order by语句使用索引最左前列</li>
+<li>使用where子句与order by子句条件组合满足索引最左前列</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>尽可能在索引数据列上完成排序，按照索引建的最佳左前缀</p>
+<ul>
+<li><p>若不在索引上，filesort存在双路排序和单路排序</p>
+<ul>
+<li><p>双路排序：Mysql4.1之前采用，扫描<strong>两次</strong>磁盘</p>
+</li>
+<li><p>单路排序：读取后，在buffer排序，避免第二次读取数据，使用更多空间，将每一行保存进内存</p>
+<p>单路总体比双路好，但存在问题，即如果sort_buffer数据比要全部取的数据小，需要多次IO</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>调优策略</p>
+<ul>
+<li><p>不适用select *，排序顺序最好与索引一致</p>
+</li>
+<li><p>增大sort_buffer_size</p>
+</li>
+<li><p>提高max_length_for_sort_data（提高排序查询效率）</p>
+</li>
+</ul>
+</li>
+</ul>
+<img src="/2020/02/09/MySQL/orderby.png" class title="This is an example image">
+
+<h4 id="group-by关键字优化"><a href="#group-by关键字优化" class="headerlink" title="group by关键字优化"></a>group by关键字优化</h4><ul>
+<li>group by实质为先排序后分组，按照索引的最佳左前缀原则</li>
+<li>当无法使用索引列，增大sort_buffer_size+max_length_for_sort_data</li>
+<li>where高于having，能写在where限定条件的不要写在having</li>
+</ul>
+<h3 id="查询截取分析"><a href="#查询截取分析" class="headerlink" title="查询截取分析"></a>查询截取分析</h3><h4 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h4><ol>
+<li>观察，至少跑一天，看看生产的慢sql情况</li>
+<li>开启慢查询日志，设置阈值，如超过5秒钟就为慢sql，将其抓取</li>
+<li>explain+慢sql分析</li>
+<li>show profile</li>
+<li>运维经理orDBA，进行sql数据库服务器的参数调优</li>
+</ol>
+<p>总结</p>
+<ol>
+<li>慢查询的开启并捕获</li>
+<li>explain+慢sql分析</li>
+<li>show profile查询sql在Mysql服务器中的细节执行细节和生命周期情况</li>
+<li>SQL数据库服务器参数调优</li>
+</ol>
+<h4 id="慢查询日志"><a href="#慢查询日志" class="headerlink" title="慢查询日志"></a>慢查询日志</h4><ul>
+<li>是一种日志记录，用来记录Mysql中响应时间超过阈值的语句，具体为运行时间超过long_query_time值（默认为10秒）的sql，记录到慢查询日志中。</li>
+<li>默认没有开启，需要手动开启；若不是调优需要，不建议启动，造成性能影响</li>
+</ul>
+<p>查看开启</p>
+<p>show variables like ‘%slow_query_log%’</p>
+<p>设置slow_query_log的值来开启，只对当前数据库生效，Mysql重启后失效；若要用久，需要修改配置文件my.cnf</p>
+<ul>
+<li>set global slow_query_log=1;</li>
+</ul>
+<p>查看设定时间</p>
+<p>show variables like ’long_query_time%’，判断为<strong>大于</strong>的语句，而不是大于等于</p>
+<p>设置阈值时间</p>
+<p>set global long_query_time=3;设置3秒</p>
+<p>需要重新连接或新开会话才能看到修改值</p>
+<p>检验</p>
+<p>可以让其休眠等待4s，这样看到效果</p>
+<p>select sleep(4);</p>
+<p>在慢日志中可以具体看出那条sql语句超出了阈值时间。</p>
+<p>查询当前系统中有多少条慢查询记录</p>
+<p>show global status like ‘%Slow_queries’;</p>
+<h4 id="日志分析工具"><a href="#日志分析工具" class="headerlink" title="日志分析工具"></a>日志分析工具</h4><p>mysqldumpslow</p>
+<ul>
+<li>s：按照何种方式排序</li>
+<li>c：访问次数</li>
+<li>l：锁定时间</li>
+<li>r：返回记录</li>
+<li>t：查询时间</li>
+<li>al：平均锁定时间</li>
+<li>ar：平均返回记录数</li>
+<li>at：平均查询时间</li>
+<li>t：返回前面多少条的记录</li>
+<li>g：后边搭配正则匹配表达式，大小写敏感</li>
 </ul>
 ]]></content>
       <categories>
