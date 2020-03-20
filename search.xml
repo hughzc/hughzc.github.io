@@ -892,6 +892,7 @@
 </ol>
 <img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81.png" class title="This is an example image">
 
+<h4 id="阻塞和等待区别"><a href="#阻塞和等待区别" class="headerlink" title="阻塞和等待区别"></a>阻塞和等待区别</h4><p>阻塞可理解为当前线程仍处于活跃状态，只是在阻塞等待其他线程使用完某个锁资源。在等待是因为自身调用了wait()方法，join()方法或其他进入等待状态，只能等待其他线程执行某个特定动作才能继续唤醒。</p>
 <h3 id="Java使用多线程的三种方式"><a href="#Java使用多线程的三种方式" class="headerlink" title="Java使用多线程的三种方式"></a>Java使用多线程的三种方式</h3><h4 id="方式一：继承Thread类"><a href="#方式一：继承Thread类" class="headerlink" title="方式一：继承Thread类"></a>方式一：继承Thread类</h4><p>1、 定义一个类继承Thread类</p>
 <p>2、 覆盖Thread类中的run()方法。Thread类用于描述线程，因此Thread类也有对任务的描述，这个任务就是通过Thread类中的run()方法来体现，因此 run()方法就是封装自定义线程运行任务的函数。run方法中定义的是线程要运行的任务代码。</p>
 <p>3、 直接创建Thread的子类对象创建线程</p>
@@ -933,16 +934,31 @@
 <h4 id="Thread中run-方法执行顺序"><a href="#Thread中run-方法执行顺序" class="headerlink" title="Thread中run()方法执行顺序"></a>Thread中run()方法执行顺序</h4><figure class="highlight"><table><tr><td class="code"><pre><span class="line">new Thread(new Runnable() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">        System.out.println("R run");</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">)&#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void run()&#123;</span><br><span class="line">        System.out.println("T run");</span><br><span class="line">    &#125;</span><br><span class="line">&#125;.start();</span><br></pre></td></tr></table></figure>
 
 <p>输出为T run，看Thread中run()方法的源码</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">    <span class="comment">/* What will be run. */</span></span><br><span class="line">    private Runnable target;</span><br><span class="line">    </span><br><span class="line">@Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">        if (target != null) &#123;</span><br><span class="line">            target.run();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">   <span class="comment">/* What will be run. */</span></span><br><span class="line">   private Runnable target;</span><br><span class="line">   </span><br><span class="line">@Override</span><br><span class="line">   public void run() &#123;</span><br><span class="line">       if (target != null) &#123;</span><br><span class="line">           target.run();</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
 <p>​    其会对target进行判断，当target不为空的时候，执行Runnable的run方法，但由于多态，当子类方法覆写了父类方法时，会优先执行子类方法。因此执行顺序为Thread子类&gt;Runnable方法&gt;Thread类</p>
-<h3 id="线程等待"><a href="#线程等待" class="headerlink" title="线程等待"></a>线程等待</h3><p>线程间进行协作的时候，一个线程可能会比较依赖于另一个线程的执行结果，为了实现这个效果，可以使用线程的等待join()方法，在Thread类中</p>
+<h4 id="start与run"><a href="#start与run" class="headerlink" title="start与run"></a>start与run</h4><p>run()方法只是一个普通方法，而start方法可以让线程从新建状态转为执行状态，并调用run()方法。</p>
+<p>start方法只能被调用一次，而run方法可以被多次调用。</p>
+<h3 id="线程优先级"><a href="#线程优先级" class="headerlink" title="线程优先级"></a>线程优先级</h3><p>可以使用Thread类中的setPriority方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">setPriority</span><span class="params">(<span class="keyword">int</span> newPriority)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>其中优先级为1-10</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">int</span> MIN_PRIORITY = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">int</span> NORM_PRIORITY = <span class="number">5</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">int</span> MAX_PRIORITY = <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+
+<p>优先级越高的线程越有可能抢到CPU时间片，但不一定先执行。</p>
+<h3 id="常用方法"><a href="#常用方法" class="headerlink" title="常用方法"></a>常用方法</h3><h4 id="线程等待"><a href="#线程等待" class="headerlink" title="线程等待"></a>线程等待</h4><p>线程间进行协作的时候，一个线程可能会比较依赖于另一个线程的执行结果，为了实现这个效果，可以使用线程的等待join()方法，在Thread类中</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">join</span><span class="params">(<span class="keyword">long</span> millis)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">join</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
 
 <p>提供了无限期等待的无参方法和选择最长等待时间的有参方法，验证如下</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TaskJoin</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="keyword">static</span> <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">100000</span>; j++) &#123;</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JoinTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TaskJoin tj = <span class="keyword">new</span> TaskJoin();</span><br><span class="line">        Thread t = <span class="keyword">new</span> Thread(tj);</span><br><span class="line">        t.start();</span><br><span class="line">        t.join();</span><br><span class="line">        System.out.println(tj.i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>如果没有join方法，输出的i的值会很小，而使用了join方法后，主线程会wait，直到线程任务执行完毕，join的本质是让调用线程（此处为主线程）wait在当前线程对象实例上，因此每次输出的值都是设定的100000，可以用于线程的顺序执行。</p>
+<p>如果没有join方法，输出的i的值会很小，而使用了join方法后，主线程会wait，直到线程任务执行完毕，join的本质是让调用线程（此处为主线程）<strong>wait</strong>在当前线程对象实例上，因此每次输出的值都是设定的100000，可以用于线程的顺序执行。</p>
+<h4 id="线程礼让"><a href="#线程礼让" class="headerlink" title="线程礼让"></a>线程礼让</h4><p>yield为本地方法，表示告知线程调度器当前线程愿意让出CPU使用权，但可能会被线程调度器忽略，不稳定。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">yield</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="守护线程"><a href="#守护线程" class="headerlink" title="守护线程"></a>守护线程</h4><p>使用Tread类的setDaemon(true)方法，在start()方法前调用，守护线程在后台执行系统性服务，如垃圾回收线程等可以理解为守护的。当一个Java应用内，只有守护线程时，Java虚拟机就会退出。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">setDaemon</span><span class="params">(<span class="keyword">boolean</span> on)</span> </span>&#123;</span><br><span class="line">    checkAccess();</span><br><span class="line">    <span class="keyword">if</span> (isAlive()) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalThreadStateException();</span><br><span class="line">    &#125;</span><br><span class="line">    daemon = on;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="线程安全问题"><a href="#线程安全问题" class="headerlink" title="线程安全问题"></a>线程安全问题</h2><p>上文中介绍了为什么要用多线程及如何使用，但当多个线程操作一个资源时，会带来安全问题。如两个线程都在卖票，剩最后一张票的时候，会出现票数量&lt;0的情况。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ticket</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> num = <span class="number">10</span>;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span> (num &gt; <span class="number">0</span>)&#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    Thread.sleep(<span class="number">500</span>);</span><br><span class="line">                &#125;<span class="keyword">catch</span> (InterruptedException e)&#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(Thread.currentThread().getName()+<span class="string">" "</span>+num--);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -1438,27 +1454,37 @@
 
 <p>5个参数比较关键</p>
 <ul>
-<li>corePoolSize：核心线程数量（长期驻留的线程数，不同实现差别很大）</li>
-<li>maximumPoolSize：线程不够用时能够创建的最大线程数（有的固定于核心线程一样，有的可以创建更多）</li>
-<li>keepAliveTime：抢占的顺序不一定，看运气（线程池维护线程允许的空闲时间，当线程池中线程数量大于corePoolSize的时候，若没有新任务提交，核心线程外的线程不会立即被销毁，而是等待时间超过keepAliveTime）</li>
-<li>workQueue：任务等待队列（当任务提交时，若线程池中线程数量大于等于PoolSize，将任务封装为Worker对象放入等待队列中）<ul>
+<li><p>corePoolSize：核心线程数量（长期驻留的线程数，不同实现差别很大）</p>
+<p>太小，频繁创建销毁线程；太大，浪费系统资源</p>
+</li>
+<li><p>maximumPoolSize：线程不够用时能够创建的最大线程数（有的固定于核心线程一样，有的可以创建更多）</p>
+<p>必须大于等于corePoolSize</p>
+</li>
+<li><p>keepAliveTime：线程存活时间（线程池维护线程允许的空闲时间，当线程池中线程数量大于corePoolSize的时候，若没有新任务提交，核心线程外的线程不会立即被销毁，而是等待时间超过keepAliveTime）</p>
+</li>
+<li><p>workQueue：任务等待队列（当任务提交时，若线程池中线程数量大于等于PoolSize，将任务封装为Worker对象放入等待队列中）</p>
+<ul>
 <li>直接提交的队列：SynchronousQueue<strong>没有容量</strong>，是<strong>无缓冲等待队列</strong>，是一个不存储元素的<strong>阻塞</strong>队列，一个插入操作要等待一个删除操作。提交的任务不会被真实保存，总是将新任务给线程执行，若没有空闲的线程，尝试创建新的线程。一般要求maximumPoolSizes设置很大，避免线程拒绝执行操作。</li>
 <li>有界的任务队列：ArrayBlockingQueue，构造函数必须传入其最大容量，当有新任务执行，线程数小于核心线程数，优先创建线程，若大于，将新任务加进等待队列。若队列满了，无法加入，在总线程数不大于最大线程数时，创建新线程执行任务；否则执行拒绝策略。因此有界队列仅在任务队列装满时才可能将线程数扩充到核心线程数之上。</li>
 <li>无界的任务队列：LinkedBlockingQueue，当有新任务执行，线程数小于设定核心线程数，生成新线程执行任务，当线程数达到核心线程数后，线程不会增加，若有任务没有被消费，放进队列等待，队列可以一直增长直到耗尽系统资源。每个线程完全独立于其他线程。生产者和消费者使用<strong>独立的锁</strong>来控制数据的同步，即在高并发的情况下可以并行操作队列中的数据。</li>
 <li>优先任务队列：PriorityBlockingQueue，可控制任务先后执行顺序，特殊的无界队列，ArrayBlockingQueue与LinkedBlockingQueue按照先进先出顺序执行，而此队列确保高优先级的任务先执行。</li>
 </ul>
 </li>
-<li>threadFactory：创建新线程，Executors.defaultThreadFactory()（使用这个创建，新线程有一样的优先级，且是非守护线程，同时设置了线程的名称）</li>
+<li><p>threadFactory：创建新线程，Executors.defaultThreadFactory()（使用这个创建，新线程有一样的优先级，且是非守护线程，同时设置了线程的名称）</p>
+</li>
 </ul>
 <p>而其中的handle，是线程池的饱和策略</p>
-<p>若阻塞队列满且没有空闲线程，若继续提交任务，需要策略去处理</p>
+<p><strong>若阻塞队列满且没有空闲线程，若继续提交任务，需要策略去处理</strong></p>
 <ul>
 <li>AbortPolicy：直接抛出异常，默认策略</li>
 <li>CallerRunsPolicy：由调用者的线程来执行任务</li>
 <li>DiscardOldestPolicy：丢弃队列中最靠前的任务，并执行当前任务</li>
 <li>DiscardPolicy：直接丢弃任务</li>
-<li>或自己定义，实现RejectExecutionHandler接口</li>
+<li>或自己定义，<strong>实现RejectExecutionHandler接口</strong></li>
 </ul>
+<p>自定义类，实现RejectExecutionHandler接口，并实现如下方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">rejectedExecution</span><span class="params">(Runnable r, ThreadPoolExecutor executor)</span></span>;</span><br></pre></td></tr></table></figure>
+
 <h4 id="新任务提交执行后线程池判断"><a href="#新任务提交执行后线程池判断" class="headerlink" title="新任务提交执行后线程池判断"></a>新任务提交执行后线程池判断</h4><ul>
 <li>若运行中线程数少于核心线程数，创建新线程处理任务</li>
 <li>若线程池数量大于等于核心线程数且小于最大线程数，将其放入等待队列，当等待队列满了再新建线程去执行任务</li>
@@ -1487,6 +1513,20 @@
 <li><p>I/O密集型：线程数=CPU核数*（1+平均等待时间/平均工作时间）</p>
 </li>
 </ul>
+<h4 id="线程池创建规则"><a href="#线程池创建规则" class="headerlink" title="线程池创建规则"></a>线程池创建规则</h4><p>在阿里巴巴《Java开发手册》中规定，线程池不允许使用Executors创建，而是通过ThreadPoolExecutor的方式，目的是更加明确线程池的使用规则，避免资源耗尽的风险。</p>
+<p>使用Executors创建线程池弊端有</p>
+<ul>
+<li>FixedThreadPool和SingleThreadPool，使用的LinkdedBlockingQueue，任务队列最大长度为Integer.MAX_VALUE，可能堆积大量请求，导致OOM</li>
+<li>CachedThreadPool和ScheduledThreadPool，允许创建的最大此案城数量为Integer.MAX_VALUE，可能创建大量的线程，导致OOM</li>
+</ul>
+<h4 id="线程池执行方法"><a href="#线程池执行方法" class="headerlink" title="线程池执行方法"></a>线程池执行方法</h4><p>有submit()和execute()</p>
+<ul>
+<li>execute()属于Executor接口，submit()属于ExecutorService接口</li>
+<li>execute()不能接收返回值，submit()可以配合Future来接收返回值</li>
+</ul>
+<h4 id="ThreadPoolExecutor扩展"><a href="#ThreadPoolExecutor扩展" class="headerlink" title="ThreadPoolExecutor扩展"></a>ThreadPoolExecutor扩展</h4><p>让自定义类继承ThreadPoolExecutor，然后重写其beforeExecute和afterExecute方法，然后添加自定义方法。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">beforeExecute</span><span class="params">(Thread t, Runnable r)</span> </span>&#123; &#125;</span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">afterExecute</span><span class="params">(Runnable r, Throwable t)</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
+
 <h3 id="并发工具包"><a href="#并发工具包" class="headerlink" title="并发工具包"></a>并发工具包</h3><h4 id="Semaphore"><a href="#Semaphore" class="headerlink" title="Semaphore"></a>Semaphore</h4><h5 id="具体方法"><a href="#具体方法" class="headerlink" title="具体方法"></a>具体方法</h5><p>Semaphore信号量是对锁的拓展，synchronized或ReentrantLock都只允许一个线程访问一个资源，而信号量可以指定多个线程，其构造方法有</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Semaphore</span><span class="params">(<span class="keyword">int</span> permits)</span> </span>&#123;</span><br><span class="line">    sync = <span class="keyword">new</span> NonfairSync(permits);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Semaphore</span><span class="params">(<span class="keyword">int</span> permits, <span class="keyword">boolean</span> fair)</span> </span>&#123;</span><br><span class="line">    sync = fair ? <span class="keyword">new</span> FairSync(permits) : <span class="keyword">new</span> NonfairSync(permits);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -1865,11 +1905,7 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//使用二分的思路</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title">findNum2</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (arr == <span class="keyword">null</span> || arr.length &lt; <span class="number">2</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">//看是否在0-n-1范围之内</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (arr[i] &lt; <span class="number">0</span> || arr[i] &gt; arr.length-<span class="number">1</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//二分，看哪边的数字更多，再继续找</span></span><br><span class="line">        <span class="keyword">int</span> left = <span class="number">1</span>, right = arr.length - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (left &lt; right)&#123;</span><br><span class="line">            <span class="keyword">int</span> mid = left + ((right-left) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">            <span class="comment">//计算个数</span></span><br><span class="line">            <span class="keyword">int</span> count = getFre(arr,left,mid);</span><br><span class="line">            <span class="keyword">if</span> (count &gt; mid + <span class="number">1</span> - left)&#123;</span><br><span class="line">                right = mid;</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//去另一半</span></span><br><span class="line">                left = mid+<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> count = getFre(arr,left,right);</span><br><span class="line">        <span class="keyword">if</span> (count &gt; <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> left;</span><br><span class="line">        <span class="comment">//没有找到</span></span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//统计在l-m之间出现的次数</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getFre</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> l, <span class="keyword">int</span> m)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (arr[i] &gt;= l &amp;&amp; arr[i] &lt;= m)&#123;</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><h3 id="替换空格"><a href="#替换空格" class="headerlink" title="替换空格"></a>替换空格</h3><p>请实现一个函数，把字符串中的每个空格替换成“%20”，如输入“We are happy”，则输出“We%are%happy”</p>
-<p>方法一：一开始的思路是直接将字符串利用空格split，得到用空格隔开的字符串数组，再将字符串数组添加进StringBuilder，然后添加一个%20，最后一个字符串则不添加，如果是w空格空格w，得到的字符串数组为“w”、“”、“w”，这样输入n个空格，得到n-1个为空的字符串，然后w后添加一个%20，再添加空添加%20，最后添加一个w，是符合要求的。</p>
-<p>其中如果没有空格，直接返回当前字符串即可。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">replaceBlank</span><span class="params">(String str)</span></span>&#123;</span><br><span class="line">    String[] strAf = str.split(<span class="string">" "</span>);</span><br><span class="line">    <span class="keyword">if</span> (strAf.length == <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> strAf[<span class="number">0</span>];</span><br><span class="line">    StringBuilder res = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; strAf.length-<span class="number">1</span>; i++) &#123;</span><br><span class="line">        res.append(strAf[i]).append(<span class="string">"%20"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    res.append(strAf[strAf.length - <span class="number">1</span>]);</span><br><span class="line">    <span class="keyword">return</span> res.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>方法二：如果不依赖Java的split函数，可以先统计传入的字符串str中空格的个数，然后建造一个新的字符数组，其长度为str非空格字符长度+空格个数*待替换字符串长度，然后用两个指针，一个遍历str，一个指向新的字符数组末尾，如果str当前不为空格，直接复制到新数组，新数组指针移动；如果str当前为空格，新数组从后逐个拷贝传入的字符串，直到遍历完str。</p>
+<p>方法：先统计传入的字符串str中空格的个数，然后建造一个新的字符数组，其长度为str非空格字符长度+空格个数*待替换字符串长度，然后用两个指针，一个遍历str，一个指向新的字符数组末尾，如果str当前不为空格，直接复制到新数组，新数组指针移动；如果str当前为空格，新数组从后逐个拷贝传入的字符串，直到遍历完str。</p>
 <p>其中要注意的是新数组长度，需要先将原数组长度减去空格，再加上空格长度乘待替换字符串长度。如果不减去空格长度，新数组前面会有空余。如果没有空格，直接返回输入字符串即可</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//不用系统的split方法，先统计插入后的字符个数，再从最后一个开始插入</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">replaceBlank2</span><span class="params">(String str, String s)</span></span>&#123;</span><br><span class="line">       <span class="comment">//统计str空格数量及s长度</span></span><br><span class="line">       <span class="keyword">int</span> spCount = <span class="number">0</span>;</span><br><span class="line">       <span class="keyword">int</span> sSize = s.length();</span><br><span class="line">       <span class="comment">//统计str中空格个数</span></span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; str.length(); i++) &#123;</span><br><span class="line">           <span class="keyword">if</span> (<span class="string">' '</span>==str.charAt(i))&#123;</span><br><span class="line">               spCount++;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">if</span> (spCount == <span class="number">0</span>)</span><br><span class="line">           <span class="keyword">return</span> str;</span><br><span class="line">       <span class="comment">//非空格字符数+替换后的字符数</span></span><br><span class="line">       <span class="keyword">int</span> newSize = str.length() - spCount + spCount * sSize;</span><br><span class="line">       <span class="keyword">char</span>[] res = <span class="keyword">new</span> <span class="keyword">char</span>[newSize];</span><br><span class="line">       <span class="comment">//两个指针，一个指向strArr，一个指向res</span></span><br><span class="line">       <span class="keyword">int</span> p1 = str.length() - <span class="number">1</span>;</span><br><span class="line">       <span class="keyword">int</span> p2 = res.length - <span class="number">1</span>;</span><br><span class="line">       <span class="keyword">for</span> (; p1 &gt;= <span class="number">0</span>; p1--) &#123;</span><br><span class="line">           <span class="keyword">char</span> c = str.charAt(p1);</span><br><span class="line">           <span class="keyword">if</span> (<span class="string">' '</span> != c)&#123;</span><br><span class="line">               <span class="comment">//当前不为空格，直接复制</span></span><br><span class="line">               res[p2--] = c;</span><br><span class="line">           &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">               <span class="comment">//如果为空格，p2拷贝s</span></span><br><span class="line">               <span class="keyword">for</span> (<span class="keyword">int</span> i = sSize - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">                   res[p2--] = s.charAt(i);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">new</span> String(res);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
@@ -1880,10 +1916,7 @@
 <p>方法2：既然有用到栈 ，那么也可以用递归来实现，递归函数的功能是打印此节点后面的节点。基本过程是调用递归函数，然后打印当前节点。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//既然有用到栈，那么就可以用递归来实现，先打印后面的，然后打印当前的</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">reversePrint2</span><span class="params">(Node node)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (node == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    process(node,sb);</span><br><span class="line">    <span class="keyword">return</span> sb.toString();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(Node node, StringBuilder sb)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//递归来实现</span></span><br><span class="line">    <span class="comment">//base case</span></span><br><span class="line">    <span class="keyword">if</span> (node == <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//递归后面的节点</span></span><br><span class="line">    process(node.next,sb);</span><br><span class="line">    <span class="comment">//打印当前节点</span></span><br><span class="line">    sb.append(node.value).append(<span class="string">" "</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-
-
-
-
+<h2 id="树-1"><a href="#树-1" class="headerlink" title="树"></a>树</h2><h3 id="树的重构"><a href="#树的重构" class="headerlink" title="树的重构"></a>树的重构</h3><p>根据先序和中序数组来重构一棵二叉树</p>
 ]]></content>
       <categories>
         <category>算法</category>
@@ -3857,7 +3890,7 @@
 </li>
 </ol>
 <h4 id="字符型"><a href="#字符型" class="headerlink" title="字符型"></a>字符型</h4><p>分类：</p>
-<p>较短的文本：char、varchar</p>
+<p>较短的文本：char、varchar【必须加单引号！！！】</p>
 <p>其他：</p>
 <p>binary和varbiary用于保存较短的二进制</p>
 <p>enum用于保存枚举</p>
@@ -4183,14 +4216,14 @@
 <p>原子性指事务是一个<strong>不可分割</strong>的工作单位，事务中的操作要么都发生，要么都不发生</p>
 </li>
 <li><p><strong>一致性</strong>（Consistency）</p>
-<p>事务必须使数据库从一个一致性状态变换到另外一个一致性状态，保证数据的可靠性</p>
+<p>事务必须使数据库从一个一致性状态变换到另外一个一致性状态，保证数据的<strong>可靠性</strong></p>
 <p>数据要准确，可靠    </p>
 </li>
 <li><p><strong>隔离性</strong>（Isolation）</p>
-<p>事务的隔离性是指一个事务的执行不能被其他事务干扰，即一个事务内部的操作及使用的数据对并发的其他事务是隔离的，并发执行的各个事务之间不能互相干扰。类似于锁？</p>
+<p>事务的隔离性是指一个事务的执行<strong>不能被其他事务干扰</strong>，即一个事务内部的操作及使用的数据对并发的其他事务是隔离的，并发执行的各个事务之间不能互相干扰。</p>
 </li>
 <li><p><strong>持久性</strong>（Durability）</p>
-<p>持久性指一个事务一旦被提交，它对数据库中数据的改变就是永久性的，接下来的其他操作和数据库故障不应该对其有任何影响</p>
+<p>持久性指一个事务一旦被提交，它对数据库中数据的改变就是<strong>永久性</strong>的，接下来的其他操作和数据库故障不应该对其有任何影响</p>
 </li>
 </ol>
 <h4 id="事务的创建"><a href="#事务的创建" class="headerlink" title="事务的创建"></a>事务的创建</h4><p><strong>隐式事务</strong>：事务没有明显的开启和结束的标记</p>
@@ -4220,9 +4253,14 @@
 <p>如果使用commit，可以正常修改数据，如果使用的是rollback，那么对数据没有影响</p>
 <h3 id="并发事务【重要】"><a href="#并发事务【重要】" class="headerlink" title="并发事务【重要】"></a>并发事务【重要】</h3><p>对于同时运行的<strong>多个事务</strong>，当这些事务访问<strong>数据库中相同的数据</strong>时，如果没有采取必要的隔离机制，就会导致各种并发问题： </p>
 <ul>
-<li><strong>脏读</strong>：对于两个事务T1、T2，T1读取了已经被T2更新但<strong>还没有提交</strong>的字段，之后若T2回滚，T1读取的内容就是<strong>临时且无效</strong>的</li>
-<li><strong>不可重复读</strong>：对于两个事务T1、T2，T1读取了一个字段，然后T2更新了该字段，之后T1再次读取同一个字段，值就不同了</li>
-<li><strong>幻读</strong>：对于两个事务T1、T2，T1从一个表中读取了一个字段，然后T2在该表中<strong>插入</strong>了一些新的行，之后如果T1再次读取同一个表，就会多出几行</li>
+<li><p><strong>更新丢失</strong>：多个事务选择同一行，最后的更新会覆盖之前的更新。在提交事务前，不能访问同一文件，可避免。</p>
+</li>
+<li><p><strong>脏读</strong>：对于两个事务T1、T2，T1读取了已经被T2<strong>更新</strong>但<strong>还没有提交</strong>的字段，之后若T2回滚，T1读取的内容就是<strong>临时且无效</strong>的</p>
+</li>
+<li><p><strong>不可重复读</strong>：对于两个事务T1、T2，T1读取了一个字段，然后T2<strong>更新</strong>了该字段，之后T1再次读取同一个字段，<strong>值就不同</strong>了</p>
+</li>
+<li><p><strong>幻读</strong>：对于两个事务T1、T2，T1从一个表中读取了一个字段，然后T2在该表中<strong>插入</strong>了一些新的行，之后如果T1再次读取同一个表，就会多出几行</p>
+</li>
 </ul>
 <p>脏读与幻读相对比，脏读侧重于字段的<strong>更新</strong>，幻读侧重于行的<strong>插入</strong>。</p>
 <h4 id="解决并发问题【重要】"><a href="#解决并发问题【重要】" class="headerlink" title="解决并发问题【重要】"></a>解决并发问题【重要】</h4><p><strong>数据库的隔离级别</strong>：数据库系统必须具有隔离并发运行各个事务的能力，使它们不会相互影响，避免各种并发问题</p>
@@ -4254,7 +4292,7 @@
 <p>Oracle支持的2种事务级别：<strong>READ COMMITTED</strong>，SERIALIZABLE。Oracle默认的事务隔离级别为READ COMMITTED</p>
 <p>Mysql支持4种事务级别，Mysql默认的事务隔离级别为<strong>REPETABLE READ</strong></p>
 <h4 id="具体演示"><a href="#具体演示" class="headerlink" title="具体演示"></a>具体演示</h4><p>查看当前隔离级别</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> @@tx_isolation;</span><br><span class="line">8.0后改为<span class="keyword">select</span> @@transaction_isolation;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> @@tx_isolation;</span><br><span class="line">8.0后改为<span class="keyword">select</span> @@transaction_isolation;</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'tx_isolation'</span>;</span><br></pre></td></tr></table></figure>
 
 <p>将隔离级别设置成最低</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">read</span> uncommitted;</span><br></pre></td></tr></table></figure>
@@ -4726,8 +4764,26 @@
 <h3 id="第二范式"><a href="#第二范式" class="headerlink" title="第二范式"></a>第二范式</h3><p>要满足第一范式，属性完全依赖于主键，不能部分依赖。如果有2个主键，有个属性只依赖于其中一个主键，就不满足第二范式。</p>
 <h3 id="第三范式"><a href="#第三范式" class="headerlink" title="第三范式"></a>第三范式</h3><p>要满足第二范式，属性不能依赖于其他非主键属性，只依赖于主键。</p>
 <p>简单来说，就是拆表。</p>
-<h2 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h2><p>MySQL默认InnoDB</p>
-<h3 id="MyISAM与InnoDB"><a href="#MyISAM与InnoDB" class="headerlink" title="MyISAM与InnoDB"></a>MyISAM与InnoDB</h3><table>
+<h2 id="逻辑架构"><a href="#逻辑架构" class="headerlink" title="逻辑架构"></a>逻辑架构</h2><ol>
+<li><p>连接层</p>
+<p>客户端与连接服务，主要完成类似于连接处理、授权认证及相关的安全方案。该层上引入了线程池的概念，为通过认证安全接入的客户端提供线程。可实现基于SSL的安全链接。</p>
+</li>
+<li><p>服务层</p>
+<p>完成大多数的核心服务功能，如SQL接口，完成缓存的查询，SQL的分析和优化及部分内置函数执行。</p>
+</li>
+<li><p>引擎层</p>
+<p>存储引擎层，存储引擎真正负责MySQL中数据的存储和提取，服务器通过API与存储引擎通信。</p>
+</li>
+<li><p>存储层</p>
+<p>数据存储层，将数据存储在运行与裸设备的文件系统之上，并完成与存储引擎的交互</p>
+</li>
+</ol>
+<h3 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h3><p>插件式存储引擎架构将查询处理和其他的系统任务以及数据的存储提取相分离。</p>
+<p>查看存储引擎</p>
+<p>show engines;</p>
+<p>show variables like ‘%storage_engine%’;</p>
+<p>MySQL默认InnoDB</p>
+<h4 id="MyISAM与InnoDB"><a href="#MyISAM与InnoDB" class="headerlink" title="MyISAM与InnoDB"></a>MyISAM与InnoDB</h4><table>
 <thead>
 <tr>
 <th>对比</th>
@@ -5077,7 +5133,7 @@
 <li>当无法使用索引列，增大sort_buffer_size+max_length_for_sort_data</li>
 <li>where高于having，能写在where限定条件的不要写在having</li>
 </ul>
-<h3 id="查询截取分析"><a href="#查询截取分析" class="headerlink" title="查询截取分析"></a>查询截取分析</h3><h4 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h4><ol>
+<h2 id="查询截取分析"><a href="#查询截取分析" class="headerlink" title="查询截取分析"></a>查询截取分析</h2><h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><ol>
 <li>观察，至少跑一天，看看生产的慢sql情况</li>
 <li>开启慢查询日志，设置阈值，如超过5秒钟就为慢sql，将其抓取</li>
 <li>explain+慢sql分析</li>
@@ -5091,7 +5147,7 @@
 <li>show profile查询sql在Mysql服务器中的细节执行细节和生命周期情况</li>
 <li>SQL数据库服务器参数调优</li>
 </ol>
-<h4 id="慢查询日志"><a href="#慢查询日志" class="headerlink" title="慢查询日志"></a>慢查询日志</h4><ul>
+<h3 id="慢查询日志"><a href="#慢查询日志" class="headerlink" title="慢查询日志"></a>慢查询日志</h3><ul>
 <li>是一种日志记录，用来记录Mysql中响应时间超过阈值的语句，具体为运行时间超过long_query_time值（默认为10秒）的sql，记录到慢查询日志中。</li>
 <li>默认没有开启，需要手动开启；若不是调优需要，不建议启动，造成性能影响</li>
 </ul>
@@ -5112,7 +5168,7 @@
 <p>在慢日志中可以具体看出那条sql语句超出了阈值时间。</p>
 <p>查询当前系统中有多少条慢查询记录</p>
 <p>show global status like ‘%Slow_queries’;</p>
-<h4 id="日志分析工具"><a href="#日志分析工具" class="headerlink" title="日志分析工具"></a>日志分析工具</h4><p>mysqldumpslow</p>
+<h3 id="日志分析工具"><a href="#日志分析工具" class="headerlink" title="日志分析工具"></a>日志分析工具</h3><p>mysqldumpslow</p>
 <ul>
 <li>s：按照何种方式排序</li>
 <li>c：访问次数</li>
@@ -5125,7 +5181,7 @@
 <li>t：返回前面多少条的记录</li>
 <li>g：后边搭配正则匹配表达式，大小写敏感</li>
 </ul>
-<h4 id="Show-Profile"><a href="#Show-Profile" class="headerlink" title="Show Profile"></a>Show Profile</h4><p>mysql提供的用来分析当前会话中语句执行的<strong>资源消耗</strong>情况，可以用于SQL的调优的测量。     </p>
+<h3 id="Show-Profile"><a href="#Show-Profile" class="headerlink" title="Show Profile"></a>Show Profile</h3><p>mysql提供的用来分析当前会话中语句执行的<strong>资源消耗</strong>情况，可以用于SQL的调优的测量。     </p>
 <p>默认情况下，参数处于关闭状态，并保存15次的运行结果。</p>
 <ol>
 <li><p>看当前是否支持</p>
@@ -5157,6 +5213,252 @@
 </ul>
 </li>
 </ol>
+<h3 id="全局查询日志"><a href="#全局查询日志" class="headerlink" title="全局查询日志"></a>全局查询日志</h3><p>永远不要在生产环境开启此功能</p>
+<p>编码启动</p>
+<ul>
+<li><p>set global general_log=1;</p>
+</li>
+<li><p>set global log_output=‘TABLE’;</p>
+<p>编写的所有sql语句，会被记录到mysql库里的general_log表，用以下命令查看</p>
+</li>
+<li><p>select * from mysql.general_log;</p>
+</li>
+</ul>
+<h2 id="锁机制"><a href="#锁机制" class="headerlink" title="锁机制"></a>锁机制</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>锁是协调计算机多个进程或线程并发访问某一资源的机制</p>
+<h4 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h4><p>场景：商品一件库存，两个人同时买，谁买到</p>
+<p>一定要用到<strong>事务</strong>，从库存表中取出物品数量，插入订单，付款后插入付款表信息，更新商品数量，用锁可以对有限资源进行保护，解决隔离和并发的矛盾。</p>
+<h4 id="锁的分类"><a href="#锁的分类" class="headerlink" title="锁的分类"></a>锁的分类</h4><ul>
+<li>对数据操作类型分类<ul>
+<li>读锁（共享锁）：针对同一份数据，多个读操作可以同时进行而不会相互影响</li>
+<li>写锁（排它锁）：当前写操作没有完成前，会阻断其他写锁和读锁</li>
+</ul>
+</li>
+<li>对数据操作粒度分类<ul>
+<li>表锁（MyISAM）<ul>
+<li>行锁（InnoDB）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="三种锁"><a href="#三种锁" class="headerlink" title="三种锁"></a>三种锁</h3><h4 id="表锁（偏读）"><a href="#表锁（偏读）" class="headerlink" title="表锁（偏读）"></a>表锁（偏读）</h4><h5 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h5><ul>
+<li>偏向MyISAM存储引擎，开销小，加锁快；</li>
+<li>无死锁；</li>
+<li>锁定粒度大，发生锁冲突的概率最高，并发度最低</li>
+</ul>
+<h5 id="建表"><a href="#建表" class="headerlink" title="建表"></a>建表</h5><p>create table 表名(</p>
+<p>​    列</p>
+<p>)engine myisam;</p>
+<p>需要指定执行引擎为myisam</p>
+<h5 id="手动增加表锁"><a href="#手动增加表锁" class="headerlink" title="手动增加表锁"></a>手动增加表锁</h5><p>lock table 表名字 read(write)，表名字2 read(write)，其他；</p>
+<p>show open tables;看哪些有锁</p>
+<p>unlock tables;释放表锁</p>
+<h5 id="读锁"><a href="#读锁" class="headerlink" title="读锁"></a>读锁</h5><p>加锁方</p>
+<ul>
+<li>可以读自己锁的表</li>
+<li>不能插入或更新自己锁的表</li>
+<li>不能读其他表</li>
+</ul>
+<p>其他方</p>
+<ul>
+<li>可以读被锁的表</li>
+<li>修改被读锁的表，<strong>一直等待</strong>直到获得锁</li>
+<li>可以读和写其他为被锁的表</li>
+</ul>
+<h5 id="写锁"><a href="#写锁" class="headerlink" title="写锁"></a>写锁</h5><p>加锁方</p>
+<ul>
+<li>可以读自己锁的表</li>
+<li>可以改自己锁的表</li>
+<li>不能读其他表</li>
+</ul>
+<p>其他方</p>
+<ul>
+<li>可以看和修改其他表</li>
+<li>查看、修改被写锁的表，<strong>一直等待</strong>直到获得锁</li>
+</ul>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><p>MyISAM执行查询语句前，自动给涉及的所有表加读锁，在执行增删改操作前，自动给涉及的表加写锁</p>
+<p>MySQL表级锁有两种模式</p>
+<ul>
+<li>表共享读锁（Table Read Lock）</li>
+<li>表独占写锁（Table Write Lock）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>锁类型</th>
+<th>可否兼容</th>
+<th>读锁</th>
+<th>写锁</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>读锁</td>
+<td>是</td>
+<td>是</td>
+<td>否</td>
+</tr>
+<tr>
+<td>写锁</td>
+<td>是</td>
+<td>否</td>
+<td>否</td>
+</tr>
+</tbody></table>
+<ol>
+<li>对MyISAM表的读操作（加读锁），不会阻塞其他进程对同一表的读请求，但会阻塞对同一表的写请求。只有当读锁释放后，才会执行其他进程的写操作</li>
+<li>对MyISAM表的写操作（加写锁），会阻塞其他进程对同一表的读和写操作，只有当写锁释放后，才会执行其他进程的读写操作</li>
+</ol>
+<p>即，<strong>读锁会阻塞写，但不会阻塞其他进程读；写锁会把其他进程读和写都阻塞</strong>。</p>
+<h5 id="表锁分析"><a href="#表锁分析" class="headerlink" title="表锁分析"></a>表锁分析</h5><p>show open tables;看哪些表被锁，为1的是被锁了。</p>
+<p>show status like ‘tables%’;</p>
+<ul>
+<li>table_locks_waited：出现表级锁争用而发生等待的次数（不能立即获取锁的次数，等待一次加一），较高说明存在<strong>较严重的表级锁争用</strong>情况</li>
+<li>table_locks_immediate：产生表级锁定的次数，表示可以立即获取锁的查询次数，每立即获取锁值加一</li>
+</ul>
+<p><strong>MyISAM</strong>读写锁的调度是<strong>写优先</strong>，<strong>不适合做写为主表的引擎</strong>。<strong>写锁后，其他线程不能做任何操作，大量更新会使查询很难得到锁，从而造成永远阻塞</strong>。</p>
+<h4 id="行锁（偏写）"><a href="#行锁（偏写）" class="headerlink" title="行锁（偏写）"></a>行锁（偏写）</h4><ul>
+<li>偏向InnoDB引擎，开销大，加锁慢；</li>
+<li>会出现死锁</li>
+<li>锁定粒度最小，发生锁冲突的概率最低，并发度也最高</li>
+</ul>
+<p>InnoDB与MyISAM最大不同有两点</p>
+<ol>
+<li>支持事务（TRANSACTION）</li>
+<li>采用了行级锁</li>
+</ol>
+<h5 id="建表-1"><a href="#建表-1" class="headerlink" title="建表"></a>建表</h5><p>create table 表名(</p>
+<p>)engine=innodb;</p>
+<h5 id="行锁演示"><a href="#行锁演示" class="headerlink" title="行锁演示"></a>行锁演示</h5><p>如果两个事务对同一行数据进行更新，则后更新的数据会被阻塞直到第一个事务提交，这时候更新的值为第二个事务的值。如果两个事务对不同行数据进行更新，则不会受到影响。</p>
+<h5 id="无索引行锁升级为表锁"><a href="#无索引行锁升级为表锁" class="headerlink" title="无索引行锁升级为表锁"></a>无索引行锁升级为表锁</h5><p>若varchar类型的索引，更新数据时，没加单引号将索引做了类型转换，会造成索引失效，从行锁变成表锁。</p>
+<p>varchar类型数据一定要加单引号！！！</p>
+<h5 id="间隙锁危害"><a href="#间隙锁危害" class="headerlink" title="间隙锁危害"></a>间隙锁危害</h5><p>表中的id为1,3,4，如果行锁的条件为where id&gt;1 and id&lt;5，则应该锁的数据是id为3,4的数据，如果此时事务2要插入id=2的数据，按理不应该被锁住，但是会被锁</p>
+<p>当用<strong>范围条件</strong>而不是相等条件检索数据，并请求共享或排他锁时，InnoDB会给符合条件的已有数据记录的索引项加锁；对于<strong>键值在条件范围内但并不存在的记录</strong>，叫做“间隙（GAP）”，InnoDB会对这个间隙加锁，锁机制就是间隙锁（Next-Key锁）。</p>
+<p>危害</p>
+<p>因为Query执行过程中通过范围查找，会锁定整个范围内所有的索引键值，即使这个键值并不存在。</p>
+<p>间隙锁有比较致命的弱点，即当锁定一个范围键值后，即使某些不存在的键值也会被无辜的锁定，而造成<strong>在锁定的时候无法插入锁定键值范围内的任何数据</strong>。在某些场景可能对性能造成很大的危害。</p>
+<h5 id="如何锁定一行"><a href="#如何锁定一行" class="headerlink" title="如何锁定一行"></a>如何锁定一行</h5><p>select xxx for update锁定某一行后，其他的操作会被阻塞，直到锁定行的会话提交commit</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">begin</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> 表名 <span class="keyword">where</span> 条件 <span class="keyword">for</span> <span class="keyword">update</span>;</span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+
+<p>begin开始，语句后加<code>for update</code>，最后加commit。</p>
+<p>InnoDB存储引擎由于实现了行级锁定，虽然在锁定机制的实现方面所带来的的性能损耗可能比表级锁定要高，但是在整体并发处理能力方面要远远优于MyISAM表级锁定。当系统并发量较高的时候，InnoDB的整体性能和MyISAM相比会有比较明显的优势；但InnoDB行级锁定使用不当时，可能会让InnoDB整体性能还比MyISAM更差。</p>
+<h5 id="行锁分析"><a href="#行锁分析" class="headerlink" title="行锁分析"></a>行锁分析</h5><p>show status like ‘innodb_row_lock%’;</p>
+<ul>
+<li><p>InnoDB_row_lock_current_waits;当前正在等待锁定的数量</p>
+</li>
+<li><p>InnoDB_row_lock_waits：系统启动后到现在总共等待的次数</p>
+</li>
+</ul>
+<p>若等待次数很高，等待时长不少，用<strong>show profile</strong>分析每一步消耗资源及时间</p>
+<h5 id="优化建议"><a href="#优化建议" class="headerlink" title="优化建议"></a>优化建议</h5><ul>
+<li>尽可能让所有数据检索都通过索引来完成，避免无索引行锁升级为表锁</li>
+<li>合理设计索引，尽量减少锁的范围</li>
+<li>尽可能减少检索条件，减少间隙锁</li>
+<li>尽量控制事务大小，减少锁定资源量和时间长度</li>
+<li>尽可能低级别事务隔离</li>
+</ul>
+<h4 id="页锁"><a href="#页锁" class="headerlink" title="页锁"></a>页锁</h4><ul>
+<li><p>开销和加锁时间界于表锁和行锁之间</p>
+</li>
+<li><p>会出现死锁</p>
+</li>
+<li><p>锁定粒度介于表锁和行锁之间，并发度一般</p>
+</li>
+</ul>
+<h2 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h2><h3 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h3><p>复制为将主库的DDL和DML操作通过二进制日志传递到复制服务器（从库）上，然后从库对这些日志重新执行，从而使得主库和从库数据一致。</p>
+<h4 id="主从复制优点"><a href="#主从复制优点" class="headerlink" title="主从复制优点"></a>主从复制优点</h4><ul>
+<li>若主库出现问题，可以快速切换到从库提供服务</li>
+<li>可以在从库执行操作，降低主库的访问压力</li>
+<li>可以在从库进行备份，以免备份期间影响主库的服务</li>
+</ul>
+<h4 id="复制解决问题"><a href="#复制解决问题" class="headerlink" title="复制解决问题"></a>复制解决问题</h4><ul>
+<li><p>数据分布</p>
+</li>
+<li><p>负载平衡</p>
+</li>
+<li><p>数据备份</p>
+</li>
+<li><p>高可用性和容错性</p>
+</li>
+<li><p>实现读写分离，环节数据库压力</p>
+<p>一般只对更新不频繁和对实时性要求不高的数据可以通过从库查询，实时性要求高的仍要从主库查询</p>
+</li>
+</ul>
+<h3 id="MySQL主从复制"><a href="#MySQL主从复制" class="headerlink" title="MySQL主从复制"></a>MySQL主从复制</h3><h4 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h4><p>数据可以从一个MySQL数据库服务器主节点复制到一个或多个从节点。默认采用异步复制方式，数据的更新可以在远程连接上执行，不用一直访问主服务器来更新数据。</p>
+<h4 id="主要用途"><a href="#主要用途" class="headerlink" title="主要用途"></a>主要用途</h4><h5 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h5><p>主库负责写，从库负责读，即使主库出现了锁表的情况，通过从库可以保证业务的正常进行</p>
+<h5 id="数据备份"><a href="#数据备份" class="headerlink" title="数据备份"></a>数据备份</h5><p>数据实时备份，当系统中某个节点发生故障时，可以方便故障切换（主从切换）</p>
+<h5 id="高可用"><a href="#高可用" class="headerlink" title="高可用"></a>高可用</h5><p>在主服务器上生成实时数据，在从服务器上分析数据，提高主服务器的性能</p>
+<h4 id="复制基本原理"><a href="#复制基本原理" class="headerlink" title="复制基本原理"></a>复制基本原理</h4><img src="/2020/02/09/MySQL/%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6.png" class title="This is an example image">
+
+<ul>
+<li>slave会从master读取binblog来进行数据同步</li>
+<li>三个步骤<ol>
+<li>master将改变记录到二进制日志（binary log）。记录过程叫做二进制日志文件，binary log events    </li>
+<li>slave将master的binary log events拷贝到其中继日志（relay log）</li>
+<li>slave重做中继日志中的事件，将改变应用到自己的数据库中，MySQL复制是异步且串行化的</li>
+</ol>
+</li>
+</ul>
+<h4 id="复制基本原则"><a href="#复制基本原则" class="headerlink" title="复制基本原则"></a>复制基本原则</h4><ul>
+<li>每个slave只有一个master</li>
+<li>每个slave只能有一个唯一的服务器ID</li>
+<li>每个master可以有多个slave</li>
+</ul>
+<h4 id="一主一从常见配置"><a href="#一主一从常见配置" class="headerlink" title="一主一从常见配置"></a>一主一从常见配置</h4><p>保证主从机可以ping通，windows看ipconfig，linux看ifconfig。</p>
+<ul>
+<li><p>mysql版本一致且后台以服务运行</p>
+</li>
+<li><p>主从都配置在【mysqld】节点下，都是小写</p>
+</li>
+<li><p>主机修改my.ini配置文件（windows）</p>
+<ol>
+<li><p>【必须】主服务器唯一id   server-id=1</p>
+</li>
+<li><p>【必须】启用二进制日志</p>
+<p>log-bin=自己本地路径/mysqlbin</p>
+</li>
+<li><p>【可选】启用错误日志</p>
+<p>log-err=自己本地路径/mysqlerr</p>
+</li>
+<li><p>【可选】根目录</p>
+<p>basedir=“自己本地路径”</p>
+</li>
+<li><p>【可选】临时目录</p>
+<p>tmpdir=“自己的本地路径”</p>
+</li>
+<li><p>【可选】数据目录</p>
+<p>datadir=“自己的本地路径/Data/”</p>
+</li>
+<li><p>read-only=0</p>
+<p>主机，读写都可以</p>
+</li>
+<li><p>【可选】设置不要复制的数据库</p>
+<p>binlog-ignore-db=mysql</p>
+</li>
+<li><p>【可选】设置需要复制的数据库</p>
+<p>bonlog-do-db=需要复制的主数据库名字</p>
+</li>
+</ol>
+</li>
+<li><p>从机修改my.cnf配置文件</p>
+<ul>
+<li>【必须】从服务器唯一ID</li>
+<li>【可选】启动二进制日志</li>
+</ul>
+</li>
+<li><p>主机+从机重启后台mysql服务</p>
+</li>
+<li><p>主机从机关闭防火墙</p>
+</li>
+<li><p>在windows主机上建立账户并授权slave</p>
+</li>
+<li><p>在linux从机上配置需要复制的主机</p>
+</li>
+<li><p>主机新建库，新建表，insert记录，从机复制</p>
+</li>
+<li><p>停止服务复制</p>
+<p>stop slave</p>
+</li>
+</ul>
 ]]></content>
       <categories>
         <category>MySQL</category>
@@ -7166,10 +7468,15 @@ getLast();</code></pre><p> <strong>jdk1.6</strong></p>
 <h4 id="文件切割"><a href="#文件切割" class="headerlink" title="文件切割"></a>文件切割</h4><p>​    要切几个文件用几个输出流。</p>
 <p>​    如果要将文件存入指定路径，可以将路径与文件后缀名封装成文件对象，因为文件对象的构造器中可以加入文件对象。</p>
 <h4 id="文件合并"><a href="#文件合并" class="headerlink" title="文件合并"></a>文件合并</h4><p>​    如果要将多个文件写入同一个文件或者将文件碎片合并到一个文件，要用到序列流。序列流需要用到枚举，而枚举可以通过集合获取到。先将字节输入流存入ArrayList集合，然后用Collections工具类获取集合的枚举。这样从序列流中将数据写入到指定的路径下。如果要指定路径+文件后缀名，可以new File(dir,”1.mp3”);</p>
-<h4 id="操作对象（装饰类）"><a href="#操作对象（装饰类）" class="headerlink" title="操作对象（装饰类）"></a>操作对象（装饰类）</h4><p>ObjectInputStream与ObjectOutputStream，操作对象的流。</p>
+<h3 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h3><h4 id="操作对象（装饰类）"><a href="#操作对象（装饰类）" class="headerlink" title="操作对象（装饰类）"></a>操作对象（装饰类）</h4><p>ObjectInputStream与ObjectOutputStream，操作对象的流。</p>
 <p>​    把对象生命周期延迟，存储在硬盘上实现持久化。把对象从堆内存存储在了硬盘上。</p>
 <p><strong>ObjectOutputStream</strong></p>
-<p>为了实现额外功能，相当于装饰类，将字节流对象关联。要存储的对象必须实现Serializable接口。</p>
+<p>为了实现额外功能，相当于装饰类，将字节流对象关联。</p>
+<p>序列化的条件为：</p>
+<ol>
+<li>要存储的对象必须实现Serializable接口</li>
+<li>该类的所有属性要是可序列化的。如果有一个属性是不需要可序列化的，该属性需要注明是瞬态的，使用<code>transient</code>关键字说明</li>
+</ol>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">writeObj</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		<span class="comment">//基础的输出流没办法存储对象，因此需要装饰类。将输出流传入对象输出流即可。</span></span><br><span class="line">		<span class="comment">//后缀名使用object</span></span><br><span class="line">		ObjectOutputStream oos = <span class="keyword">new</span> ObjectOutputStream(<span class="keyword">new</span> FileOutputStream(<span class="string">"obj.object"</span>));</span><br><span class="line">		<span class="comment">//对象序列化。被序列化的对象必须实现Serializable接口</span></span><br><span class="line">		oos.writeObject(<span class="keyword">new</span> Person(<span class="number">30</span>, <span class="string">"小强"</span>));</span><br><span class="line">		<span class="comment">//关流</span></span><br><span class="line">		oos.close();</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
 
 <p><strong>ObjectInputStream</strong></p>
@@ -7177,18 +7484,26 @@ getLast();</code></pre><p> <strong>jdk1.6</strong></p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//对象读取流，因为是增强功能因此要传入字节输入流。</span></span><br><span class="line">		ObjectInputStream ois = <span class="keyword">new</span> ObjectInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"obj.object"</span>));</span><br><span class="line">		<span class="comment">//需要有读出对象的class文件才能获得对象。</span></span><br><span class="line">		<span class="comment">//对象的反序列化。</span></span><br><span class="line">		Person p = (Person)ois.readObject();</span><br><span class="line">		System.out.println(p.getName()+<span class="string">":"</span>+p.getAge());</span><br><span class="line">		ois.close();<span class="comment">//关流</span></span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
 
 <p>因为一次只能读一个对象，因此如果想多读几个对象，可使用以下方法。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">				Person p = (Person) ois.readObject();</span><br><span class="line">				System.out.println(p.getName() + <span class="string">":"</span> + p.getAge());</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">catch</span> (EOFException e) &#123;</span><br><span class="line">			</span><br><span class="line">		&#125;<span class="keyword">finally</span>&#123;</span><br><span class="line">			ois.close();<span class="comment">// 关流</span></span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">	<span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">		Person p = (Person) ois.readObject();</span><br><span class="line">		System.out.println(p.getName() + <span class="string">":"</span> + p.getAge());</span><br><span class="line">	&#125;</span><br><span class="line">&#125; <span class="keyword">catch</span> (EOFException e) &#123;</span><br><span class="line">	</span><br><span class="line">&#125;<span class="keyword">finally</span>&#123;</span><br><span class="line">	ois.close();<span class="comment">// 关流</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="Serializable"><a href="#Serializable" class="headerlink" title="Serializable"></a>Serializable</h4><p>如果用原来的class文件，用更改后的类来接收，会报错。InvalidClassException。类实现Serializable接口，Serializable为标记接口，序列化运行时使用称为serialVersionUID的版本号与每个可序列化类相关联。该序列号在反序列化过程中用于验证序列化对象的发送者和接收者是否为该对象加载了与序列化兼容的类。如果接收者加载类的ID号与发送者的类的版本号不同，反序列化会导致InvalidClassException。</p>
-<p>因此Serializable用于给被序列化的类加入ID号。用于判断类和对象是否是同一个版本。如果可序列化类未显示声明serialVersionUID，则序列化运行时将基于该类的各个方面计算该类的默认serialVersionUID。强烈建议所有可序列化都显示声明serialVersionUID值，因为计算默认ID对类的详细信息有较高的敏感性，根据编译期的不同可能千差万别。</p>
+<h4 id="Serializable"><a href="#Serializable" class="headerlink" title="Serializable"></a>Serializable</h4><p>如果用原来的class文件，用更改后的类来接收，会报错，异常为InvalidClassException。</p>
+<p>类实现Serializable接口，Serializable为标记接口，序列化运行时使用称为<code>serialVersionUID</code>的版本号与每个可序列化类相关联。该序列号在反序列化过程中用于验证序列化对象的发送者和接收者是否为该对象加载了与序列化兼容的类。如果接收者加载类的ID号与发送者的类的<strong>版本号不同</strong>，反序列化会导致InvalidClassException。</p>
+<p>因此Serializable用于给被序列化的类加入ID号。用于判断类和对象是否是同一个版本。如果可序列化类未显示声明serialVersionUID，则序列化运行时将基于该类的各个方面计算该类的默认serialVersionUID。强烈建议所有可序列化都<strong>显示声明</strong><code>serialVersionUID</code>值，因为计算默认ID对类的详细信息有较高的敏感性，根据编译期的不同可能千差万别。</p>
 <p>一个可序列化的类可以通过声明一个名为”serialVersionUID”的字段来显式地声明它自己的serialVersionUID，该字段必须是static，final和long类型</p>
 <p>  <strong>private</strong> <strong>static</strong> <strong>final</strong> <strong>long</strong> serialVersionUID = 9527L;</p>
-<p>  只要ID号一样，就算类文件变化了，那就依然可以读出，在服务器上可能会用到。</p>
+<p>  <strong>只要ID号一样，就算类文件变化了，那就依然可以读出</strong>，在服务器上可能会用到。</p>
 <h4 id="无法被写入的属性-static-transient"><a href="#无法被写入的属性-static-transient" class="headerlink" title="无法被写入的属性(static transient)"></a>无法被写入的属性(static transient)</h4><p><strong>静态修饰</strong></p>
 <p>如果类中某一属性被静态修饰，则堆内存中没有此属性，因此无法被写入到对象中。对象输出流只能写入非静态的属性和非瞬态的。</p>
+<p>原因：</p>
+<ul>
+<li>静态优先与非静态加载到内存中，被static修饰的成员变量不能被序列化，序列化的都是对象</li>
+</ul>
 <p><strong>transient关键字</strong></p>
-<p>​    短暂的，暂时的。如果某一属性不是公用的，不能被static修饰，但是又不想写到对象中，可以使用transien关键字。</p>
-<p>非静态数据不想被序列化可以使用这个关键字修饰。</p>
+<p>​    短暂的，暂时的。如果某一属性不是公用的，不能被static修饰，但是又不想写到对象中，可以使用transient关键字。</p>
+<p><strong>非静态数据不想被序列化</strong>可以使用这个关键字修饰。</p>
+<h4 id="序列化集合"><a href="#序列化集合" class="headerlink" title="序列化集合"></a>序列化集合</h4><p>若要将对象存储在集合中，再进行序列化，需要将可序列化的对象存入集合，然后用序列化流的写Object方法写入，再用反序列化流的读Object方法读，要注意的是，方法为writeObject()和readObject()！！！</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException </span>&#123;</span><br><span class="line">    <span class="comment">//用集合存储对象，并以对象流的方式存入数据，再将其读取出来</span></span><br><span class="line">    <span class="comment">//1、定义集合，将对象存入</span></span><br><span class="line">    ArrayList&lt;Person&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    list.add(<span class="keyword">new</span> Person(<span class="string">"张三"</span>,<span class="number">1</span>));</span><br><span class="line">    list.add(<span class="keyword">new</span> Person(<span class="string">"张二"</span>,<span class="number">2</span>));</span><br><span class="line">    list.add(<span class="keyword">new</span> Person(<span class="string">"张一"</span>,<span class="number">3</span>));</span><br><span class="line">    <span class="comment">//2、将对象流关联输出文件字节流</span></span><br><span class="line">    ObjectOutputStream os = <span class="keyword">new</span> ObjectOutputStream(<span class="keyword">new</span> FileOutputStream(<span class="keyword">new</span> File(<span class="string">"test.txt"</span>)));</span><br><span class="line">    <span class="comment">//3、将集合序列化至指定地方</span></span><br><span class="line">    os.writeObject(list);</span><br><span class="line">    <span class="comment">//4、创建反序列化流，从指定地方读取</span></span><br><span class="line">    ObjectInputStream oj = <span class="keyword">new</span> ObjectInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"test.txt"</span>));</span><br><span class="line">    <span class="comment">//5、从反序列化流中读取对象</span></span><br><span class="line">    Object o = oj.readObject();</span><br><span class="line">    ArrayList&lt;Person&gt; list2 = (ArrayList&lt;Person&gt;)o;</span><br><span class="line">    <span class="comment">//6、遍历集合，读取数据</span></span><br><span class="line">    <span class="keyword">for</span> (Person person : list2) &#123;</span><br><span class="line">        System.out.println(person.name+<span class="string">" "</span>+person.age);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//7、释放资源</span></span><br><span class="line">    os.close();</span><br><span class="line">    oj.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h3 id="File类"><a href="#File类" class="headerlink" title="File类"></a>File类</h3><p>​    IO流只能操作文件中的数据。</p>
 <p>而File类用来将文件或者文件夹封装成对象，方便对文件与文件夹的属性信息进行操作。</p>
 <p>File对象可以作为参数传递给流的构造函数。</p>
