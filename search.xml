@@ -12,6 +12,8 @@
 <p>灰色：线程私有，不存在垃圾回收。</p>
 <p>分为3层来学习。</p>
 <p>先是类装载器与执行引擎。</p>
+<a id="more"></a>
+
 <h3 id="类装载器ClassLoader"><a href="#类装载器ClassLoader" class="headerlink" title="类装载器ClassLoader"></a>类装载器ClassLoader</h3>
 
 <h4 id="介绍（是什么）"><a href="#介绍（是什么）" class="headerlink" title="介绍（是什么）"></a>介绍（是什么）</h4><p>负责加载class文件，class文件在文件<strong>开头有特定的文件标识</strong>（cafe babe），将class文件字节码内容加载到内存中，并将这些内容转换成<strong>方法区</strong>中的运行时数据结构，且ClassLoader只负责class文件的<strong>加载</strong>，至于其是否可以运行，由Execution Engine决定。</p>
