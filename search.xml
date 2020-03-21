@@ -324,13 +324,13 @@
 <p>java_pid12332.hprof</p>
 <p>指明了是java的12332进程出现的。</p>
 <p>然后在VisualVM中，装载此文件，打开如下</p>
-
+<img src="/2020/03/21/jvm/mainoom.png" class title="This is an example image">
 
 <p>可以看到是主线程中发生了OOM异常，点进去看到</p>
-
+<img src="/2020/03/21/jvm/sboom.png" class title="This is an example image">
 
 <p>发现是StringBuilder中的添加方法出现了问题，进一步点进去分析</p>
-
+<img src="/2020/03/21/jvm/%E5%80%BCoom.png" class title="This is an example image">
 
 <p>可以看到具体的出问题的变量值，这样便可以找到相应的位置，去进行修改。</p>
 <h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="强引用、软引用、弱引用、虚引用"><a href="#强引用、软引用、弱引用、虚引用" class="headerlink" title="强引用、软引用、弱引用、虚引用"></a>强引用、软引用、弱引用、虚引用</h3><p>不同的引用下GC不同</p>
