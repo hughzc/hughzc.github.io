@@ -69,7 +69,7 @@
 <meta property="og:image" content="https://hughzc.github.io/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/%E6%8E%A5%E5%8F%A31.png">
 <meta property="og:image" content="https://hughzc.github.io/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%BC%94%E7%A4%BA1.png">
 <meta property="article:published_time" content="2020-02-27T03:24:31.000Z">
-<meta property="article:modified_time" content="2020-03-20T14:09:16.605Z">
+<meta property="article:modified_time" content="2020-03-20T14:38:06.399Z">
 <meta property="article:author" content="未名Hugh">
 <meta property="article:tag" content="并发">
 <meta property="article:tag" content="锁">
@@ -254,7 +254,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-20 22:09:16" itemprop="dateModified" datetime="2020-03-20T22:09:16+08:00">2020-03-20</time>
+                <time title="修改时间：2020-03-20 22:38:06" itemprop="dateModified" datetime="2020-03-20T22:38:06+08:00">2020-03-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -447,6 +447,15 @@
 <li>两个锁对象保证唯一性：static修饰</li>
 <li>两个锁的嵌套调用</li>
 </ul>
+<p>死锁的调试</p>
+<p>当发现死锁的时候，如何知道是哪里发生了死锁呢？</p>
+<p>可以通过jps命令，查看java进程的进程ID，然后使用jstack得到线程的线程堆栈</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-&gt;jps</span><br><span class="line"><span class="number">11088</span></span><br><span class="line"><span class="number">8356</span> Jps</span><br><span class="line"><span class="number">11576</span> Launcher</span><br><span class="line"><span class="number">5292</span> ThreadTest</span><br></pre></td></tr></table></figure>
+
+<p>然后看ThreadTest的线程堆栈情况</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Java stack information <span class="keyword">for</span> the threads listed above:</span><br><span class="line">===================================================</span><br><span class="line"><span class="string">"Thread-1"</span>:</span><br><span class="line">        at test.DeadLockSyn.run(ThreadTest.java:<span class="number">141</span>)</span><br><span class="line">        - waiting to lock &lt;<span class="number">0x0499e890</span>&gt; (a java.lang.Object)</span><br><span class="line">        - locked &lt;<span class="number">0x0499e898</span>&gt; (a java.lang.Object)</span><br><span class="line">        at java.lang.Thread.run(Thread.java:<span class="number">745</span>)</span><br><span class="line"><span class="string">"Thread-0"</span>:</span><br><span class="line">        at test.DeadLockSyn.run(ThreadTest.java:<span class="number">132</span>)</span><br><span class="line">        - waiting to lock &lt;<span class="number">0x0499e898</span>&gt; (a java.lang.Object)</span><br><span class="line">        - locked &lt;<span class="number">0x0499e890</span>&gt; (a java.lang.Object)</span><br><span class="line">        at java.lang.Thread.run(Thread.java:<span class="number">745</span>)</span><br><span class="line"></span><br><span class="line">Found <span class="number">1</span> deadlock.</span><br></pre></td></tr></table></figure>
+
+<p>这样便可以看到具体的死锁信息。</p>
 <h4 id="线程间通信"><a href="#线程间通信" class="headerlink" title="线程间通信"></a>线程间通信</h4><p>当每个线程可以独立安全的完成自己的任务了，但如果A线程的任务涉及到了B线程，如A线程是生产烤鸭的，B线程是吃烤鸭的，只有生产出来的烤鸭被吃掉了A才会继续生产，那要如何实现呢？</p>
 <p>这时候需要用到线程间的通信，即A线程刚来做烤鸭，发现B线程还没吃，就跟B线程交流下，让他快点吃，自己先睡个觉，等烤鸭被吃了再起来吃。主要用到的方法是wait、notify()与notifyAll()。</p>
 <p><strong>生产者与消费者</strong></p>
@@ -1086,20 +1095,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1141,7 +1150,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共150.6k字</span>
+  <span class="post-count">博客全站共158k字</span>
 </div>
         
 

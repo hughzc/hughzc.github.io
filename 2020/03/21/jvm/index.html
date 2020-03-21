@@ -47,29 +47,44 @@
   };
 </script>
 
-  <meta name="description" content="技术博客，Java，并发编程，算法">
-<meta property="og:type" content="website">
-<meta property="og:title" content="未名的奇妙旅程">
-<meta property="og:url" content="https://hughzc.github.io/index.html">
+  <meta name="description" content="JVMJVM介绍Java Virtual Machine，JVM运行在操作系统上，与硬件没有直接的交互。 JVM体系结构概览  JVM包括2个子系统和2个组件，2个子系统为类加载器和执行引擎，2个组件是运行时数据区和本地接口。 整个流程为，编译期将Java代码转为字节码，类加载器将字节码加载进运行数据区中的方法区中，执行引擎来进行解析为系统指令，交由CPU执行，需要调用其他语言的本地接口来实现功能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jvm">
+<meta property="og:url" content="https://hughzc.github.io/2020/03/21/jvm/index.html">
 <meta property="og:site_name" content="未名的奇妙旅程">
-<meta property="og:description" content="技术博客，Java，并发编程，算法">
+<meta property="og:description" content="JVMJVM介绍Java Virtual Machine，JVM运行在操作系统上，与硬件没有直接的交互。 JVM体系结构概览  JVM包括2个子系统和2个组件，2个子系统为类加载器和执行引擎，2个组件是运行时数据区和本地接口。 整个流程为，编译期将Java代码转为字节码，类加载器将字节码加载进运行数据区中的方法区中，执行引擎来进行解析为系统指令，交由CPU执行，需要调用其他语言的本地接口来实现功能">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/jvm%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/%E6%96%B0%E7%94%9F%E5%85%BB%E8%80%81.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/%E6%B0%B8%E4%B9%85%E5%8C%BA.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/%E5%A0%86%E5%8F%82%E6%95%B0.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/%E5%A0%86%E5%8F%82%E6%95%B02.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/%E5%A0%86%E4%BF%A1%E6%81%AF.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/OOM.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/%E6%94%B6%E9%9B%86%E5%99%A8.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/gc.png">
+<meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/vmoom.png">
+<meta property="article:published_time" content="2020-03-21T03:41:02.000Z">
+<meta property="article:modified_time" content="2020-03-21T03:41:32.753Z">
 <meta property="article:author" content="未名Hugh">
+<meta property="article:tag" content="jvm">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hughzc.github.io/2020/03/21/jvm/jvm%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84.png">
 
-<link rel="canonical" href="https://hughzc.github.io/">
+<link rel="canonical" href="https://hughzc.github.io/2020/03/21/jvm/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: true,
-    isPost: false
+    isHome: false,
+    isPost: true
   };
 </script>
 
-  <title>未名的奇妙旅程</title>
+  <title>jvm | 未名的奇妙旅程</title>
   
 
 
@@ -201,10 +216,10 @@
             
 
   <div class="posts-expand">
-        
+      
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/03/21/jvm/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -218,8 +233,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/21/jvm/" class="post-title-link" itemprop="url">jvm</a>
+          jvm
         </h1>
 
         <div class="post-meta">
@@ -255,7 +269,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="JVM"><a href="#JVM" class="headerlink" title="JVM"></a>JVM</h1><h2 id="JVM介绍"><a href="#JVM介绍" class="headerlink" title="JVM介绍"></a>JVM介绍</h2><p>Java Virtual Machine，JVM运行在操作系统上，与硬件没有直接的交互。</p>
+        <h1 id="JVM"><a href="#JVM" class="headerlink" title="JVM"></a>JVM</h1><h2 id="JVM介绍"><a href="#JVM介绍" class="headerlink" title="JVM介绍"></a>JVM介绍</h2><p>Java Virtual Machine，JVM运行在操作系统上，与硬件没有直接的交互。</p>
 <h3 id="JVM体系结构概览"><a href="#JVM体系结构概览" class="headerlink" title="JVM体系结构概览"></a>JVM体系结构概览</h3><img src="/2020/03/21/jvm/jvm%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84.png" class title="This is an example image">
 
 <p>JVM包括2个子系统和2个组件，2个子系统为类加载器和执行引擎，2个组件是运行时数据区和本地接口。</p>
@@ -629,708 +643,36 @@
 
 <p>通过判断队列中是否加入了虚引用来了解被引用的对象是否被GC。</p>
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/tags/jvm/" rel="tag"># jvm</a>
+          </div>
 
         
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/" class="post-title-link" itemprop="url">哈夫曼树</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-03-06 17:16:14 / 修改时间：22:18:18" itemprop="dateCreated datePublished" datetime="2020-03-06T17:16:14+08:00">2020-03-06</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/" itemprop="url" rel="index">
-                    <span itemprop="name">哈夫曼树</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>写这篇博客源自于之前做了一道哈夫曼编码的题，但是当时哈夫曼树的知识已经遗忘了，因此没有做出来。后来在学习左神的算法的时候，复习到了切金条的问题，其中用到了哈夫曼树，因此趁此机会在网上学习了哈夫曼树的相关知识并自己动手用Java实现了相关操作，记录在博客中，方便日后查阅。</p>
-<blockquote>
-<p>参考博客：<code>https://www.cnblogs.com/kubixuesheng/p/4397798.html</code></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/" rel="prev" title="哈夫曼树">
+      <i class="fa fa-chevron-left"></i> 哈夫曼树
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/" class="post-title-link" itemprop="url">JavaSE知识整理</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-03-03 22:00:20" itemprop="dateCreated datePublished" datetime="2020-03-03T22:00:20+08:00">2020-03-03</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-17 14:45:34" itemprop="dateModified" datetime="2020-03-17T14:45:34+08:00">2020-03-17</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JavaSE/" itemprop="url" rel="index">
-                    <span itemprop="name">JavaSE</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Java基础"><a href="#Java基础" class="headerlink" title="Java基础"></a>Java基础</h1><p>根据网上博客和黑马的一些资料，整理了下面的JavaSE的知识点</p>
-<blockquote>
-<p><a href="https://blog.csdn.net/ThinkWon/article/details/104390612" target="_blank" rel="noopener">https://blog.csdn.net/ThinkWon/article/details/104390612</a></p>
-<p>《黑马程序员Java学习》</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">并发与锁总结</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-27 11:24:31" itemprop="dateCreated datePublished" datetime="2020-02-27T11:24:31+08:00">2020-02-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-20 22:38:06" itemprop="dateModified" datetime="2020-03-20T22:38:06+08:00">2020-03-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index">
-                    <span itemprop="name">并发</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>要学习一个知识点，可以采取的思路是了解为什么要用它，怎么用它，有什么缺点，如何去改进。</p>
-<p>对于并发 ，也将从这四个方面进行介绍。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/02/25/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/25/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">算法笔记</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-25 09:51:49" itemprop="dateCreated datePublished" datetime="2020-02-25T09:51:49+08:00">2020-02-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-21 10:27:51" itemprop="dateModified" datetime="2020-03-21T10:27:51+08:00">2020-03-21</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="OJ处理技巧"><a href="#OJ处理技巧" class="headerlink" title="OJ处理技巧"></a>OJ处理技巧</h1><p>类名为public class Main</p>
-<p>较好的做法是将要用到的类都封装好，不要放在Main类中，主类只需要持有要用到的类的对象，然后调用即可。</p>
-<p>StringBuilder类的append方法，res.append(str1).append(str2)比res.append(str1+str2)效率高。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/02/25/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/02/09/MySQL/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/09/MySQL/" class="post-title-link" itemprop="url">MySQL</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-09 10:37:14" itemprop="dateCreated datePublished" datetime="2020-02-09T10:37:14+08:00">2020-02-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-20 17:07:28" itemprop="dateModified" datetime="2020-03-20T17:07:28+08:00">2020-03-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/MySQL/" itemprop="url" rel="index">
-                    <span itemprop="name">MySQL</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>尚硅谷MySQL课程笔记</p>
-</blockquote>
-<h1 id="数据库操作基础"><a href="#数据库操作基础" class="headerlink" title="数据库操作基础"></a>数据库操作基础</h1><h2 id="数据库概述"><a href="#数据库概述" class="headerlink" title="数据库概述"></a>数据库概述</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
-<li><strong>可将数据持久化到硬盘</strong></li>
-<li><strong>可存储大量数据</strong></li>
-<li><strong>方便检索</strong></li>
-<li>保证数据的一致性，完整性</li>
-<li>安全，可共享</li>
-<li>通过组合分析，可以产生新数据</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/02/09/MySQL/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/01/14/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/01/14/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">Java学习笔记</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-01-14 10:55:23" itemprop="dateCreated datePublished" datetime="2020-01-14T10:55:23+08:00">2020-01-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-19 11:22:16" itemprop="dateModified" datetime="2020-03-19T11:22:16+08:00">2020-03-19</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>黑马程序员视频学习笔记</p>
-</blockquote>
-<h1 id="视频笔记"><a href="#视频笔记" class="headerlink" title="视频笔记"></a>视频笔记</h1><h2 id="面对对象"><a href="#面对对象" class="headerlink" title="面对对象"></a>面对对象</h2><h3 id="零碎"><a href="#零碎" class="headerlink" title="零碎"></a>零碎</h3><p>javac先编译，生成class文件然后java运行类，一个类中运行需要有一个主函数</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">pulic <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;&#125;</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/01/14/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/01/14/Linux%E4%BD%BF%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/01/14/Linux%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">Linux使用</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-01-14 09:41:25" itemprop="dateCreated datePublished" datetime="2020-01-14T09:41:25+08:00">2020-01-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-17 09:54:26" itemprop="dateModified" datetime="2020-03-17T09:54:26+08:00">2020-03-17</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux/" itemprop="url" rel="index">
-                    <span itemprop="name">Linux</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Linux下安装jdk8"><a href="#Linux下安装jdk8" class="headerlink" title="Linux下安装jdk8"></a>Linux下安装jdk8</h2><h3 id="卸载Linux自带OpenJDK"><a href="#卸载Linux自带OpenJDK" class="headerlink" title="卸载Linux自带OpenJDK"></a>卸载Linux自带OpenJDK</h3><p>切换到root权限</p>
-<blockquote>
-<p>su root</p>
-</blockquote>
-<p> 使用java -version看OpenJDK信息，然后查询系统自带java相关文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -qa | grep java</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/01/14/Linux%E4%BD%BF%E7%94%A8/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2019/12/29/markdown%E4%BD%BF%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/12/29/markdown%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">markdown使用</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-12-29 11:04:12" itemprop="dateCreated datePublished" datetime="2019-12-29T11:04:12+08:00">2019-12-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-03 16:49:03" itemprop="dateModified" datetime="2020-03-03T16:49:03+08:00">2020-03-03</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="markdown在hexo中使用"><a href="#markdown在hexo中使用" class="headerlink" title="markdown在hexo中使用"></a>markdown在hexo中使用</h1><h2 id="markdown工具"><a href="#markdown工具" class="headerlink" title="markdown工具"></a>markdown工具</h2><h3 id="个人使用工具：Typora"><a href="#个人使用工具：Typora" class="headerlink" title="个人使用工具：Typora"></a>个人使用工具：<strong>Typora</strong></h3><ol>
-<li>基于Windows下载</li>
-<li>偏好设置 </li>
-</ol>
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><h3 id="部署步骤"><a href="#部署步骤" class="headerlink" title="部署步骤"></a>部署步骤</h3><p>​    博客部署至远端</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo deploy -g</span><br></pre></td></tr></table></figure>
-
-<p>​    将hexo文件夹源代码（写作所在文件夹）push至github仓库</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m “message”</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/12/29/markdown%E4%BD%BF%E7%94%A8/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
   </article>
   
   
   
 
   </div>
-
-  
-
 
 
           </div>
@@ -1381,6 +723,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM"><span class="nav-number">1.</span> <span class="nav-text">JVM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM介绍"><span class="nav-number">1.1.</span> <span class="nav-text">JVM介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM体系结构概览"><span class="nav-number">1.1.1.</span> <span class="nav-text">JVM体系结构概览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类装载器ClassLoader"><span class="nav-number">1.1.2.</span> <span class="nav-text">类装载器ClassLoader</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#介绍（是什么）"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">介绍（是什么）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#种类（有哪些）"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">种类（有哪些）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#双亲委派（怎么用）"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">双亲委派（怎么用）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#沙箱安全（什么用）"><span class="nav-number">1.1.2.4.</span> <span class="nav-text">沙箱安全（什么用）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本地接口"><span class="nav-number">1.1.3.</span> <span class="nav-text">本地接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PC寄存器"><span class="nav-number">1.1.4.</span> <span class="nav-text">PC寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区"><span class="nav-number">1.1.5.</span> <span class="nav-text">方法区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#栈"><span class="nav-number">1.1.6.</span> <span class="nav-text">栈</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#栈的存储"><span class="nav-number">1.1.6.1.</span> <span class="nav-text">栈的存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#栈运行原理"><span class="nav-number">1.1.6.2.</span> <span class="nav-text">栈运行原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#栈-堆-方法区的交互"><span class="nav-number">1.1.6.3.</span> <span class="nav-text">栈+堆+方法区的交互</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#深拷贝与浅拷贝"><span class="nav-number">1.1.6.4.</span> <span class="nav-text">深拷贝与浅拷贝</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#堆与栈的区别"><span class="nav-number">1.1.6.5.</span> <span class="nav-text">堆与栈的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#new对象发生的事情"><span class="nav-number">1.1.6.6.</span> <span class="nav-text">new对象发生的事情</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆"><span class="nav-number">1.1.7.</span> <span class="nav-text">堆</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#堆new对象流程"><span class="nav-number">1.1.7.1.</span> <span class="nav-text">堆new对象流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MinorGC（复制-gt-清空-gt-互换）"><span class="nav-number">1.1.7.2.</span> <span class="nav-text">MinorGC（复制-&gt;清空-&gt;互换）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#永久代（jdk7前）"><span class="nav-number">1.1.7.3.</span> <span class="nav-text">永久代（jdk7前）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#堆参数调整"><span class="nav-number">1.1.7.4.</span> <span class="nav-text">堆参数调整</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GC"><span class="nav-number">2.</span> <span class="nav-text">GC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java内存泄漏"><span class="nav-number">2.1.</span> <span class="nav-text">Java内存泄漏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GC收集日志信息"><span class="nav-number">2.2.</span> <span class="nav-text">GC收集日志信息</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OOM"><span class="nav-number">2.2.1.</span> <span class="nav-text">OOM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#日志解读"><span class="nav-number">2.2.2.</span> <span class="nav-text">日志解读</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GC介绍"><span class="nav-number">2.3.</span> <span class="nav-text">GC介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Minor-GC和Full-GC区别"><span class="nav-number">2.3.1.</span> <span class="nav-text">Minor GC和Full GC区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象可达性分析"><span class="nav-number">2.3.2.</span> <span class="nav-text">对象可达性分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#引用计数法"><span class="nav-number">2.3.2.1.</span> <span class="nav-text">引用计数法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可达性分析"><span class="nav-number">2.3.2.2.</span> <span class="nav-text">可达性分析</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4大算法"><span class="nav-number">2.4.</span> <span class="nav-text">4大算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见垃圾收集器"><span class="nav-number">2.5.</span> <span class="nav-text">常见垃圾收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#年轻代常见收集器"><span class="nav-number">2.5.1.</span> <span class="nav-text">年轻代常见收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Serial收集器（-XX-UseSerialGC，复制算法）"><span class="nav-number">2.5.1.1.</span> <span class="nav-text">Serial收集器（-XX:+UseSerialGC，复制算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ParNew收集器（-XX-UseParNewGC，复制算法）"><span class="nav-number">2.5.1.2.</span> <span class="nav-text">ParNew收集器（-XX:+UseParNewGC，复制算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Paraller-Scavenge-XX-UseParallelGC，复制算法"><span class="nav-number">2.5.1.3.</span> <span class="nav-text">Paraller Scavenge(-XX:+UseParallelGC，复制算法)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#老年代常见收集器"><span class="nav-number">2.5.2.</span> <span class="nav-text">老年代常见收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#SerialOld（-XX-UseSerialOldGC，标记整理算法）"><span class="nav-number">2.5.2.1.</span> <span class="nav-text">SerialOld（-XX:+UseSerialOldGC，标记整理算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ParellerOld（-XX-UseParellerOldGC，标记整理算法）"><span class="nav-number">2.5.2.2.</span> <span class="nav-text">ParellerOld（-XX:+UseParellerOldGC，标记整理算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CMS（-XX-UseConcMarkSweepGC，标记清除算法）"><span class="nav-number">2.5.2.3.</span> <span class="nav-text">CMS（-XX:+UseConcMarkSweepGC，标记清除算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#堆内存垃圾收集G1（-XX-UseG1GC，复制-标记整理算法）"><span class="nav-number">2.5.2.4.</span> <span class="nav-text">堆内存垃圾收集G1（-XX:+UseG1GC，复制+标记整理算法）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用软件"><span class="nav-number">2.6.</span> <span class="nav-text">常用软件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#VisualVM"><span class="nav-number">2.6.1.</span> <span class="nav-text">VisualVM</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">2.7.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#强引用、软引用、弱引用、虚引用"><span class="nav-number">2.7.1.</span> <span class="nav-text">强引用、软引用、弱引用、虚引用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#强引用（Strong-Reference）"><span class="nav-number">2.7.1.1.</span> <span class="nav-text">强引用（Strong Reference）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#软引用（Soft-Reference）"><span class="nav-number">2.7.1.2.</span> <span class="nav-text">软引用（Soft Reference）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#弱引用（Weak-Reference）"><span class="nav-number">2.7.1.3.</span> <span class="nav-text">弱引用（Weak Reference）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#虚引用（PhantomReference）"><span class="nav-number">2.7.1.4.</span> <span class="nav-text">虚引用（PhantomReference）</span></a></li></ol></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
