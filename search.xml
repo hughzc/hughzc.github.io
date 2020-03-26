@@ -47,11 +47,17 @@
 <h4 id="沙箱安全（什么用）"><a href="#沙箱安全（什么用）" class="headerlink" title="沙箱安全（什么用）"></a>沙箱安全（什么用）</h4><p>保证了使用不同的类加载器，最终都是委托给<strong>顶层的启动类加载器进行加载</strong>，可以保障得到的类的安全性。</p>
 <p>执行引擎负责解释命令，提交给操作系统执行。</p>
 <h4 id="类装载的执行过程"><a href="#类装载的执行过程" class="headerlink" title="类装载的执行过程"></a>类装载的执行过程</h4><ol>
-<li>加载：根据查找路径找到相应的class文件然后导入</li>
-<li>验证：检查加载的class文件的正确性（CafeBaBe）</li>
-<li>准备：给类中的静态变量分配内存空间</li>
-<li>解析：虚拟机将常量池中的符号引用替换为直接引用的过程。符号引用可理解为一个标识，在直接饮用中直接指向内存的地址</li>
-<li>初始化：对静态变量和静态代码块执行初始化过程</li>
+<li><p>加载：根据查找路径找到相应的class文件然后导入</p>
+</li>
+<li><p>验证：检查加载的class文件的正确性（CafeBaBe）</p>
+</li>
+<li><p>准备：给类中的静态变量分配内存空间</p>
+</li>
+<li><p>解析：虚拟机将常量池中的符号引用替换为直接引用的过程。符号引用可理解为一个标识（字符串），在直接引用中直接指向内存的地址。此过程称为静态解析</p>
+<p>常量池中的符号引用转为直接引用有类装载时候的静态解析和方法入栈时候的动态链接</p>
+</li>
+<li><p>初始化：对静态变量和静态代码块执行初始化过程</p>
+</li>
 </ol>
 <h3 id="执行引擎"><a href="#执行引擎" class="headerlink" title="执行引擎"></a>执行引擎</h3><ul>
 <li>执行方法区</li>
@@ -81,7 +87,8 @@
 <li><p><strong>操作数栈</strong>：存储操作数运算时需要的临时变量</p>
 <p>常量的计算，给局部变量赋值，从局部变量表中取值运算</p>
 </li>
-<li><p><strong>动态链接</strong>：符号引用转为符号引用（加载中的解析？）</p>
+<li><p><strong>动态链接</strong>：符号引用转为直接引用</p>
+<p>这一步与类装载时均可以将符号引用转为直接引用，类装载时候的解析为静态加载，入栈时候为动态链接 ，也有说这一步实现了多态</p>
 </li>
 <li><p><strong>方法出口</strong>：指向此方法结束后应该跳转的方法出口</p>
 </li>
@@ -457,6 +464,8 @@
 <li><p>长期存活对象进入老年代（默认对象年龄为15进入,如静态常量）</p>
 </li>
 <li><p>survivor区空间不足（相同年龄的所有对象大小总和大于Survivor空间<strong>一半</strong>)</p>
+<p>这个比例可以通过-XX:TargetSurvivorRatio指定</p>
+<p>这一步称为对象动态年龄判断，规则是希望可能长期存活的对象今早进入老年代。此机制一般在minor gc后触发。</p>
 <p>一些朝生夕死对象，因为survivor区域设置不足，而直接放入老年代，而频繁进行full gc，这种情况可以调大年轻代空间，改变年轻代与老年代比例。-XX:NewRatio，调小。</p>
 </li>
 </ol>
@@ -1158,6 +1167,22 @@
 </li>
 </ul>
 <p>其中，Vector虽安全，但不适用于高并发。HashSet底层为HashMap，在add元素时，以键的形式放入，值为PRESENT。TreeSet的核心在排序，不排序用HashSet。TreeSet有两种排序方式，方式一是被排序类实现Compareble接口（实现equals()、hashcode()、compareTo()方法），方式二为传入比较器，比较器需要实现Comparator接口（实现compare()方法）。TreeSet底层为TreeMap，两种排序方式比较器优先级较高。</p>
+<h4 id="ArrayList-和-LinkedList-的区别"><a href="#ArrayList-和-LinkedList-的区别" class="headerlink" title="ArrayList 和 LinkedList 的区别"></a>ArrayList 和 LinkedList 的区别</h4><ol>
+<li>数据结构实现：ArrayList底层为动态数组（可动态扩容），LinkedList底层为双向链表</li>
+<li>随机查询效率：ArrayList随机查询效率更高，而LinkedList只能依靠遍历，因此ArrayList查询效率更高</li>
+<li>增加和删除效率：在增加和删除非首尾元素时，LinkedList效率更高，因为ArrayList的增加和删除操作会影响到其他位置的元素，涉及元素的移动</li>
+<li>内存空间占用：LinkedList比ArrayList更占内存，因为LinkedList中除了存放数据，还有指向前后的引用</li>
+<li>线程安全方面：二者都是不安全的</li>
+</ol>
+<p>因此，如果涉及频繁的查询操作，ArrayList更合适；涉及频繁的增删操作，LinkedList更合适</p>
+<h4 id="ArrayList-和Vector-的区别"><a href="#ArrayList-和Vector-的区别" class="headerlink" title="ArrayList 和Vector 的区别"></a>ArrayList 和Vector 的区别</h4><ol>
+<li>线程安全：Vector使用synchronized保障线程安全，ArrayList不是</li>
+<li>性能：因为Vector存在锁，因此性能不如ArrayList</li>
+<li>扩容：ArrayList和Vector均可以动态扩容，Vector新容量为原来的2倍，而ArrayList新容量为原来的1.5倍</li>
+</ol>
+<p>在不需要线程安全时，建议使用ArrayList。</p>
+<p>如果想在多线程下使用ArrayList，可以使用Collections.synchronizedList(list)方法</p>
+<h4 id="HashSet实现原理"><a href="#HashSet实现原理" class="headerlink" title="HashSet实现原理"></a>HashSet实现原理</h4><p>HashSet基于HashMap而实现，HashSet中的值存放于HashMap的key上，HashMap的value全部为PRESENT，HashSet底层方面基本是调用HashMap来实现的。</p>
 <h3 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h3><p>HashMap为Java中非常重要和常用的一种数据结构，下面将重点介绍HashMap的底层原理及方法实现。</p>
 <p>Java8以前：数组+链表</p>
 <img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E9%93%BE%E8%A1%A8hash.png" class title="This is an example image">
@@ -1186,6 +1211,7 @@
 <li>在多线程环境下，调整大小会存在条件竞争，容易造成<strong>死锁</strong></li>
 <li>rehashing是一个比较耗时的过程</li>
 </ul>
+<p>在JDK7前，哈希表扩容，需要重新计算每个元素在新的数组中的位置，然后进行移动。在JDK8中进行了优化，通过位运算来判断元素是否需要移动，如果位置不变可直接放入对应的位置；如果出现了变化，新的位置是原来的下标位置+原数组长度。</p>
 <h4 id="负载因子"><a href="#负载因子" class="headerlink" title="负载因子"></a>负载因子</h4><p>为何负载因子要选为0.75，而不是更高的1，或者更小的0.5呢。如果负载因子选为1，则resize()的阈值会变得比较高，更不容易扩容，减少了rehash的成本，但是这样桶中元素更密集，哈希碰撞更严重，降低了查询效率。如果选为0.5，则resize()的阈值变得很低，扩容频繁，虽然桶中元素分布更散列，但扩容成本变高。因此为了权衡扩容成本与查询效率，选了折中的数字0.75。</p>
 <h4 id="cpu占用100-的问题"><a href="#cpu占用100-的问题" class="headerlink" title="cpu占用100%的问题"></a>cpu占用100%的问题</h4><p>出现在JDK7，因为在JDK7中链表元素的插入采用的是头插法，即如果插入元素的顺序为1,2,3，链表的顺序是3-&gt;2-&gt;1，然后在扩容的时候，当两个线程均新建了一个新的数组，一个数组将链表元素放入到新数组中，由于从头节点开始放，因此此时的顺序是1-&gt;2-&gt;3，而对于第二个链表，其当前记录指针e若指向3，e的next指向2，此时会让3再指向2，这样相当于形成了一个循环链表，这样当使用get()方法的时候，就会死循环。</p>
 <p>JDK8后，链表插入采用尾插入的方法，这样便解决了死循环问题，但在多线程下HashMap仍然会存在节点丢失等问题，因此不能在单线程下使用。</p>
@@ -1224,7 +1250,7 @@
 <p>引用自博客<code>https://my.oschina.net/hosee/blog/618828</code></p>
 </blockquote>
 <p>要了解红黑树是什么，为什么要有红黑树。</p>
-<p>红黑树是二叉查找树，不同的是在每个结点上增加一个存储位来表示颜色，Red或Black。而红黑树的特点是通过对任何一条从根到叶子的路径上各个结点的着色方式的限制，红黑树确保没有一条路径比其他路径长出两倍，树是接近平衡的。</p>
+<p>红黑树是<strong>相对平衡</strong>的<strong>二叉查找树</strong>，不同的是在每个结点上增加一个存储位来表示颜色，Red或Black。而红黑树的特点是通过对任何一条从根到叶子的路径上各个结点的着色方式的限制，<strong>红黑树确保没有一条路径比其他路径长出两倍</strong>，树是接近平衡的。没有AVL树那么平衡。</p>
 <p>二叉查找树简单理解是：</p>
 <ul>
 <li>若有左子树，则左子树上所有结点的值均小于根节点值 </li>
@@ -1236,7 +1262,7 @@
 <ol>
 <li>每个节点要么红、要么黑</li>
 <li>根节点是黑</li>
-<li>叶节点是黑的</li>
+<li>叶节点是黑的空节点</li>
 <li>若一个节点是红，两个儿子都是黑的（不存在两个连续的红色节点）</li>
 <li>对任意节点，其到叶节点尾端指针的每条路径都包含相同数目的黑节点</li>
 </ol>
@@ -2465,6 +2491,14 @@
 <p>其中要注意的是新数组长度，需要先将原数组长度减去空格，再加上空格长度乘待替换字符串长度。如果不减去空格长度，新数组前面会有空余。如果没有空格，直接返回输入字符串即可</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//不用系统的split方法，先统计插入后的字符个数，再从最后一个开始插入</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">replaceBlank2</span><span class="params">(String str, String s)</span></span>&#123;</span><br><span class="line">       <span class="comment">//统计str空格数量及s长度</span></span><br><span class="line">       <span class="keyword">int</span> spCount = <span class="number">0</span>;</span><br><span class="line">       <span class="keyword">int</span> sSize = s.length();</span><br><span class="line">       <span class="comment">//统计str中空格个数</span></span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; str.length(); i++) &#123;</span><br><span class="line">           <span class="keyword">if</span> (<span class="string">' '</span>==str.charAt(i))&#123;</span><br><span class="line">               spCount++;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">if</span> (spCount == <span class="number">0</span>)</span><br><span class="line">           <span class="keyword">return</span> str;</span><br><span class="line">       <span class="comment">//非空格字符数+替换后的字符数</span></span><br><span class="line">       <span class="keyword">int</span> newSize = str.length() - spCount + spCount * sSize;</span><br><span class="line">       <span class="keyword">char</span>[] res = <span class="keyword">new</span> <span class="keyword">char</span>[newSize];</span><br><span class="line">       <span class="comment">//两个指针，一个指向strArr，一个指向res</span></span><br><span class="line">       <span class="keyword">int</span> p1 = str.length() - <span class="number">1</span>;</span><br><span class="line">       <span class="keyword">int</span> p2 = res.length - <span class="number">1</span>;</span><br><span class="line">       <span class="keyword">for</span> (; p1 &gt;= <span class="number">0</span>; p1--) &#123;</span><br><span class="line">           <span class="keyword">char</span> c = str.charAt(p1);</span><br><span class="line">           <span class="keyword">if</span> (<span class="string">' '</span> != c)&#123;</span><br><span class="line">               <span class="comment">//当前不为空格，直接复制</span></span><br><span class="line">               res[p2--] = c;</span><br><span class="line">           &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">               <span class="comment">//如果为空格，p2拷贝s</span></span><br><span class="line">               <span class="keyword">for</span> (<span class="keyword">int</span> i = sSize - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">                   res[p2--] = s.charAt(i);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">new</span> String(res);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
+<h3 id="打印1到最大的n位数"><a href="#打印1到最大的n位数" class="headerlink" title="打印1到最大的n位数"></a>打印1到最大的n位数</h3><p>输入数字n，按顺序打印出从1最大的n位十进制数。比如输入3，则打印出1、2、3一直到最大的3位数即999。</p>
+<p>思路：此题看上去很简单，其实真正的考点是大数问题，如超出了int和long类型长度的数字，这时候可以用字符串来手动模拟自增的过程，那么可以将这个问题进行拆解，一是字符串自增，二是打印字符串。</p>
+<p>对于字符串自增，开辟长度为n的char数组，初始全部填充0，从最后位遍历到第一位。当前位的值是数组值-‘0’+进位，然后如果是最后一位自增+1模拟每次自增，然后判断当前位是否为10，如果当前位是第一位，说明到头了，可以返回真，如果不是，将当前位变成0，进位变成1。如果当前位小于10，说明没有进位，赋值后直接返回即可。</p>
+<p>对于打印矩阵，找到第一个不是0的位置，然后将后面的数字全部打印即可。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//打印从1-n所有的数</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">print1ToMaxOfNDigits</span><span class="params">(<span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (n &lt;= <span class="number">0</span>)</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">      <span class="keyword">char</span>[] ch = <span class="keyword">new</span> <span class="keyword">char</span>[n];</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; ch.length; i++) &#123;</span><br><span class="line">          ch[i] = <span class="string">'0'</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">//只要第一位没有进位，就继续</span></span><br><span class="line">      <span class="keyword">while</span> (!increacement(ch))&#123;</span><br><span class="line">          <span class="comment">//打印矩阵</span></span><br><span class="line">          printNum(ch);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printNum</span><span class="params">(<span class="keyword">char</span>[] ch)</span> </span>&#123;</span><br><span class="line">      <span class="comment">//如果当前位数不为0，就加入</span></span><br><span class="line">      <span class="keyword">int</span> n = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">while</span> (n &lt; ch.length)&#123;</span><br><span class="line">          <span class="keyword">if</span> (ch[n] == <span class="string">'0'</span>)&#123;</span><br><span class="line">              n++;</span><br><span class="line">          &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">              <span class="keyword">break</span>;</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> i = n; i &lt; ch.length; i++) &#123;</span><br><span class="line">          System.out.print(ch[i]);</span><br><span class="line">      &#125;</span><br><span class="line">      System.out.println();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">increacement</span><span class="params">(<span class="keyword">char</span>[] ch)</span> </span>&#123;</span><br><span class="line">      <span class="comment">//从最后一位开始，模拟自增</span></span><br><span class="line">      <span class="keyword">int</span> len = ch.length - <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">int</span> sum = <span class="number">0</span>;<span class="comment">//当前位数的和</span></span><br><span class="line">      <span class="keyword">int</span> addNum = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> i = len; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">          <span class="comment">//当前位加上进位</span></span><br><span class="line">          sum = ch[i] - <span class="string">'0'</span> + addNum;</span><br><span class="line">          <span class="comment">//如果是最低位，加一</span></span><br><span class="line">          <span class="keyword">if</span> (i == len)&#123;</span><br><span class="line">              sum++;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">//如果sum为10了，看是不是第一位，是的话返回true</span></span><br><span class="line">          <span class="keyword">if</span> (sum == <span class="number">10</span>)&#123;</span><br><span class="line">              <span class="keyword">if</span> (i == <span class="number">0</span>)&#123;</span><br><span class="line">                  <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">              &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                  <span class="comment">//不是，需要当前位改成0，进位</span></span><br><span class="line">                  sum = <span class="number">0</span>;</span><br><span class="line">                  ch[i] = (<span class="keyword">char</span>)(sum + <span class="string">'0'</span>);</span><br><span class="line">                  addNum = <span class="number">1</span>;</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">              <span class="comment">//没有进位，直接返回</span></span><br><span class="line">              ch[i] = (<span class="keyword">char</span>)(sum + <span class="string">'0'</span>);</span><br><span class="line">              <span class="keyword">break</span>;</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+
+
 <h2 id="链表-1"><a href="#链表-1" class="headerlink" title="链表"></a>链表</h2><h3 id="反向打印链表"><a href="#反向打印链表" class="headerlink" title="反向打印链表"></a>反向打印链表</h3><p>输入一个链表的头节点，从尾到头反过来打印出每个节点的值。</p>
 <p>方法1：遍历链表，将值存入栈。遍历栈，弹出值。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//反向打印链表</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">reversePrint</span><span class="params">(Node node)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (node == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    Stack&lt;Integer&gt; stack = <span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">    <span class="keyword">while</span> (node != <span class="keyword">null</span>)&#123;</span><br><span class="line">        stack.push(node.value);</span><br><span class="line">        node = node.next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (!stack.isEmpty())&#123;</span><br><span class="line">        sb.append(stack.pop()).append(<span class="string">" "</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sb.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -2513,6 +2547,11 @@
 <li>得到m与n的异或，不同的位置为1</li>
 <li>统计1的个数</li>
 </ul>
+<h2 id="数学"><a href="#数学" class="headerlink" title="数学"></a>数学</h2><h3 id="数值的整数次方"><a href="#数值的整数次方" class="headerlink" title="数值的整数次方"></a>数值的整数次方</h3><p>实现函数double Power(double base, int exponent)，求base的exponent次方。不得使用库函数，同时不需要考虑大数问题。</p>
+<p>思路：需要考虑指数为整数，负数，及0的情况，同时要区分下base是不是0。0的负数次方是没有意义的。</p>
+<p>求指数的时候，可以用递归的方式，如果是偶数，<code>f(n)=f(n/2)*f(n/2)</code>，如果是奇数，<code>f(n)=f(n-1)/2*f(n-1)/2*base</code>。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//自定义power函数</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">power</span><span class="params">(<span class="keyword">double</span> base, <span class="keyword">int</span> exponent)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">double</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//分三种情况，指数大于0，小于0，等于0的情况</span></span><br><span class="line">    <span class="keyword">if</span> (exponent &gt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="comment">//大于0正常计算</span></span><br><span class="line">        res = getPower(base,exponent);</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span> (exponent &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="comment">//小于0，看是否为0,</span></span><br><span class="line">        <span class="keyword">if</span> (base == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">//0的负数次方没有意义</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            res = <span class="number">1</span> / getPower(base,-exponent);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//指数为0，返回1</span></span><br><span class="line">        res = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">double</span> <span class="title">getPower</span><span class="params">(<span class="keyword">double</span> base, <span class="keyword">int</span> exponent)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//递归解决</span></span><br><span class="line">    <span class="keyword">if</span> (exponent == <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (exponent == <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> base;</span><br><span class="line">    <span class="keyword">double</span> res = getPower(base,exponent &gt;&gt; <span class="number">1</span>);</span><br><span class="line">    res *= res;</span><br><span class="line">    <span class="comment">//如果是奇数，再乘上base</span></span><br><span class="line">    <span class="keyword">if</span> ((exponent &amp; <span class="number">1</span>) == <span class="number">1</span>)</span><br><span class="line">        res *= base;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h1 id="leetcode"><a href="#leetcode" class="headerlink" title="leetcode"></a>leetcode</h1><h2 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h2><h3 id="有效的括号"><a href="#有效的括号" class="headerlink" title="有效的括号"></a>有效的括号</h3><p>题目描述：给定一个只包括 <code>&#39;(&#39;</code>，<code>&#39;)&#39;</code>，<code>&#39;{&#39;</code>，<code>&#39;}&#39;</code>，<code>&#39;[&#39;</code>，<code>&#39;]&#39;</code> 的字符串，判断字符串是否有效。</p>
 <p>有效字符串需满足：</p>
 <ol>
@@ -2607,6 +2646,12 @@
 </li>
 </ol>
 <p>orm设计思想：object relation mapping 对象关系映射</p>
+<h3 id="数据库存储"><a href="#数据库存储" class="headerlink" title="数据库存储"></a>数据库存储</h3><p>局部性原理：程序和数据的访问有聚集成群的倾向，在一个时间段内，仅使用其中一小部分（空间局部性），或最近访问的程序代码和数据，很快又被访问的可能性很大（时间局部性）。</p>
+<ul>
+<li><p>默认数据在硬盘中存储以页为逻辑单元，在InnoDB中，一页为16kb</p>
+<p>在磁盘中，页是存储器的逻辑块，每个存储块为一页（许多操作系统中，页大小通常为4k），主存和磁盘以页为大小交换数据</p>
+</li>
+</ul>
 <h2 id="初识MySQL"><a href="#初识MySQL" class="headerlink" title="初识MySQL"></a>初识MySQL</h2><h3 id="MySQL数据库介绍"><a href="#MySQL数据库介绍" class="headerlink" title="MySQL数据库介绍"></a>MySQL数据库介绍</h3><p>​    MySQL前身为瑞典公司AB，2008年被sun公司收购，2009sun被oracle收购。</p>
 <p>特点：</p>
 <ol>
@@ -5541,7 +5586,13 @@
 <p>索引的目的是提高查询效率，可以类比字典。直观理解为<strong>排好序</strong>的<strong>快速查找</strong>数据结构。影响where的查找与order后的排序。</p>
 <p>数据库分别维护着索引与数据，索引指向数据。</p>
 <p>二叉查找树，左子树所有节点值比当前值小，右子树所有节点值比当前值大，左右子树分别为二叉查找树。为了检验，可以用中序遍历，得到为递增序列就是二叉查找树。这样用二叉查找树，每次可以过滤一半数据，而树的节点指向了数据。</p>
-<p>因为索引本身也很大，一般以索引文件的形式存在于磁盘上。 </p>
+<p>因为索引本身也很大，一般以索引<strong>文件</strong>的形式存在于<strong>磁盘</strong>上。 （索引存在于文件系统中）</p>
+<p>索引的文件存储形式与<strong>存储引擎</strong>有关（InnoDB将索引与数据存在一起，MyISAM将索引与数据分开存放）</p>
+<p>放在磁盘中，就会存在IO，需要减少IO的时间</p>
+<ul>
+<li>减少IO的量</li>
+<li>减少IO的次数</li>
+</ul>
 <p>平常说的索引，一般默认指B树（多路搜索树，不一定为二叉）结构组织的索引。</p>
 <h3 id="索引的优势与劣势"><a href="#索引的优势与劣势" class="headerlink" title="索引的优势与劣势"></a>索引的优势与劣势</h3><p>优势</p>
 <ul>
@@ -5591,17 +5642,33 @@
 <p>B树与B+树。</p>
 <p>对B+树，<strong>真实数据只存在于叶子节点</strong>，<strong>非叶子节点不存储真实的数据</strong>，只存储指引搜索方向的数据项。树中每一层都是不同的磁盘块，读取算一次IO，树的高度越高，IO次数越多。</p>
 <p>2、Hash索引</p>
+<p>只有memory才显式支持hash</p>
+<p>InnoDB支持哈希索引，自适应的，人为不可控制</p>
 <p>3、full-text全文索引</p>
 <p>4、R-Tree索引</p>
-<h4 id="为什么用B-树而不用红黑树"><a href="#为什么用B-树而不用红黑树" class="headerlink" title="为什么用B+树而不用红黑树"></a>为什么用B+树而不用红黑树</h4><p>红黑树的旋转涉及到整棵树，因此需要将全部数据加载进内存，而索引结构通常很大，一般以索引文件存在于硬盘中，因此红黑树不太适合索引的设计，而B树（B与B+）分块从磁盘中读取文件，适用于外部数据的读取，更适合索引的结构设计。</p>
-<h4 id="B-树与B-树区别"><a href="#B-树与B-树区别" class="headerlink" title="B-树与B+树区别"></a>B-树与B+树区别</h4><p>B-树与B+树均为平衡多路查找树，避免了二叉查找树树高度过高IO频繁的问题，所有叶节点高度相同，因此树是平衡的（左、右两树高度差不超过1）。</p>
-<p>B-树在所有节点上既存储数据又存储索引。而B+树在B树的基础之上，仅用叶子节点存储数据，非叶子节点的关键字个数与指针相同，可存储更多关键字，所有的叶子节点有指针指向下一个节点。</p>
+<h4 id="为什么用B-树而不用红黑树"><a href="#为什么用B-树而不用红黑树" class="headerlink" title="为什么用B+树而不用红黑树"></a>为什么用B+树而不用红黑树</h4><p>常见的树</p>
+<p>BST：Binary Search Tree，二分查找树。左子树小，右子树大，极端情况下会退换成链表。</p>
+<p>AVL：二叉平衡查找树，二叉树，节点有大小要求，左右子树高度差不超过1，让树更平衡。用低的插入性能换高的查询性能。适用于查询更多，但若插入更多，不适合。</p>
+<p>红黑树：也是二叉平衡查找树，最长路径不超过最短路径2倍即可。数据多时，树的高度会比较高。</p>
+<p>红黑树的旋转涉及到整棵树，因此需要将全部数据加载进内存，而且树的高度较高，而索引结构通常很大，一般以索引文件存在于硬盘中，使用红黑树IO次数多，因此红黑树不太适合索引的设计，而B树（B与B+）分块从磁盘中读取文件，只读取需要的块，树的高度更低，IO次数更少，适用于外部数据的读取，更适合索引的结构设计。</p>
+<p>B+树结点数据存储一般应该为页的整数倍，Mysql在读取时候，默认一页为16k。</p>
+<h4 id="B树与B-树区别"><a href="#B树与B-树区别" class="headerlink" title="B树与B+树区别"></a>B树与B+树区别</h4><p>B树与B+树均为平衡多路查找树，避免了二叉查找树树高度过高IO频繁的问题，所有叶节点高度相同，因此树是平衡的。</p>
+<p>B树在所有节点上既存储数据又存储索引。如果一个节点为16k，而因为数据放在每一个节点中，数据需要占据一定的内存，因此每个节点存放数据大小有限。</p>
+<p>而B+树在B树的基础之上，仅用叶子节点存储数据，非叶子节点的关键字个数与指针相同，可存储更多关键字，非叶子节点不存放数据，可支持更多范围查找，所有的<strong>叶子节点</strong>有指针指向下一个节点。B+树可以存储更多数据，一般3层可以支持千万级别的数据量查询。</p>
 <p>这样，B+树的优势为：更有利于对数据库的<strong>扫描</strong>与<strong>范围查询</strong>（叶子节点存在指针）。</p>
 <p>B树的优势为：在某些查询条件下，查询效率更高，为O(1)。</p>
 <p>数据结构没有好坏之分，只有合不合适。</p>
 <p>因此，对于Mysql这种关系型数据库，表与表之间的关联性很强，利用一个表的字段去遍历另一个表的数据是非常常见的操作，因此使用B+树方便去遍历与范围查找，比较符合关系型数据库的应用场景。</p>
-<p>而对于MongoDB，其为NoSQL数据库的一种，文档型数据库，用类似JSON的方式存储数据，用键的形式去获取数据效率较高，数据量很大而且注重效率。B-树的key与data有对应关系，且单次查询效率更高，因此可以使用B-树更符合这种非关系型数据库的应用场景。</p>
-<p>而hash索引的效率理论上要更高，而Mysql不适用hash索引的原因是hash索引只支持IN或者=的查询，无法支持范围查询，因此也不太符合关系型数据库的需求。</p>
+<p>而对于MongoDB，其为NoSQL数据库的一种，文档型数据库，用类似JSON的方式存储数据，用键的形式去获取数据效率较高，数据量很大而且注重效率。B树的key与data有对应关系，且单次查询效率更高，因此可以使用B树更符合这种非关系型数据库的应用场景。</p>
+<p>而hash索引的效率理论上要更高，hash索引只支持IN或者=的查询，无法支持范围查询，因此在等值查询较少，范围查询更多的情况下，hash索引不太适合。hash表中需要将数据放入内存，适合memory。</p>
+<p>而B*树在B+树的基础之上，非叶子节点之间也存在指针。</p>
+<h4 id="回表"><a href="#回表" class="headerlink" title="回表"></a>回表</h4><p>InnoDB与MyISAM索引均为红黑树，但前者为聚集索引和密集索引，后者为非聚集索引和稀疏索引。InnoDB为聚集索引，将索引与数据存放在一起，主键索引可通过叶子节点访问数据，而非主键索引需要先找到对应主键再获取数据（需要2棵B+树查找），因此数据量较少的时候建立索引效率不一定会更高，这就是<strong>回表</strong>。</p>
+<p>对比以下两个语句</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">id</span> <span class="keyword">from</span> 表名 <span class="keyword">where</span> <span class="keyword">name</span>=<span class="string">"zs"</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> 表名 <span class="keyword">where</span> <span class="keyword">name</span>=<span class="string">"zs"</span>;</span><br></pre></td></tr></table></figure>
+
+<p>如果对id为主键索引，name也建立了索引，第一条语句在name索引的B+树叶子节点可以直接找到需要的id，而第二条数据，就必须用name索引树中获取的id在主键索引中回表，再次查找获取数据。不需要经过回表过程的叫做索引覆盖（查询的字段与建立索引相同）</p>
+<p>而MyISAM索引与数据分开，为非聚集索引，叶子节点上存储的指向数据的指针，非主键索引不需要先找到主键索引再获取数据。</p>
+<p>此聚集索引，如果在指定了主键情况下，为主键；如果有非空唯一键，为唯一键；如果均为没有，会自动生成一个隐藏的rowID作为聚集索引。</p>
 <h3 id="建立索引情况"><a href="#建立索引情况" class="headerlink" title="建立索引情况"></a>建立索引情况</h3><h4 id="建立索引情况-1"><a href="#建立索引情况-1" class="headerlink" title="建立索引情况"></a>建立索引情况</h4><ol>
 <li><strong>主键</strong>自动建立唯一索引</li>
 <li><strong>频繁</strong>作为<strong>查询</strong>条件的字段应该创建索引</li>
@@ -5663,7 +5730,7 @@
 <p>table：这行数据关于哪张表</p>
 <p><strong>type</strong></p>
 <p>访问类型排列</p>
-<p>显示查询使用了何种类型，从最好到最差以此是</p>
+<p>显示<strong>查询</strong>使用了何种<strong>类型</strong>，从最好到最差以此是</p>
 <p>system&gt;const&gt;eq_ref&gt;ref&gt;range&gt;index&gt;All</p>
 <p>一般得保证查询至少达到<strong>range</strong>级别，<strong>最好能到ref</strong></p>
 <p>system：表只有一行记录（等于系统表），为const类型的特例，平时不会出现</p>
@@ -5752,7 +5819,7 @@
 </li>
 <li><p><strong>最佳左前缀法则</strong>（火车头不能丢，中间车厢不能断）</p>
 <p>如果索引了多列，要遵循最佳左前缀法则，查询从索引的<strong>最左前列开始</strong>并且<strong>不跳过索引中的列</strong></p>
-<p>如果索引顺序为i1，i2，i3，查询时候为i3，i2，i1，会被Mysql优化，仍然可以用索引查询</p>
+<p>如果索引顺序为i1，i2，i3，查询时候为i3，i2，i1，会被Mysql<strong>优化</strong>，仍然可以用复合索引查询</p>
 </li>
 <li><p><strong>不要在索引列上做任何操作</strong>（计算、函数、（自动或手动）<strong>类型转换</strong>）（<strong>索引操作就失效</strong>）</p>
 </li>
@@ -5760,7 +5827,7 @@
 </li>
 <li><p>尽量使用覆盖索引（只访问索引的查询，索引列和查询列一致），减少select *</p>
 </li>
-<li><p>mysql在使用不等于（!=或&lt;&gt;）的时候无法使用索引会导致全表扫描（少用不等）</p>
+<li><p>mysql在使用<strong>不等于</strong>（!=或&lt;&gt;）的时候无法使用索引会导致全表扫描（少用不等）</p>
 </li>
 <li><p>is null,is not null也无法使用索引</p>
 </li>
@@ -5769,7 +5836,7 @@
 </li>
 <li><p>字符串不加单引号索引失效（隐式类型转换）</p>
 </li>
-<li><p>用or连接时索引失效，<strong>少用or</strong></p>
+<li><p>用or连接时<strong>索引失效</strong>，<strong>少用or</strong></p>
 </li>
 </ol>
 <p>如果order by中用到的字段与前面用于筛选的不连续，会有filesort。核心就在于索引是否能被连贯的使用到。</p>
@@ -5786,6 +5853,29 @@
 <li>尽可能通过分析统计信息和调整query的写法来达到选择合适索引的目的</li>
 </ul>
 <p>最好的是全值匹配，要遵守最左前缀；索引上不要计算，范围之后会失效，like 百分放右边，不等空值还有or，索引失效</p>
+<h4 id="索引下推"><a href="#索引下推" class="headerlink" title="索引下推"></a>索引下推</h4><p>先介绍谓词下推</p>
+<p>如果有如下的sql语句</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> t1.name, t2.name <span class="keyword">from</span> t1 <span class="keyword">inner</span> <span class="keyword">join</span> t2 <span class="keyword">on</span> t1.id=t2.id;</span><br></pre></td></tr></table></figure>
+
+<p>这条语句的执行顺序有两种</p>
+<ol>
+<li>先执行表的join，再筛选需要的数据</li>
+<li>先将所需要的列拿出，再执行表的join</li>
+</ol>
+<p>后执行join操作（join为动词）可被理解为谓词下推，减少了表连接前的数据量。</p>
+<p>而索引下推</p>
+<p>如果筛选条件有name,age</p>
+<p>不使用索引下推</p>
+<ul>
+<li>先根据name列的值将所有数据拉到server层，在server层对age做过滤</li>
+</ul>
+<p>使用索引下推</p>
+<ul>
+<li>根据name，age两个字段把满足要求的数据拉到server层，取出对应的数据</li>
+</ul>
+<h4 id="MRR"><a href="#MRR" class="headerlink" title="MRR"></a>MRR</h4><p>Multi-Range Read，多范围查询</p>
+<p>当使用非主键索引查询数据时，没有索引覆盖需要进行回表，即先查询主键值，再到主键索引中查询整行数据。</p>
+<p>场景：主键为id，非主键索引为name，根据name去查询，得到的id是无序的（相对于物理顺序），这样根据无序的列表去主键B+树上进行的是随机查找。而如果在name索引树上得到无序的id后，先将id进行排序，当排序完成后在主键索引中查找就不是随机了。</p>
 <h4 id="优化原则"><a href="#优化原则" class="headerlink" title="优化原则"></a>优化原则</h4><p>小表驱动大表，小的数据库驱动大的数据集。</p>
 <p>EXISTS</p>
 <ul>
@@ -5820,7 +5910,7 @@
 </li>
 <li><p>调优策略</p>
 <ul>
-<li><p>不适用select *，排序顺序最好与索引一致</p>
+<li><p>不使用select *，排序顺序最好与索引一致</p>
 </li>
 <li><p>增大sort_buffer_size</p>
 </li>
