@@ -74,7 +74,7 @@
 <meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/sboom.png">
 <meta property="og:image" content="https://hughzc.github.io/2020/03/21/jvm/%E5%80%BCoom.png">
 <meta property="article:published_time" content="2020-03-21T03:41:02.000Z">
-<meta property="article:modified_time" content="2020-03-26T08:56:52.083Z">
+<meta property="article:modified_time" content="2020-03-31T04:39:30.675Z">
 <meta property="article:author" content="未名Hugh">
 <meta property="article:tag" content="jvm">
 <meta name="twitter:card" content="summary">
@@ -258,7 +258,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-26 16:56:52" itemprop="dateModified" datetime="2020-03-26T16:56:52+08:00">2020-03-26</time>
+                <time title="修改时间：2020-03-31 12:39:30" itemprop="dateModified" datetime="2020-03-31T12:39:30+08:00">2020-03-31</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -300,9 +300,23 @@
 <p>Car.class由ClassLoader装载进内存，Car Class装载进方法区，一个模板Car Class，可以产生多个实例。类装载器有多个，有以下几类</p>
 <h4 id="种类（有哪些）"><a href="#种类（有哪些）" class="headerlink" title="种类（有哪些）"></a>种类（有哪些）</h4><p><strong>虚拟机自带的加载器</strong></p>
 <ul>
-<li><strong>启动类</strong>加载器（Boostrap）C++写的</li>
-<li><strong>扩展类</strong>加载器（Extension）Java写的 </li>
-<li><strong>应用程序类</strong>加载器（AppClassLoader）Java也叫系统类加载器，加载当前应用的classpath的所有类</li>
+<li><p><strong>启动类</strong>加载器（Boostrap）C++写的</p>
+<p>Java的核心类库，提供JVM自身需要的类</p>
+<ul>
+<li>JAVA_HOME/jre/lib/rt.jar，resources.jar，或sun.boot.class.path</li>
+</ul>
+</li>
+<li><p><strong>扩展类</strong>加载器（Extension）Java写的 </p>
+<p>派生于ClassLoader，父类加载器为启动类加载器</p>
+<ul>
+<li>java.ext.dirs系统属性所指定的目录中加载</li>
+<li>JDK安装目录的jre/lib/ext子目录加载，用户创建的JAR放在此目录下，也会自动由扩展类加载器加载</li>
+</ul>
+</li>
+<li><p><strong>应用程序类</strong>加载器（AppClassLoader）Java也叫系统类加载器，加载环境变量classpath的所有类或系统属性java.class.path指定路径下所有类</p>
+<p>派生于ClassLoader，父类加载器为扩展类加载器</p>
+<p>该类加载是程序中默认的类加载器</p>
+</li>
 </ul>
 <p><strong>用户自定义加载器</strong></p>
 <p>Java.lang.ClassLoader的子类，用户可以定义类的加载方式</p>
@@ -328,20 +342,50 @@
 <p>执行引擎负责解释命令，提交给操作系统执行。</p>
 <h4 id="类装载的执行过程"><a href="#类装载的执行过程" class="headerlink" title="类装载的执行过程"></a>类装载的执行过程</h4><ol>
 <li><p>加载：根据查找路径找到相应的class文件然后导入</p>
+<ul>
+<li>通过全限定名获取对应的二进制字节流</li>
+<li>将此字节流所代表的静态存储结构转化为方法区的运行时数据结构</li>
+<li>内存中生成一个代表此类的<strong>java.lang.Class对象</strong>，作为方法区的这个类的各种数据访问入口</li>
+</ul>
 </li>
 <li><p>验证：检查加载的class文件的正确性（CafeBaBe）</p>
 </li>
-<li><p>准备：给类中的静态变量分配内存空间</p>
+<li><p>准备：给类中的<strong>静态变量</strong>分配内存空间并设置默认初始值</p>
+<p>不包含用final修饰的static，因为其为常量，在编译阶段就分配了，准备阶段显示初始化</p>
+<p>不为实例变量分配初始化，类变量分配在方法区，实例变量随Java对象一起分配到堆中</p>
 </li>
 <li><p>解析：虚拟机将常量池中的符号引用替换为直接引用的过程。符号引用可理解为一个标识（字符串），在直接引用中直接指向内存的地址。此过程称为静态解析</p>
 <p>常量池中的符号引用转为直接引用有类装载时候的静态解析和方法入栈时候的动态链接</p>
 </li>
 <li><p>初始化：对静态变量和静态代码块执行初始化过程</p>
+<p>执行类构造器方法<code>&lt;clinit&gt;</code>()的过程，此方法不需要定义，是javac编译器自动收集类中的所有类变量的赋值动作和静态代码块中的语句合并而来。</p>
+<p>构造器方法中的指令按语句在源文件中出现的顺序执行</p>
+<p>若该类有父类，JVM会保证子类的<code>&lt;clinit&gt;</code>()执行前，父类的<code>&lt;clinit&gt;</code>()已经执行完毕</p>
+<p>虚拟机需要保证一个类的<code>&lt;clinit&gt;</code>()方法在多线程下被<strong>同步加锁</strong></p>
 </li>
+</ol>
+<p>其中验证、准备、解析属于链接阶段。</p>
+<h4 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h4><p>自定义类加载器的目的</p>
+<ul>
+<li><p>隔离修改类</p>
+<p>中间件的使用</p>
+</li>
+<li><p>修改类加载的方式</p>
+</li>
+<li><p>扩展加载源</p>
+</li>
+<li><p>防止源码泄漏</p>
+</li>
+</ul>
+<p>步骤</p>
+<ol>
+<li>继承抽象类java.lang.ClassLoader，实现自己的类加载器</li>
+<li>JDK1.2前重写loadClass()方法，之后不建议覆盖loadClass()方法，而是把自定义类的加载逻辑写在findClass()方法中</li>
+<li>若没有太复杂的需求，可以直接继承URLClassLoader类，避免自己编写findClass()方法及其获取字节码流的方式，使自定义类加载器编写更加简洁</li>
 </ol>
 <h3 id="执行引擎"><a href="#执行引擎" class="headerlink" title="执行引擎"></a>执行引擎</h3><ul>
 <li>执行方法区</li>
-<li>修改程序计数器中的行号</li>
+<li>读取程序计数器中行号对应的指令</li>
 <li>开辟线程执行GC</li>
 </ul>
 <h3 id="本地接口"><a href="#本地接口" class="headerlink" title="本地接口"></a>本地接口</h3><p>Java底层调用的方法为native方法，由<strong>本地方法接口</strong>提供，为了将其装载进内存并与普通方法区别，装载进特殊的栈中，即<strong>本地方法栈</strong>中（Native Method Stack）。方法具体的实现交给本地方法库。native是关键字，有声明，无实现。</p>
@@ -349,6 +393,8 @@
 <h3 id="PC寄存器"><a href="#PC寄存器" class="headerlink" title="PC寄存器"></a>PC寄存器</h3><p>记录了方法之间的调用与执行情况。该程序接下来要去哪。</p>
 <p>每个线程都有程序计数器，是线程私有的，指向方法区中的方法字节码（<strong>正在执行的代码行号</strong>），此值被<strong>执行引擎</strong>赋值。内存空间很小，几乎可忽略（不存在GC），<strong>是当前线程所执行的字节码的行号指示器</strong>。若执行的为Native方法，计数器是空。不会发生内存溢出（OutOfMemory=OOM）错误。</p>
 <p>便于执行<strong>线程的上下文切换</strong>，如果没有程序计数器，当切换到这个线程的时候，便不知道该执行哪行代码。</p>
+<p>若执行的是native方法，则计数器为空。因为native方法通过其他语言来实现，没有通过Java自然也就没有对应的字节码行号。</p>
+<p>CPU时间切片，线程去争抢时间片来执行，经常会出现线程的中断和恢复，如果不是线程私有而是共享，则没法保存当前线程执行的行号，不方便上下文切换，设置成线程私有，不会出现干扰的情况。 </p>
 <h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><p>供线程共享的运行时内存区域，<strong>存储每一个类的结构信息</strong>（模板）。如运行时常量池（Runtime Constant Pool），字段和方法数据，构造函数和普通方法的字节码内容。</p>
 <p>常量+静态变量+类信息。方法区中静态变量存储的是堆中对象的地址。</p>
 <p>上面讲的是<strong>规范</strong>，不同虚拟机中实现不一样，最典型的为永久代（PermGen Space）和元空间（Metaspace）。</p>
@@ -356,6 +402,7 @@
 <p>由字节码执行引擎去执行。</p>
 <h3 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h3><p>栈管运行，堆管存储。</p>
 <p>栈（先进后出），队列（先进先出）。</p>
+<p>当执行一个方法时，进行压栈；当方法结束后，执行出栈。</p>
 <p>栈也叫栈内存，主管Java程序的运行，栈在线程创建时创建，栈的生命周期跟随线程，对于栈不存在垃圾回收问题。是线程私有的。<strong>8种基本类型的变量+对象的引用变量+实例方法都是在函数的栈内存中分配</strong>。</p>
 <p>栈帧：当一个方法入栈时，在栈中为其单独开辟一个空间，叫做栈帧，存放方法中的局部变量等。栈的数据结构为先进后出，结构与程序运行特点相符，先执行的方法后结束。</p>
 <img src="/2020/03/21/jvm/%E6%A0%88%E5%B8%A7.png" class title="This is an example image">
@@ -363,6 +410,9 @@
 <p>栈帧中有4部分</p>
 <ul>
 <li><p><strong>局部变量表</strong>：为局部变量开辟地址存储；对象地址（引用）</p>
+<p>定义为<strong>数字数组</strong>，主要为存储<strong>方法参数</strong>和定义在方法体内的<strong>局部变量</strong></p>
+<p>数据类型包括：基本数据类型，对象引用，及returnAddress类型</p>
+<p>容量大小在编译期间确定</p>
 </li>
 <li><p><strong>操作数栈</strong>：存储操作数运算时需要的临时变量</p>
 <p>常量的计算，给局部变量赋值，从局部变量表中取值运算</p>
@@ -379,7 +429,7 @@
 <li>栈操作（Operand Stack）：记录出栈、入栈的操作</li>
 <li>栈帧数据（Frame Data）：包括类文件、方法等等</li>
 </ul>
-<h4 id="栈运行原理"><a href="#栈运行原理" class="headerlink" title="栈运行原理"></a>栈运行原理</h4><p>每个方法执行的同时都会创建一个一个栈帧，用于存储局部变量表、操作数栈、动态链接、方法出口等信息。方法从调用到执行完毕的过程就对应着一个栈帧在虚拟机中入栈到出栈的过程。</p>
+<h4 id="栈运行原理"><a href="#栈运行原理" class="headerlink" title="栈运行原理"></a>栈运行原理</h4><p>每个<strong>方法</strong>执行的同时都会创建一个一个<strong>栈帧</strong>，先进后出，用于存储局部变量表、操作数栈、动态链接、方法出口等信息。方法从调用到执行完毕的过程就对应着一个栈帧在虚拟机中入栈到出栈的过程。</p>
 <p>栈的大小和具体的jvm实现相关，通常在256k-756k之间，<strong>约等于1Mb左右</strong>。</p>
 <p>可以通过-Xss:设定每个线程虚拟机栈的大小，一般256k足够，会影响并发线程数的大小</p>
 <p>Exception in Thread “main” java.lang.StackOverflowError</p>
@@ -504,6 +554,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取CPU核数</span></span><br><span class="line">      System.out.println(Runtime.getRuntime().availableProcessors());</span><br><span class="line">      <span class="comment">//返回Java虚拟机试图使用的最大内存量</span></span><br><span class="line">      <span class="keyword">long</span> maxMemory = Runtime.getRuntime().maxMemory();</span><br><span class="line">      <span class="comment">//返回Java虚拟机中的内存总量</span></span><br><span class="line">      <span class="keyword">long</span> totalMemory = Runtime.getRuntime().totalMemory();</span><br><span class="line">      System.out.println(<span class="string">"MAX_MEMORY="</span>+maxMemory+<span class="string">"字节、"</span>+(maxMemory/(<span class="keyword">double</span>)<span class="number">1024</span>/<span class="number">1024</span>)+<span class="string">"MB"</span>);</span><br><span class="line">      System.out.println(<span class="string">"TOTAL_MEMORY="</span>+totalMemory+<span class="string">"字节、"</span>+(totalMemory/(<span class="keyword">double</span>)<span class="number">1024</span>/<span class="number">1024</span>)+<span class="string">"MB"</span>);</span><br></pre></td></tr></table></figure>
 
 <p>实际中需要将<strong>初始内存和最大内存设置为相同</strong>，避免内存不稳定产生停顿。</p>
+<h4 id="OOM异常"><a href="#OOM异常" class="headerlink" title="OOM异常"></a>OOM异常</h4><p>当一个线程发生了OOM异常后，另一个线程是可以正常执行的，因为发生OOM异常的线程会清空其堆内存，不影响其他线程的使用。</p>
 <h3 id="调优"><a href="#调优" class="headerlink" title="调优"></a>调优</h3><p>调优的目的：减少full gc，减少stop-the-world时间。</p>
 <p>让朝生夕死的对象，尽量在年轻代被minor gc，而少在老年代被full gc。方法之一为调整年轻代与老年代的内存分配比例。</p>
 <h1 id="GC"><a href="#GC" class="headerlink" title="GC"></a>GC</h1><h2 id="Java内存泄漏"><a href="#Java内存泄漏" class="headerlink" title="Java内存泄漏"></a>Java内存泄漏</h2><p>内存泄漏指的是不被使用的对象或内存一直占据着内存，理论上来说Java有GC垃圾回收，即不再被使用的对象会被垃圾回收，从内存中清除。</p>
@@ -695,12 +746,10 @@
 <h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="强引用、软引用、弱引用、虚引用"><a href="#强引用、软引用、弱引用、虚引用" class="headerlink" title="强引用、软引用、弱引用、虚引用"></a>强引用、软引用、弱引用、虚引用</h3><p>不同的引用下GC不同</p>
 <p>设置：-Xms:10m -Xmx:10m -XX:+PrintGCDetails</p>
 <h4 id="强引用（Strong-Reference）"><a href="#强引用（Strong-Reference）" class="headerlink" title="强引用（Strong Reference）"></a>强引用（Strong Reference）</h4><ul>
-<li><p>最普遍的引用：Object o = new Object();</p>
-</li>
-<li><p>抛出OOM异常程序也不会回收具有强引用的对象</p>
-</li>
-<li><p>将对象设置为null来弱化引用，使其被回收，或等待其生命周期结束</p>
-</li>
+<li>最普遍的引用：Object o = new Object();</li>
+<li>只有对象不被引用时才被回收</li>
+<li>若仍被引用，抛出OOM异常程序也不会回收具有强引用的对象</li>
+<li>将对象设置为null来弱化引用，使其被回收，或等待其生命周期结束</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="string">"java"</span>;</span><br><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">   str += str + <span class="keyword">new</span> Random().nextInt(<span class="number">88888888</span>) + <span class="keyword">new</span> Random().nextInt(<span class="number">999999999</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -709,10 +758,18 @@
 
 <p>会报OOM异常，先GC，最后Full GC，不能将强引用的对象强制回收</p>
 <h4 id="软引用（Soft-Reference）"><a href="#软引用（Soft-Reference）" class="headerlink" title="软引用（Soft Reference）"></a>软引用（Soft Reference）</h4><ul>
-<li>对象处在有用但非必须的状态</li>
-<li>当<strong>内存空间不足</strong>，GC会回收该引用的对象的内存</li>
-<li>可以用来实现内存敏感的高速缓存</li>
+<li><p>对象处在有用但非必须的状态</p>
+</li>
+<li><p>当<strong>内存空间不足</strong>，GC会回收该引用的对象的内存</p>
+</li>
+<li><p>可以用来实现内存敏感的高速<strong>缓存</strong></p>
+<p>将经常用到的内容放在缓存中，提高效率，但如果空间不足，GC时可以将此软引用指向的对象进行回收，节省空间。兼顾时间与空间的效率。</p>
+</li>
 </ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SoftReference&lt;byte[]&gt; m &#x3D;  new SoftReference&lt;&gt;(new byte[1024*1024*10]);</span><br><span class="line">m.get();</span><br></pre></td></tr></table></figure>
+
+<p>m与SoftRefence（sr）对象强引用，sr与定义的字符数组虚引用，通过m.get()方法可以获得其引用。</p>
+<p>下面看其被GC情况。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="string">"java"</span>;</span><br><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">    SoftReference&lt;String&gt; str2 = <span class="keyword">new</span> SoftReference&lt;String&gt;(str + <span class="keyword">new</span> Random().nextInt(<span class="number">88888888</span>) + <span class="keyword">new</span> Random().nextInt(<span class="number">999999999</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>日志</p>
@@ -726,9 +783,12 @@
 <li>被回收的概率也不大，因为GC线程优先级较低</li>
 <li>适用于偶尔被使用且不影响垃圾回收的对象</li>
 </ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">WeakReference&lt;String&gt; str2 = <span class="keyword">new</span> WeakReference&lt;String&gt;(str);</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">WeakRference&lt;M&gt; m =  <span class="keyword">new</span> WeakReference&lt;&gt;(<span class="keyword">new</span> M());</span><br><span class="line">m.get();</span><br></pre></td></tr></table></figure>
 
-<h4 id="虚引用（PhantomReference）"><a href="#虚引用（PhantomReference）" class="headerlink" title="虚引用（PhantomReference）"></a>虚引用（PhantomReference）</h4><ul>
+<p>使用m.get()方法可以得到其引用。</p>
+<p>在ThreadLocal中的Entry里，key对ThreadLocal对象为弱引用，可以防止内存泄漏。</p>
+<h4 id="虚引用（PhantomReference）"><a href="#虚引用（PhantomReference）" class="headerlink" title="虚引用（PhantomReference）"></a>虚引用（PhantomReference）</h4><p>Phantom虚幻的，使用get()方法得不到。</p>
+<ul>
 <li>不会决定对象的生命周期</li>
 <li>任何时候都可能被垃圾收集器回收</li>
 <li>跟踪对象被垃圾收集器回收的活动，起哨兵作用</li>
@@ -737,6 +797,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="string">"java"</span>;</span><br><span class="line">ReferenceQueue&lt;String&gt; queue = <span class="keyword">new</span> ReferenceQueue&lt;&gt;();</span><br><span class="line">PhantomReference&lt;String&gt; pr = <span class="keyword">new</span> PhantomReference&lt;&gt;(str,queue);</span><br></pre></td></tr></table></figure>
 
 <p>通过判断队列中是否加入了虚引用来了解被引用的对象是否被GC。</p>
+<p>作用是<strong>管理堆外内存</strong>，在传统的网络通信中，网卡数据写给OS，OS写入Buffer中，再复制给JVM，JVM要向网络传输数据，先 复制到OS的Buffer中，再写给网卡。这个Buffer复制到JVM的过程是不必要的，在NIO中，提供了直接内存管理或堆外内存管理。利用JVM管理操作系统中的堆外内存，不用再次拷贝，称为zerocopy，提高效率。有对象DirectByteBuffer来指向堆外内存，为了方便回收堆外内存的垃圾回收，给DirectByteBuffer加上虚引用，配合队列使用，当队列中有内容，说明DirectByteBuffer有对象被回收，需要相应清理堆外内存。</p>
 <h3 id="对象何时进入老年代"><a href="#对象何时进入老年代" class="headerlink" title="对象何时进入老年代"></a>对象何时进入老年代</h3><p>一般新建对象时发生在Eden区，但是某些情况对象会进入到老年代</p>
 <ol>
 <li><p>新建大对象（需要大量连续内存空间的对象，如很长的字符串或数组）直接进入老年代</p>
@@ -830,7 +891,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM"><span class="nav-number">1.</span> <span class="nav-text">JVM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM介绍"><span class="nav-number">1.1.</span> <span class="nav-text">JVM介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM体系结构概览"><span class="nav-number">1.1.1.</span> <span class="nav-text">JVM体系结构概览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类装载器ClassLoader"><span class="nav-number">1.1.2.</span> <span class="nav-text">类装载器ClassLoader</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#介绍（是什么）"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">介绍（是什么）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#种类（有哪些）"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">种类（有哪些）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#双亲委派（怎么用）"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">双亲委派（怎么用）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#沙箱安全（什么用）"><span class="nav-number">1.1.2.4.</span> <span class="nav-text">沙箱安全（什么用）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类装载的执行过程"><span class="nav-number">1.1.2.5.</span> <span class="nav-text">类装载的执行过程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#执行引擎"><span class="nav-number">1.1.3.</span> <span class="nav-text">执行引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本地接口"><span class="nav-number">1.1.4.</span> <span class="nav-text">本地接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PC寄存器"><span class="nav-number">1.1.5.</span> <span class="nav-text">PC寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区"><span class="nav-number">1.1.6.</span> <span class="nav-text">方法区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#栈"><span class="nav-number">1.1.7.</span> <span class="nav-text">栈</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#栈的存储"><span class="nav-number">1.1.7.1.</span> <span class="nav-text">栈的存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#栈运行原理"><span class="nav-number">1.1.7.2.</span> <span class="nav-text">栈运行原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#栈-堆-方法区的交互"><span class="nav-number">1.1.7.3.</span> <span class="nav-text">栈+堆+方法区的交互</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#深拷贝与浅拷贝"><span class="nav-number">1.1.7.4.</span> <span class="nav-text">深拷贝与浅拷贝</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#堆与栈的区别"><span class="nav-number">1.1.7.5.</span> <span class="nav-text">堆与栈的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#new对象发生的事情"><span class="nav-number">1.1.7.6.</span> <span class="nav-text">new对象发生的事情</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆"><span class="nav-number">1.1.8.</span> <span class="nav-text">堆</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#堆new对象流程"><span class="nav-number">1.1.8.1.</span> <span class="nav-text">堆new对象流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MinorGC（复制-gt-清空-gt-互换）"><span class="nav-number">1.1.8.2.</span> <span class="nav-text">MinorGC（复制-&gt;清空-&gt;互换）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#永久代（jdk7前）"><span class="nav-number">1.1.8.3.</span> <span class="nav-text">永久代（jdk7前）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#堆参数调整"><span class="nav-number">1.1.8.4.</span> <span class="nav-text">堆参数调整</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调优"><span class="nav-number">1.1.9.</span> <span class="nav-text">调优</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GC"><span class="nav-number">2.</span> <span class="nav-text">GC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java内存泄漏"><span class="nav-number">2.1.</span> <span class="nav-text">Java内存泄漏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GC收集日志信息"><span class="nav-number">2.2.</span> <span class="nav-text">GC收集日志信息</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OOM"><span class="nav-number">2.2.1.</span> <span class="nav-text">OOM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#日志解读"><span class="nav-number">2.2.2.</span> <span class="nav-text">日志解读</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GC介绍"><span class="nav-number">2.3.</span> <span class="nav-text">GC介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Minor-GC和Full-GC区别"><span class="nav-number">2.3.1.</span> <span class="nav-text">Minor GC和Full GC区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象可达性分析"><span class="nav-number">2.3.2.</span> <span class="nav-text">对象可达性分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#引用计数法"><span class="nav-number">2.3.2.1.</span> <span class="nav-text">引用计数法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可达性分析"><span class="nav-number">2.3.2.2.</span> <span class="nav-text">可达性分析</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4大算法"><span class="nav-number">2.4.</span> <span class="nav-text">4大算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见垃圾收集器"><span class="nav-number">2.5.</span> <span class="nav-text">常见垃圾收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#相关概念"><span class="nav-number">2.5.1.</span> <span class="nav-text">相关概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Stop-the-World"><span class="nav-number">2.5.1.1.</span> <span class="nav-text">Stop-the-World</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Safepoint"><span class="nav-number">2.5.1.2.</span> <span class="nav-text">Safepoint</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见收集器"><span class="nav-number">2.5.2.</span> <span class="nav-text">常见收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#年轻代常见收集器"><span class="nav-number">2.5.3.</span> <span class="nav-text">年轻代常见收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Serial收集器（-XX-UseSerialGC，复制算法）"><span class="nav-number">2.5.3.1.</span> <span class="nav-text">Serial收集器（-XX:+UseSerialGC，复制算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ParNew收集器（-XX-UseParNewGC，复制算法）"><span class="nav-number">2.5.3.2.</span> <span class="nav-text">ParNew收集器（-XX:+UseParNewGC，复制算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Paraller-Scavenge-XX-UseParallelGC，复制算法"><span class="nav-number">2.5.3.3.</span> <span class="nav-text">Paraller Scavenge(-XX:+UseParallelGC，复制算法)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#老年代常见收集器"><span class="nav-number">2.5.4.</span> <span class="nav-text">老年代常见收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#SerialOld（-XX-UseSerialOldGC，标记整理算法）"><span class="nav-number">2.5.4.1.</span> <span class="nav-text">SerialOld（-XX:+UseSerialOldGC，标记整理算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ParellerOld（-XX-UseParellerOldGC，标记整理算法）"><span class="nav-number">2.5.4.2.</span> <span class="nav-text">ParellerOld（-XX:+UseParellerOldGC，标记整理算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CMS（-XX-UseConcMarkSweepGC，标记清除算法）"><span class="nav-number">2.5.4.3.</span> <span class="nav-text">CMS（-XX:+UseConcMarkSweepGC，标记清除算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#堆内存垃圾收集G1（-XX-UseG1GC，复制-标记整理算法）"><span class="nav-number">2.5.4.4.</span> <span class="nav-text">堆内存垃圾收集G1（-XX:+UseG1GC，复制+标记整理算法）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用软件"><span class="nav-number">2.6.</span> <span class="nav-text">常用软件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#VisualVM"><span class="nav-number">2.6.1.</span> <span class="nav-text">VisualVM</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">2.7.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#强引用、软引用、弱引用、虚引用"><span class="nav-number">2.7.1.</span> <span class="nav-text">强引用、软引用、弱引用、虚引用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#强引用（Strong-Reference）"><span class="nav-number">2.7.1.1.</span> <span class="nav-text">强引用（Strong Reference）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#软引用（Soft-Reference）"><span class="nav-number">2.7.1.2.</span> <span class="nav-text">软引用（Soft Reference）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#弱引用（Weak-Reference）"><span class="nav-number">2.7.1.3.</span> <span class="nav-text">弱引用（Weak Reference）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#虚引用（PhantomReference）"><span class="nav-number">2.7.1.4.</span> <span class="nav-text">虚引用（PhantomReference）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象何时进入老年代"><span class="nav-number">2.7.2.</span> <span class="nav-text">对象何时进入老年代</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM"><span class="nav-number">1.</span> <span class="nav-text">JVM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM介绍"><span class="nav-number">1.1.</span> <span class="nav-text">JVM介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM体系结构概览"><span class="nav-number">1.1.1.</span> <span class="nav-text">JVM体系结构概览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类装载器ClassLoader"><span class="nav-number">1.1.2.</span> <span class="nav-text">类装载器ClassLoader</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#介绍（是什么）"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">介绍（是什么）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#种类（有哪些）"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">种类（有哪些）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#双亲委派（怎么用）"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">双亲委派（怎么用）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#沙箱安全（什么用）"><span class="nav-number">1.1.2.4.</span> <span class="nav-text">沙箱安全（什么用）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类装载的执行过程"><span class="nav-number">1.1.2.5.</span> <span class="nav-text">类装载的执行过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义类加载器"><span class="nav-number">1.1.2.6.</span> <span class="nav-text">自定义类加载器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#执行引擎"><span class="nav-number">1.1.3.</span> <span class="nav-text">执行引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本地接口"><span class="nav-number">1.1.4.</span> <span class="nav-text">本地接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PC寄存器"><span class="nav-number">1.1.5.</span> <span class="nav-text">PC寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区"><span class="nav-number">1.1.6.</span> <span class="nav-text">方法区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#栈"><span class="nav-number">1.1.7.</span> <span class="nav-text">栈</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#栈的存储"><span class="nav-number">1.1.7.1.</span> <span class="nav-text">栈的存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#栈运行原理"><span class="nav-number">1.1.7.2.</span> <span class="nav-text">栈运行原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#栈-堆-方法区的交互"><span class="nav-number">1.1.7.3.</span> <span class="nav-text">栈+堆+方法区的交互</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#深拷贝与浅拷贝"><span class="nav-number">1.1.7.4.</span> <span class="nav-text">深拷贝与浅拷贝</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#堆与栈的区别"><span class="nav-number">1.1.7.5.</span> <span class="nav-text">堆与栈的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#new对象发生的事情"><span class="nav-number">1.1.7.6.</span> <span class="nav-text">new对象发生的事情</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆"><span class="nav-number">1.1.8.</span> <span class="nav-text">堆</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#堆new对象流程"><span class="nav-number">1.1.8.1.</span> <span class="nav-text">堆new对象流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MinorGC（复制-gt-清空-gt-互换）"><span class="nav-number">1.1.8.2.</span> <span class="nav-text">MinorGC（复制-&gt;清空-&gt;互换）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#永久代（jdk7前）"><span class="nav-number">1.1.8.3.</span> <span class="nav-text">永久代（jdk7前）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#堆参数调整"><span class="nav-number">1.1.8.4.</span> <span class="nav-text">堆参数调整</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#OOM异常"><span class="nav-number">1.1.8.5.</span> <span class="nav-text">OOM异常</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调优"><span class="nav-number">1.1.9.</span> <span class="nav-text">调优</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GC"><span class="nav-number">2.</span> <span class="nav-text">GC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java内存泄漏"><span class="nav-number">2.1.</span> <span class="nav-text">Java内存泄漏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GC收集日志信息"><span class="nav-number">2.2.</span> <span class="nav-text">GC收集日志信息</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OOM"><span class="nav-number">2.2.1.</span> <span class="nav-text">OOM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#日志解读"><span class="nav-number">2.2.2.</span> <span class="nav-text">日志解读</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GC介绍"><span class="nav-number">2.3.</span> <span class="nav-text">GC介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Minor-GC和Full-GC区别"><span class="nav-number">2.3.1.</span> <span class="nav-text">Minor GC和Full GC区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象可达性分析"><span class="nav-number">2.3.2.</span> <span class="nav-text">对象可达性分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#引用计数法"><span class="nav-number">2.3.2.1.</span> <span class="nav-text">引用计数法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可达性分析"><span class="nav-number">2.3.2.2.</span> <span class="nav-text">可达性分析</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4大算法"><span class="nav-number">2.4.</span> <span class="nav-text">4大算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见垃圾收集器"><span class="nav-number">2.5.</span> <span class="nav-text">常见垃圾收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#相关概念"><span class="nav-number">2.5.1.</span> <span class="nav-text">相关概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Stop-the-World"><span class="nav-number">2.5.1.1.</span> <span class="nav-text">Stop-the-World</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Safepoint"><span class="nav-number">2.5.1.2.</span> <span class="nav-text">Safepoint</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见收集器"><span class="nav-number">2.5.2.</span> <span class="nav-text">常见收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#年轻代常见收集器"><span class="nav-number">2.5.3.</span> <span class="nav-text">年轻代常见收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Serial收集器（-XX-UseSerialGC，复制算法）"><span class="nav-number">2.5.3.1.</span> <span class="nav-text">Serial收集器（-XX:+UseSerialGC，复制算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ParNew收集器（-XX-UseParNewGC，复制算法）"><span class="nav-number">2.5.3.2.</span> <span class="nav-text">ParNew收集器（-XX:+UseParNewGC，复制算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Paraller-Scavenge-XX-UseParallelGC，复制算法"><span class="nav-number">2.5.3.3.</span> <span class="nav-text">Paraller Scavenge(-XX:+UseParallelGC，复制算法)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#老年代常见收集器"><span class="nav-number">2.5.4.</span> <span class="nav-text">老年代常见收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#SerialOld（-XX-UseSerialOldGC，标记整理算法）"><span class="nav-number">2.5.4.1.</span> <span class="nav-text">SerialOld（-XX:+UseSerialOldGC，标记整理算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ParellerOld（-XX-UseParellerOldGC，标记整理算法）"><span class="nav-number">2.5.4.2.</span> <span class="nav-text">ParellerOld（-XX:+UseParellerOldGC，标记整理算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CMS（-XX-UseConcMarkSweepGC，标记清除算法）"><span class="nav-number">2.5.4.3.</span> <span class="nav-text">CMS（-XX:+UseConcMarkSweepGC，标记清除算法）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#堆内存垃圾收集G1（-XX-UseG1GC，复制-标记整理算法）"><span class="nav-number">2.5.4.4.</span> <span class="nav-text">堆内存垃圾收集G1（-XX:+UseG1GC，复制+标记整理算法）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用软件"><span class="nav-number">2.6.</span> <span class="nav-text">常用软件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#VisualVM"><span class="nav-number">2.6.1.</span> <span class="nav-text">VisualVM</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">2.7.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#强引用、软引用、弱引用、虚引用"><span class="nav-number">2.7.1.</span> <span class="nav-text">强引用、软引用、弱引用、虚引用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#强引用（Strong-Reference）"><span class="nav-number">2.7.1.1.</span> <span class="nav-text">强引用（Strong Reference）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#软引用（Soft-Reference）"><span class="nav-number">2.7.1.2.</span> <span class="nav-text">软引用（Soft Reference）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#弱引用（Weak-Reference）"><span class="nav-number">2.7.1.3.</span> <span class="nav-text">弱引用（Weak Reference）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#虚引用（PhantomReference）"><span class="nav-number">2.7.1.4.</span> <span class="nav-text">虚引用（PhantomReference）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象何时进入老年代"><span class="nav-number">2.7.2.</span> <span class="nav-text">对象何时进入老年代</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -901,7 +962,7 @@
 
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共169.2k字</span>
+  <span class="post-count">博客全站共174.8k字</span>
 </div>
         
 

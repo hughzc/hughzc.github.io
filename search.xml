@@ -20,9 +20,23 @@
 <p>Car.class由ClassLoader装载进内存，Car Class装载进方法区，一个模板Car Class，可以产生多个实例。类装载器有多个，有以下几类</p>
 <h4 id="种类（有哪些）"><a href="#种类（有哪些）" class="headerlink" title="种类（有哪些）"></a>种类（有哪些）</h4><p><strong>虚拟机自带的加载器</strong></p>
 <ul>
-<li><strong>启动类</strong>加载器（Boostrap）C++写的</li>
-<li><strong>扩展类</strong>加载器（Extension）Java写的 </li>
-<li><strong>应用程序类</strong>加载器（AppClassLoader）Java也叫系统类加载器，加载当前应用的classpath的所有类</li>
+<li><p><strong>启动类</strong>加载器（Boostrap）C++写的</p>
+<p>Java的核心类库，提供JVM自身需要的类</p>
+<ul>
+<li>JAVA_HOME/jre/lib/rt.jar，resources.jar，或sun.boot.class.path</li>
+</ul>
+</li>
+<li><p><strong>扩展类</strong>加载器（Extension）Java写的 </p>
+<p>派生于ClassLoader，父类加载器为启动类加载器</p>
+<ul>
+<li>java.ext.dirs系统属性所指定的目录中加载</li>
+<li>JDK安装目录的jre/lib/ext子目录加载，用户创建的JAR放在此目录下，也会自动由扩展类加载器加载</li>
+</ul>
+</li>
+<li><p><strong>应用程序类</strong>加载器（AppClassLoader）Java也叫系统类加载器，加载环境变量classpath的所有类或系统属性java.class.path指定路径下所有类</p>
+<p>派生于ClassLoader，父类加载器为扩展类加载器</p>
+<p>该类加载是程序中默认的类加载器</p>
+</li>
 </ul>
 <p><strong>用户自定义加载器</strong></p>
 <p>Java.lang.ClassLoader的子类，用户可以定义类的加载方式</p>
@@ -48,20 +62,50 @@
 <p>执行引擎负责解释命令，提交给操作系统执行。</p>
 <h4 id="类装载的执行过程"><a href="#类装载的执行过程" class="headerlink" title="类装载的执行过程"></a>类装载的执行过程</h4><ol>
 <li><p>加载：根据查找路径找到相应的class文件然后导入</p>
+<ul>
+<li>通过全限定名获取对应的二进制字节流</li>
+<li>将此字节流所代表的静态存储结构转化为方法区的运行时数据结构</li>
+<li>内存中生成一个代表此类的<strong>java.lang.Class对象</strong>，作为方法区的这个类的各种数据访问入口</li>
+</ul>
 </li>
 <li><p>验证：检查加载的class文件的正确性（CafeBaBe）</p>
 </li>
-<li><p>准备：给类中的静态变量分配内存空间</p>
+<li><p>准备：给类中的<strong>静态变量</strong>分配内存空间并设置默认初始值</p>
+<p>不包含用final修饰的static，因为其为常量，在编译阶段就分配了，准备阶段显示初始化</p>
+<p>不为实例变量分配初始化，类变量分配在方法区，实例变量随Java对象一起分配到堆中</p>
 </li>
 <li><p>解析：虚拟机将常量池中的符号引用替换为直接引用的过程。符号引用可理解为一个标识（字符串），在直接引用中直接指向内存的地址。此过程称为静态解析</p>
 <p>常量池中的符号引用转为直接引用有类装载时候的静态解析和方法入栈时候的动态链接</p>
 </li>
 <li><p>初始化：对静态变量和静态代码块执行初始化过程</p>
+<p>执行类构造器方法<code>&lt;clinit&gt;</code>()的过程，此方法不需要定义，是javac编译器自动收集类中的所有类变量的赋值动作和静态代码块中的语句合并而来。</p>
+<p>构造器方法中的指令按语句在源文件中出现的顺序执行</p>
+<p>若该类有父类，JVM会保证子类的<code>&lt;clinit&gt;</code>()执行前，父类的<code>&lt;clinit&gt;</code>()已经执行完毕</p>
+<p>虚拟机需要保证一个类的<code>&lt;clinit&gt;</code>()方法在多线程下被<strong>同步加锁</strong></p>
 </li>
+</ol>
+<p>其中验证、准备、解析属于链接阶段。</p>
+<h4 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h4><p>自定义类加载器的目的</p>
+<ul>
+<li><p>隔离修改类</p>
+<p>中间件的使用</p>
+</li>
+<li><p>修改类加载的方式</p>
+</li>
+<li><p>扩展加载源</p>
+</li>
+<li><p>防止源码泄漏</p>
+</li>
+</ul>
+<p>步骤</p>
+<ol>
+<li>继承抽象类java.lang.ClassLoader，实现自己的类加载器</li>
+<li>JDK1.2前重写loadClass()方法，之后不建议覆盖loadClass()方法，而是把自定义类的加载逻辑写在findClass()方法中</li>
+<li>若没有太复杂的需求，可以直接继承URLClassLoader类，避免自己编写findClass()方法及其获取字节码流的方式，使自定义类加载器编写更加简洁</li>
 </ol>
 <h3 id="执行引擎"><a href="#执行引擎" class="headerlink" title="执行引擎"></a>执行引擎</h3><ul>
 <li>执行方法区</li>
-<li>修改程序计数器中的行号</li>
+<li>读取程序计数器中行号对应的指令</li>
 <li>开辟线程执行GC</li>
 </ul>
 <h3 id="本地接口"><a href="#本地接口" class="headerlink" title="本地接口"></a>本地接口</h3><p>Java底层调用的方法为native方法，由<strong>本地方法接口</strong>提供，为了将其装载进内存并与普通方法区别，装载进特殊的栈中，即<strong>本地方法栈</strong>中（Native Method Stack）。方法具体的实现交给本地方法库。native是关键字，有声明，无实现。</p>
@@ -69,6 +113,8 @@
 <h3 id="PC寄存器"><a href="#PC寄存器" class="headerlink" title="PC寄存器"></a>PC寄存器</h3><p>记录了方法之间的调用与执行情况。该程序接下来要去哪。</p>
 <p>每个线程都有程序计数器，是线程私有的，指向方法区中的方法字节码（<strong>正在执行的代码行号</strong>），此值被<strong>执行引擎</strong>赋值。内存空间很小，几乎可忽略（不存在GC），<strong>是当前线程所执行的字节码的行号指示器</strong>。若执行的为Native方法，计数器是空。不会发生内存溢出（OutOfMemory=OOM）错误。</p>
 <p>便于执行<strong>线程的上下文切换</strong>，如果没有程序计数器，当切换到这个线程的时候，便不知道该执行哪行代码。</p>
+<p>若执行的是native方法，则计数器为空。因为native方法通过其他语言来实现，没有通过Java自然也就没有对应的字节码行号。</p>
+<p>CPU时间切片，线程去争抢时间片来执行，经常会出现线程的中断和恢复，如果不是线程私有而是共享，则没法保存当前线程执行的行号，不方便上下文切换，设置成线程私有，不会出现干扰的情况。 </p>
 <h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><p>供线程共享的运行时内存区域，<strong>存储每一个类的结构信息</strong>（模板）。如运行时常量池（Runtime Constant Pool），字段和方法数据，构造函数和普通方法的字节码内容。</p>
 <p>常量+静态变量+类信息。方法区中静态变量存储的是堆中对象的地址。</p>
 <p>上面讲的是<strong>规范</strong>，不同虚拟机中实现不一样，最典型的为永久代（PermGen Space）和元空间（Metaspace）。</p>
@@ -76,6 +122,7 @@
 <p>由字节码执行引擎去执行。</p>
 <h3 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h3><p>栈管运行，堆管存储。</p>
 <p>栈（先进后出），队列（先进先出）。</p>
+<p>当执行一个方法时，进行压栈；当方法结束后，执行出栈。</p>
 <p>栈也叫栈内存，主管Java程序的运行，栈在线程创建时创建，栈的生命周期跟随线程，对于栈不存在垃圾回收问题。是线程私有的。<strong>8种基本类型的变量+对象的引用变量+实例方法都是在函数的栈内存中分配</strong>。</p>
 <p>栈帧：当一个方法入栈时，在栈中为其单独开辟一个空间，叫做栈帧，存放方法中的局部变量等。栈的数据结构为先进后出，结构与程序运行特点相符，先执行的方法后结束。</p>
 <img src="/2020/03/21/jvm/%E6%A0%88%E5%B8%A7.png" class title="This is an example image">
@@ -83,6 +130,9 @@
 <p>栈帧中有4部分</p>
 <ul>
 <li><p><strong>局部变量表</strong>：为局部变量开辟地址存储；对象地址（引用）</p>
+<p>定义为<strong>数字数组</strong>，主要为存储<strong>方法参数</strong>和定义在方法体内的<strong>局部变量</strong></p>
+<p>数据类型包括：基本数据类型，对象引用，及returnAddress类型</p>
+<p>容量大小在编译期间确定</p>
 </li>
 <li><p><strong>操作数栈</strong>：存储操作数运算时需要的临时变量</p>
 <p>常量的计算，给局部变量赋值，从局部变量表中取值运算</p>
@@ -99,7 +149,7 @@
 <li>栈操作（Operand Stack）：记录出栈、入栈的操作</li>
 <li>栈帧数据（Frame Data）：包括类文件、方法等等</li>
 </ul>
-<h4 id="栈运行原理"><a href="#栈运行原理" class="headerlink" title="栈运行原理"></a>栈运行原理</h4><p>每个方法执行的同时都会创建一个一个栈帧，用于存储局部变量表、操作数栈、动态链接、方法出口等信息。方法从调用到执行完毕的过程就对应着一个栈帧在虚拟机中入栈到出栈的过程。</p>
+<h4 id="栈运行原理"><a href="#栈运行原理" class="headerlink" title="栈运行原理"></a>栈运行原理</h4><p>每个<strong>方法</strong>执行的同时都会创建一个一个<strong>栈帧</strong>，先进后出，用于存储局部变量表、操作数栈、动态链接、方法出口等信息。方法从调用到执行完毕的过程就对应着一个栈帧在虚拟机中入栈到出栈的过程。</p>
 <p>栈的大小和具体的jvm实现相关，通常在256k-756k之间，<strong>约等于1Mb左右</strong>。</p>
 <p>可以通过-Xss:设定每个线程虚拟机栈的大小，一般256k足够，会影响并发线程数的大小</p>
 <p>Exception in Thread “main” java.lang.StackOverflowError</p>
@@ -224,6 +274,7 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//获取CPU核数</span></span><br><span class="line">      System.out.println(Runtime.getRuntime().availableProcessors());</span><br><span class="line">      <span class="comment">//返回Java虚拟机试图使用的最大内存量</span></span><br><span class="line">      <span class="keyword">long</span> maxMemory = Runtime.getRuntime().maxMemory();</span><br><span class="line">      <span class="comment">//返回Java虚拟机中的内存总量</span></span><br><span class="line">      <span class="keyword">long</span> totalMemory = Runtime.getRuntime().totalMemory();</span><br><span class="line">      System.out.println(<span class="string">"MAX_MEMORY="</span>+maxMemory+<span class="string">"字节、"</span>+(maxMemory/(<span class="keyword">double</span>)<span class="number">1024</span>/<span class="number">1024</span>)+<span class="string">"MB"</span>);</span><br><span class="line">      System.out.println(<span class="string">"TOTAL_MEMORY="</span>+totalMemory+<span class="string">"字节、"</span>+(totalMemory/(<span class="keyword">double</span>)<span class="number">1024</span>/<span class="number">1024</span>)+<span class="string">"MB"</span>);</span><br></pre></td></tr></table></figure>
 
 <p>实际中需要将<strong>初始内存和最大内存设置为相同</strong>，避免内存不稳定产生停顿。</p>
+<h4 id="OOM异常"><a href="#OOM异常" class="headerlink" title="OOM异常"></a>OOM异常</h4><p>当一个线程发生了OOM异常后，另一个线程是可以正常执行的，因为发生OOM异常的线程会清空其堆内存，不影响其他线程的使用。</p>
 <h3 id="调优"><a href="#调优" class="headerlink" title="调优"></a>调优</h3><p>调优的目的：减少full gc，减少stop-the-world时间。</p>
 <p>让朝生夕死的对象，尽量在年轻代被minor gc，而少在老年代被full gc。方法之一为调整年轻代与老年代的内存分配比例。</p>
 <h1 id="GC"><a href="#GC" class="headerlink" title="GC"></a>GC</h1><h2 id="Java内存泄漏"><a href="#Java内存泄漏" class="headerlink" title="Java内存泄漏"></a>Java内存泄漏</h2><p>内存泄漏指的是不被使用的对象或内存一直占据着内存，理论上来说Java有GC垃圾回收，即不再被使用的对象会被垃圾回收，从内存中清除。</p>
@@ -415,12 +466,10 @@
 <h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="强引用、软引用、弱引用、虚引用"><a href="#强引用、软引用、弱引用、虚引用" class="headerlink" title="强引用、软引用、弱引用、虚引用"></a>强引用、软引用、弱引用、虚引用</h3><p>不同的引用下GC不同</p>
 <p>设置：-Xms:10m -Xmx:10m -XX:+PrintGCDetails</p>
 <h4 id="强引用（Strong-Reference）"><a href="#强引用（Strong-Reference）" class="headerlink" title="强引用（Strong Reference）"></a>强引用（Strong Reference）</h4><ul>
-<li><p>最普遍的引用：Object o = new Object();</p>
-</li>
-<li><p>抛出OOM异常程序也不会回收具有强引用的对象</p>
-</li>
-<li><p>将对象设置为null来弱化引用，使其被回收，或等待其生命周期结束</p>
-</li>
+<li>最普遍的引用：Object o = new Object();</li>
+<li>只有对象不被引用时才被回收</li>
+<li>若仍被引用，抛出OOM异常程序也不会回收具有强引用的对象</li>
+<li>将对象设置为null来弱化引用，使其被回收，或等待其生命周期结束</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String str = <span class="string">"java"</span>;</span><br><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">   str += str + <span class="keyword">new</span> Random().nextInt(<span class="number">88888888</span>) + <span class="keyword">new</span> Random().nextInt(<span class="number">999999999</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -429,10 +478,18 @@
 
 <p>会报OOM异常，先GC，最后Full GC，不能将强引用的对象强制回收</p>
 <h4 id="软引用（Soft-Reference）"><a href="#软引用（Soft-Reference）" class="headerlink" title="软引用（Soft Reference）"></a>软引用（Soft Reference）</h4><ul>
-<li>对象处在有用但非必须的状态</li>
-<li>当<strong>内存空间不足</strong>，GC会回收该引用的对象的内存</li>
-<li>可以用来实现内存敏感的高速缓存</li>
+<li><p>对象处在有用但非必须的状态</p>
+</li>
+<li><p>当<strong>内存空间不足</strong>，GC会回收该引用的对象的内存</p>
+</li>
+<li><p>可以用来实现内存敏感的高速<strong>缓存</strong></p>
+<p>将经常用到的内容放在缓存中，提高效率，但如果空间不足，GC时可以将此软引用指向的对象进行回收，节省空间。兼顾时间与空间的效率。</p>
+</li>
 </ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SoftReference&lt;byte[]&gt; m &#x3D;  new SoftReference&lt;&gt;(new byte[1024*1024*10]);</span><br><span class="line">m.get();</span><br></pre></td></tr></table></figure>
+
+<p>m与SoftRefence（sr）对象强引用，sr与定义的字符数组虚引用，通过m.get()方法可以获得其引用。</p>
+<p>下面看其被GC情况。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String str = <span class="string">"java"</span>;</span><br><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">    SoftReference&lt;String&gt; str2 = <span class="keyword">new</span> SoftReference&lt;String&gt;(str + <span class="keyword">new</span> Random().nextInt(<span class="number">88888888</span>) + <span class="keyword">new</span> Random().nextInt(<span class="number">999999999</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>日志</p>
@@ -446,9 +503,12 @@
 <li>被回收的概率也不大，因为GC线程优先级较低</li>
 <li>适用于偶尔被使用且不影响垃圾回收的对象</li>
 </ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">WeakReference&lt;String&gt; str2 = <span class="keyword">new</span> WeakReference&lt;String&gt;(str);</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">WeakRference&lt;M&gt; m =  <span class="keyword">new</span> WeakReference&lt;&gt;(<span class="keyword">new</span> M());</span><br><span class="line">m.get();</span><br></pre></td></tr></table></figure>
 
-<h4 id="虚引用（PhantomReference）"><a href="#虚引用（PhantomReference）" class="headerlink" title="虚引用（PhantomReference）"></a>虚引用（PhantomReference）</h4><ul>
+<p>使用m.get()方法可以得到其引用。</p>
+<p>在ThreadLocal中的Entry里，key对ThreadLocal对象为弱引用，可以防止内存泄漏。</p>
+<h4 id="虚引用（PhantomReference）"><a href="#虚引用（PhantomReference）" class="headerlink" title="虚引用（PhantomReference）"></a>虚引用（PhantomReference）</h4><p>Phantom虚幻的，使用get()方法得不到。</p>
+<ul>
 <li>不会决定对象的生命周期</li>
 <li>任何时候都可能被垃圾收集器回收</li>
 <li>跟踪对象被垃圾收集器回收的活动，起哨兵作用</li>
@@ -457,6 +517,7 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String str = <span class="string">"java"</span>;</span><br><span class="line">ReferenceQueue&lt;String&gt; queue = <span class="keyword">new</span> ReferenceQueue&lt;&gt;();</span><br><span class="line">PhantomReference&lt;String&gt; pr = <span class="keyword">new</span> PhantomReference&lt;&gt;(str,queue);</span><br></pre></td></tr></table></figure>
 
 <p>通过判断队列中是否加入了虚引用来了解被引用的对象是否被GC。</p>
+<p>作用是<strong>管理堆外内存</strong>，在传统的网络通信中，网卡数据写给OS，OS写入Buffer中，再复制给JVM，JVM要向网络传输数据，先 复制到OS的Buffer中，再写给网卡。这个Buffer复制到JVM的过程是不必要的，在NIO中，提供了直接内存管理或堆外内存管理。利用JVM管理操作系统中的堆外内存，不用再次拷贝，称为zerocopy，提高效率。有对象DirectByteBuffer来指向堆外内存，为了方便回收堆外内存的垃圾回收，给DirectByteBuffer加上虚引用，配合队列使用，当队列中有内容，说明DirectByteBuffer有对象被回收，需要相应清理堆外内存。</p>
 <h3 id="对象何时进入老年代"><a href="#对象何时进入老年代" class="headerlink" title="对象何时进入老年代"></a>对象何时进入老年代</h3><p>一般新建对象时发生在Eden区，但是某些情况对象会进入到老年代</p>
 <ol>
 <li><p>新建大对象（需要大量连续内存空间的对象，如很长的字符串或数组）直接进入老年代</p>
@@ -1342,12 +1403,6 @@
 <p>对于并发 ，也将从这四个方面进行介绍。</p>
 <a id="more"></a>
 
-<blockquote>
-<p>引用到的资料来源：</p>
-<p><a href="https://blog.csdn.net/cy973071263/article/details/104546954" target="_blank" rel="noopener">https://blog.csdn.net/cy973071263/article/details/104546954</a></p>
-<p><a href="https://blog.csdn.net/javazejian/article/details/72828483#理解java对象头与monitor" target="_blank" rel="noopener">https://blog.csdn.net/javazejian/article/details/72828483#%E7%90%86%E8%A7%A3java%E5%AF%B9%E8%B1%A1%E5%A4%B4%E4%B8%8Emonitor</a></p>
-<p><a href="https://blog.csdn.net/qq_37113604/article/details/81582784?depth_1-utm_source=distribute.pc_relevant.none-task" target="_blank" rel="noopener">https://blog.csdn.net/qq_37113604/article/details/81582784?depth_1-utm_source=distribute.pc_relevant.none-task</a></p>
-</blockquote>
 <h2 id="并发应用场景"><a href="#并发应用场景" class="headerlink" title="并发应用场景"></a>并发应用场景</h2><p>利用多线程去替代单线程，主要有两个应用场景。</p>
 <ol>
 <li><p>获得更好的性能</p>
@@ -1591,7 +1646,7 @@
 <p>​    轻量级锁适用于线程交替执行同步代码，其依据是“对绝大部分的锁，在整个同步周期内都不存在竞争”，只允许顺序拿锁，但如果有竞争操作，轻量级锁会先尝试自旋，尝试失败后会膨胀为重量级锁。</p>
 <p>轻量级锁的加锁过程</p>
 <ol>
-<li>在代码进入到同步代码块的时候，如果同步对象锁是无锁状态（锁标志位是‘01’），虚拟机首先在当前 线程的栈帧中建立叫锁空间（Lock Record）的空间用于存储锁对象目前的Mark Word拷贝，官方称为Displaced Mark Word，此时线程堆栈和对象头状态如下</li>
+<li>在代码进入到同步代码块的时候，如果同步对象锁是<strong>无锁</strong>状态（锁标志位是‘01’），虚拟机首先在当前线程的栈帧中建立叫锁空间（Lock Record）的空间用于存储锁对象目前的Mark Word拷贝，官方称为Displaced Mark Word，此时线程堆栈和对象头状态如下</li>
 </ol>
 <img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/%E8%BD%BB%E9%87%8F%E7%BA%A71.png" class title="This is an example image">
 
@@ -1792,7 +1847,7 @@
 <p>而因为步骤2和步骤3之间没有happens-before关系，因此是可以被重排序的，这样排序后的顺序为</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">memory = allocate();<span class="comment">//1、分配对象内存空间</span></span><br><span class="line">instance = memory <span class="comment">//3、设置instance指向刚分配的内存地址，此时instance！=null</span></span><br><span class="line">instance(memory); <span class="comment">//2、初始化对象</span></span><br></pre></td></tr></table></figure>
 
-<p>这时候，会出现instance指向了分配的空间已经不为null，但还没有初始化对象，如果此时线程被切走，再次进来的线程判断instance不为空，直接将instance返回，出现问题。</p>
+<p>这时候，会出现instance指向了分配的空间已经不为null，执行了默认初始化，但还没有显式初始化对象，如果此时线程被切走，再次进来的线程判断instance不为空，直接将instance返回，出现问题。</p>
 <p>因此解决办法是不让这部分指令重排，即<strong>让instance被volatile修饰</strong>。因此完整的线程安全的单例双重检测如下，其中volatile与static顺序没有要求。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> Singleton&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> Singleton instance;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(instance != <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">synchronized</span>(Singleton<span class="class">.<span class="keyword">class</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(instance != <span class="keyword">null</span>)&#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -2073,9 +2128,41 @@
 <h5 id="如何使用-1"><a href="#如何使用-1" class="headerlink" title="如何使用"></a>如何使用</h5><p>在主线程上阻塞，任务线程执行一次后执行countDown()方法，当执行10次后，主线程继续运行</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TaskCoutDown</span>  <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> CountDownLatch cd = <span class="keyword">new</span> CountDownLatch(<span class="number">10</span>);</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//执行一次，检查一次</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">            System.out.println(<span class="string">"check"</span>);</span><br><span class="line">            <span class="comment">//进行计数</span></span><br><span class="line">            cd.countDown();</span><br><span class="line">        &#125;<span class="keyword">catch</span> (InterruptedException e)&#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CountDownTest</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        TaskCoutDown tcd = <span class="keyword">new</span> TaskCoutDown();</span><br><span class="line">        ExecutorService es = Executors.newFixedThreadPool(<span class="number">10</span>);</span><br><span class="line">        <span class="comment">//执行 10次点火</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            es.submit(tcd);</span><br><span class="line">        &#125;</span><br><span class="line">        TaskCoutDown.cd.await();</span><br><span class="line">        System.out.println(<span class="string">"发射"</span>);</span><br><span class="line">        es.shutdown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h4><p>ThreadLocal是一个本地线程副本变量工具类，如果多个线程争抢一个共享变量，会出现线程安全问题，比如100个人抢一支笔来写字，这时候使用ThreadLocal，相当于给每个线程一支笔，即每个线程持有私有的变量，不会造成争抢问题。</p>
-<p>其原理为有一个map存储了本地对象（key）和线程的变量副本（value），比较重要的方法是get与set，对私有的变量进行取值与赋值，如果不先set再get会报错，这时候可以重写initialValue方法。</p>
-<p>使用ThreadLocal的一个问题是，map中的key为弱引用，在GC时被回收，而value为强引用，GC时不被回收，如果key被回收了，而value无法被获取到也不能被回收，会造成内存释放问题，在ThreadLocal中，set()，get()和remove()方法被调用时，会清理掉key为null的记录，使用完ThreadLocal方法后，最好手动调用remove()方法。</p>
+<h4 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h4><p>ThreadLocal，直观的语义理解为线程私有，可以先直观理解为每个线程内有自己的ThreadLocal对象，线程存在则ThreadLocal存在。线程A在ThreadLocal中设置的对象是自己私有的，线程B无法获取到。</p>
+<h5 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h5><ul>
+<li>保存线程<strong>上下文信息</strong>，在任意需要的地方进行获取</li>
+</ul>
+<p>将信息set后，后续有切换的情况下，直接用get可以获取到之前的信息。</p>
+<p>还有spring的事务管理，spring中的<code>@transaction</code>注解，事务注解，其中的方法要么全部完成，要么全部回滚，若有方法m()中有两个方法m1与m2，均需要读取数据库中的数据，需要保证二者用的同一个Connection才能构成事务，使用的是ThreadLocal，因为每个线程有自己私有的ThreadLocal，从当前线程中拿对象，拿到的是同一个。</p>
+<ul>
+<li>线程安全的，避免某些情况需要考虑线程安全必须同步带来的性能损失</li>
+</ul>
+<p>使用一些不是线程安全的对象，在不涉及共享对象的更新问题时，为了避免加锁带来的性能损失，将共享变量加入ThreadLocal，这样每个线程对ThreadLocal中读写数据是线程隔离的，互相之间不会影响，也就不存在竞争问题。</p>
+<h5 id="底层实现-1"><a href="#底层实现-1" class="headerlink" title="底层实现"></a>底层实现</h5><p>下图为ThreadLocal的示意图。</p>
+<img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/threadlocal1.png" class title="This is an example image">
+
+<blockquote>
+<p>图片来源于微信公众号链接<a href="https://mp.weixin.qq.com/s/SysYihctu03RlUtI0pcG7w" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/SysYihctu03RlUtI0pcG7w</a></p>
+</blockquote>
+<p>总的来说，每个Thread线程有一个ThreadLocalMap类型的threadLocals成员变量，在map中有键值对，用Entry来存储，Entry相当于map的一行，也是键值对。其中Entry中的key对ThreadLocal对象为弱引用，而value是对传进ThreadLocal中泛型对象的强引用。而作用后面会细说，先看ThreadLocal的set方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadLocal</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">//set方法</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(T value)</span> </span>&#123;</span><br><span class="line">        Thread t = Thread.currentThread();</span><br><span class="line">        ThreadLocalMap map = getMap(t);</span><br><span class="line">        <span class="keyword">if</span> (map != <span class="keyword">null</span>)</span><br><span class="line">            <span class="comment">//key为this即当前ThreadLocal对象</span></span><br><span class="line">            map.set(<span class="keyword">this</span>, value);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            createMap(t, value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//getMap方法，获取线程对应的map</span></span><br><span class="line">    <span class="function">ThreadLocalMap <span class="title">getMap</span><span class="params">(Thread t)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> t.threadLocals;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，通过当前线程获取到map，然后将ThreadLocal作为key，传入ThreadLocal的对象作为value，存入当前线程的map中。</p>
+<p>而map.set()方法源码如下</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Entry</span> <span class="keyword">extends</span> <span class="title">WeakReference</span>&lt;<span class="title">ThreadLocal</span>&lt;?&gt;&gt; </span>&#123;</span><br><span class="line">    <span class="comment">/** The value associated with this ThreadLocal. */</span></span><br><span class="line">    Object value;</span><br><span class="line"></span><br><span class="line">    Entry(ThreadLocal&lt;?&gt; k, Object v) &#123;</span><br><span class="line">        <span class="comment">//相当于new了WeakReference，弱引用指向key</span></span><br><span class="line">        <span class="keyword">super</span>(k);</span><br><span class="line">        value = v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，map中的Entry继承了弱引用，因此调用super(key)代表着key是对ThreadLocal的弱引用。</p>
+<h5 id="key为弱引用原因"><a href="#key为弱引用原因" class="headerlink" title="key为弱引用原因"></a>key为弱引用原因</h5><p>总的来说是为了避免内存泄漏。</p>
+<img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/threadlocal2.png" class title="This is an example image">
+
+<p>对于<code>ThreadLocal&lt;Node&gt; tl = new ThreadLocal&lt;&gt;();</code>语句，tl对ThreadLocal为强引用，key对ThreadLocal为弱引用，使用弱引用原因是防止内存泄漏。如果key为强引用，那么即使tl不指向ThreadLocal了，因为有key的指向，ThreadLocal对象也无法被回收。当使用弱引用后，当tl强引用为空，ThreadLocal对象可在GC时被回收。这样存在的问题是，当ThreadLocal被回收，key为null，但这行记录还存在，需要手动去remove()。当ThreadLocal对象tl不继续使用，必须调用tl.remove()方法。</p>
+<blockquote>
+<p>引用到的资料来源：</p>
+<p><a href="https://blog.csdn.net/cy973071263/article/details/104546954" target="_blank" rel="noopener">https://blog.csdn.net/cy973071263/article/details/104546954</a></p>
+<p><a href="https://blog.csdn.net/javazejian/article/details/72828483#理解java对象头与monitor" target="_blank" rel="noopener">https://blog.csdn.net/javazejian/article/details/72828483#%E7%90%86%E8%A7%A3java%E5%AF%B9%E8%B1%A1%E5%A4%B4%E4%B8%8Emonitor</a></p>
+<p><a href="https://blog.csdn.net/qq_37113604/article/details/81582784?depth_1-utm_source=distribute.pc_relevant.none-task" target="_blank" rel="noopener">https://blog.csdn.net/qq_37113604/article/details/81582784?depth_1-utm_source=distribute.pc_relevant.none-task</a></p>
+<p><a href="https://mp.weixin.qq.com/s/SysYihctu03RlUtI0pcG7w" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/SysYihctu03RlUtI0pcG7w</a></p>
+</blockquote>
 ]]></content>
       <categories>
         <category>并发</category>
@@ -2486,6 +2573,15 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">movingCount</span><span class="params">(<span class="keyword">int</span> threshold, <span class="keyword">int</span> rows, <span class="keyword">int</span> cols)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//基础判断</span></span><br><span class="line">        <span class="keyword">if</span>(rows &lt;= <span class="number">0</span> || cols &lt;= <span class="number">0</span> || threshold &lt; <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="comment">//准备是否进入的矩阵</span></span><br><span class="line">        <span class="keyword">boolean</span>[]  f = <span class="keyword">new</span> <span class="keyword">boolean</span>[rows * cols];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; f.length; i++) &#123;</span><br><span class="line">            f[i] = <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> count = getCount(threshold,rows,cols,<span class="number">0</span>,<span class="number">0</span>,f);</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">(<span class="keyword">int</span> threshold, <span class="keyword">int</span> rows, <span class="keyword">int</span> cols, <span class="keyword">int</span> i, <span class="keyword">int</span> j, <span class="keyword">boolean</span>[] f)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> index = i * cols + j;</span><br><span class="line">        <span class="comment">//如果超出范围，已经进来过，得到的数不符合，返回0</span></span><br><span class="line">        <span class="keyword">if</span> (i &lt; <span class="number">0</span> || i &gt;= rows || j &lt; <span class="number">0</span> || j &gt;= cols || f[index] || getAllNum(i) + getAllNum(j) &gt; threshold)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="comment">//当前数字进来过了</span></span><br><span class="line">        f[index] = <span class="keyword">true</span>;</span><br><span class="line">        <span class="comment">//总的计数+1，返回其他四个方向的</span></span><br><span class="line">        <span class="comment">//因为这个路径走过的，其他也不能走，因此不用重置f的状态</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span> + getCount(threshold,rows,cols,i - <span class="number">1</span>,j,f)</span><br><span class="line">                + getCount(threshold,rows,cols,i + <span class="number">1</span>,j,f)</span><br><span class="line">                + getCount(threshold,rows,cols,i,j - <span class="number">1</span>,f)</span><br><span class="line">                + getCount(threshold,rows,cols,i,j + <span class="number">1</span>,f);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">getAllNum</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//得到所有位数之和</span></span><br><span class="line">        <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (i &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            sum += i % <span class="number">10</span>;</span><br><span class="line">            i = i / <span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sum;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
 <p>总结：对于矩阵上路径的遍历或者人物的行走，非常适合用回溯算法。</p>
+<h3 id="调整数组顺序使奇数位于偶数前面"><a href="#调整数组顺序使奇数位于偶数前面" class="headerlink" title="调整数组顺序使奇数位于偶数前面"></a>调整数组顺序使奇数位于偶数前面</h3><p>题目1：输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数位于数组的前半部分，所有偶数位于数组的后半部分。</p>
+<p>思路：典型的partition过程。但没法保证相对位置不变。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//奇数放前面，偶数放后面，典型的partition问题</span></span><br><span class="line"><span class="comment">//但是这样不能保证相对位置不变</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reOrderArray</span><span class="params">(<span class="keyword">int</span> [] arr)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> less = -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> more = arr.length;</span><br><span class="line">    <span class="keyword">int</span> cur = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (cur &lt; more)&#123;</span><br><span class="line">        <span class="keyword">if</span> ((arr[cur] &amp; <span class="number">1</span>) != <span class="number">0</span>)&#123;</span><br><span class="line">            swap(arr,++less,cur++);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            swap(arr,--more,cur);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> temp = arr[i];</span><br><span class="line">    arr[i] = arr[j];</span><br><span class="line">    arr[j] = temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>题目2：</p>
+<p>输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有的奇数位于数组的前半部分，所有的偶数位于数组的后半部分，并保证奇数和奇数，偶数和偶数之间的相对位置不变。</p>
+<p>思路：找到第一个为偶数的数字，在其之后找到第一个为奇数的数字，让中间数字整体后移，空出来的原来偶数的位置放奇数。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//保证数组元素是相对有序的</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reOrderArray2</span><span class="params">(<span class="keyword">int</span> [] arr)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (arr == <span class="keyword">null</span> || arr.length &lt; <span class="number">2</span>)</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        <span class="comment">//遍历数组，找到一个为偶数的，再找到后面为奇数的，将偶数-奇数段整体后移，空出来的放奇数</span></span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (i &lt; arr.length)&#123;</span><br><span class="line">            <span class="comment">//为奇数，则继续找</span></span><br><span class="line">            <span class="keyword">while</span> (!isEven(arr[i]))&#123;</span><br><span class="line">                i++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//从i+1开始找，为偶数继续找</span></span><br><span class="line">            j = i + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">while</span> (j &lt; arr.length &amp;&amp; isEven(arr[j]))&#123;</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//如果j还在范围内，交换i+1-j-1之间的数</span></span><br><span class="line">            <span class="keyword">if</span> (j &lt; arr.length)&#123;</span><br><span class="line">                <span class="keyword">int</span> temp = arr[j];</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> k = j-<span class="number">1</span>; k &gt;= i; k--) &#123;</span><br><span class="line">                    arr[k+<span class="number">1</span>] = arr[k];</span><br><span class="line">                &#125;</span><br><span class="line">                arr[i] = temp;</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//超出了就结束</span></span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><h3 id="替换空格"><a href="#替换空格" class="headerlink" title="替换空格"></a>替换空格</h3><p>请实现一个函数，把字符串中的每个空格替换成“%20”，如输入“We are happy”，则输出“We%are%happy”</p>
 <p>方法：先统计传入的字符串str中空格的个数，然后建造一个新的字符数组，其长度为str非空格字符长度+空格个数*待替换字符串长度，然后用两个指针，一个遍历str，一个指向新的字符数组末尾，如果str当前不为空格，直接复制到新数组，新数组指针移动；如果str当前为空格，新数组从后逐个拷贝传入的字符串，直到遍历完str。</p>
 <p>其中要注意的是新数组长度，需要先将原数组长度减去空格，再加上空格长度乘待替换字符串长度。如果不减去空格长度，新数组前面会有空余。如果没有空格，直接返回输入字符串即可</p>
@@ -2506,7 +2602,39 @@
 <p>方法2：既然有用到栈 ，那么也可以用递归来实现，递归函数的功能是打印此节点后面的节点。基本过程是调用递归函数，然后打印当前节点。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//既然有用到栈，那么就可以用递归来实现，先打印后面的，然后打印当前的</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">reversePrint2</span><span class="params">(Node node)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (node == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    process(node,sb);</span><br><span class="line">    <span class="keyword">return</span> sb.toString();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(Node node, StringBuilder sb)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//递归来实现</span></span><br><span class="line">    <span class="comment">//base case</span></span><br><span class="line">    <span class="keyword">if</span> (node == <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//递归后面的节点</span></span><br><span class="line">    process(node.next,sb);</span><br><span class="line">    <span class="comment">//打印当前节点</span></span><br><span class="line">    sb.append(node.value).append(<span class="string">" "</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<h3 id="删除链表中重复的节点"><a href="#删除链表中重复的节点" class="headerlink" title="删除链表中重复的节点"></a>删除链表中重复的节点</h3><p>题目1：在一个排序的链表中，存在重复的结点，请删除该链表中重复的结点，重复的结点不保留，返回链表头指针。 例如，链表1-&gt;2-&gt;3-&gt;3-&gt;4-&gt;4-&gt;5 处理后为 1-&gt;2-&gt;5</p>
+<p>思路：链表删除的，如果头节点不好处理，就新建一个，设立两个指针，一个指向上一个不重复的节点pre，一个指向当前的节点cur，遍历链表，如果当前节点下一个节点的值和当前节点相同，移动cur，直到cur到末尾或者cur指向最后一个相同的节点，让pre的下一个指向cur.next，这样可以将重复的节点全部删除，然后cur再到下一个。注意，此时pre不能移动，因为不能确定cur的下一个与下下个是否相同，如果pre直接移动，遇到1-&gt;2-&gt;2-&gt;3-&gt;3这种，虽然两个2被跳过了，但是后面的3会被包含进去。只有在确定了cur与cur.next值不同，pre才移动，cur也移动。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Node <span class="title">deleteDuplication</span><span class="params">(Node head)</span></span>&#123;</span><br><span class="line">        <span class="comment">//基本判断</span></span><br><span class="line">        <span class="keyword">if</span>(head == <span class="keyword">null</span> || head.next == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> head;</span><br><span class="line">        <span class="comment">//在现在头节点前造一个</span></span><br><span class="line">        Node newHead = <span class="keyword">new</span> Node(<span class="number">0</span>);</span><br><span class="line">        newHead.next = head;</span><br><span class="line">        Node pre = newHead;<span class="comment">//一个不重复的节点</span></span><br><span class="line">        Node cur = head;<span class="comment">//当前节点</span></span><br><span class="line">        <span class="comment">//遍历链表</span></span><br><span class="line">        <span class="keyword">while</span> (cur != <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="comment">//如果下一个不为空且值跟当前相同，往后走</span></span><br><span class="line">            <span class="keyword">if</span> (cur.next != <span class="keyword">null</span> &amp;&amp; cur.next.value == cur.value)&#123;</span><br><span class="line">                <span class="comment">//让cur走到最后一个不重复的节点处</span></span><br><span class="line">                <span class="keyword">while</span> (cur.next != <span class="keyword">null</span> &amp;&amp; cur.next.value == cur.value)&#123;</span><br><span class="line">                    cur = cur.next;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">//若重复节点一个不要，让pre下一个指向cur.next</span></span><br><span class="line">                <span class="comment">//pre不能前进，防止后面还有重复的，只有没有重复的pre才走</span></span><br><span class="line">                pre.next = cur.next;</span><br><span class="line">                cur = cur.next;</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//没有重复，正常走</span></span><br><span class="line">                pre = pre.next;</span><br><span class="line">                cur = cur.next;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        Node res = newHead.next;</span><br><span class="line">        newHead = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>题目2：删除链表中的重复节点，如给定1-&gt;2-&gt;2-&gt;3-&gt;3，返回1-&gt;2-&gt;3。</p>
+<p>思路：比上一题简单，比如直观的做法是，让一个pre指针指向第一个，cur指针指向第二个，如果当前值与pre相等，删除当前节点。相同点是，删除节点的时候，pre均不移动。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//这样更简单，只需要判断当前节点与前一个节点值是否相等，相等则删除</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Node <span class="title">deleteDuplicates</span><span class="params">(Node head)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(head == <span class="keyword">null</span> || head.next == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> head;</span><br><span class="line">        Node pre = head;</span><br><span class="line">        Node cur = head.next;</span><br><span class="line">        Node next = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">while</span>(cur != <span class="keyword">null</span>)&#123;</span><br><span class="line">            next = cur.next;</span><br><span class="line">            <span class="comment">//如果当前的值等于前一个节点，删除</span></span><br><span class="line">            <span class="keyword">if</span>(cur.value == pre.value)&#123;</span><br><span class="line">                pre.next = cur.next;</span><br><span class="line">                cur = cur.next;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="comment">//正常走</span></span><br><span class="line">                pre = pre.next;</span><br><span class="line">                cur = cur.next;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> head;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="链表倒数第k个节点"><a href="#链表倒数第k个节点" class="headerlink" title="链表倒数第k个节点"></a>链表倒数第k个节点</h3><p>题目1：找到链表倒数第k个节点</p>
+<p>输入一个链表，输出该链表中倒数第k个结点。为了符合大多数人的习惯，本题从1开始计数，即链表的尾结点是倒数第1个结点。例如一个链表有6个结点，从头结点开始它们的值依次是1、2、3、4、5、6。这个链表的倒数第3个结点是值为4的结点。</p>
+<p>思路：比较简单的做法是两次遍历，先知道链表长度n为多少，然后找到正着第n-k+1个节点即可，但是可以只用一次遍历来完成。用两个指针，指针1先走k-1步，然后让指针2与1一起走，当走到链表末尾时，便走到了倒数第k个节点。原因是1走到末尾，2为了是倒数第k个，与1之间的距离是k-1。需要注意的是要对k和链表head做判断，如果k&lt;=0或者head为空，直接返回空，如果指针1还没走到k-1步就到了末尾，也返回空。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Node <span class="title">findKthToTail</span><span class="params">(Node head,<span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//基础判断，k不大于0或者头节点为空，返回空</span></span><br><span class="line">    <span class="keyword">if</span>(k &lt;= <span class="number">0</span> || head == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">//增加一个头节点</span></span><br><span class="line">    <span class="comment">//两个指针，让一个指针先走k-1步</span></span><br><span class="line">    Node pre = head, cur = head;</span><br><span class="line">    k = k - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (k &gt; <span class="number">0</span> &amp;&amp; cur.next != <span class="keyword">null</span>)&#123;</span><br><span class="line">        cur = cur.next;</span><br><span class="line">        k--;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//k比链表长，返回空</span></span><br><span class="line">    <span class="keyword">if</span>(k != <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">//让两个链表一起走</span></span><br><span class="line">    <span class="keyword">while</span> (cur.next != <span class="keyword">null</span>)&#123;</span><br><span class="line">        cur = cur.next;</span><br><span class="line">        pre = pre.next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> pre;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>题目2：删除链表倒数第k个节点</p>
+<p>思路：如果涉及到删除操作，因为可能删除的是头节点，因此自己造一个新的头节点会比较方便，让指针1,2都从新的头节点出发，让指针1先走k步，然后1与2一起走，当指针1走到链表末尾，2走到倒数第k+1个节点，然后执行删除操作即可。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//删除链表末尾的第k个节点</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Node <span class="title">deleteKthToTail</span><span class="params">(Node head,<span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//基础判断</span></span><br><span class="line">    <span class="keyword">if</span>(k &lt;= <span class="number">0</span> || head == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> head;</span><br><span class="line">    <span class="comment">//增加一个头节点</span></span><br><span class="line">    Node newHead = <span class="keyword">new</span> Node(<span class="number">0</span>);</span><br><span class="line">    newHead.next = head;</span><br><span class="line">    <span class="comment">//两个指针，让一个指针先走k步</span></span><br><span class="line">    Node pre = newHead, cur = newHead;</span><br><span class="line">    <span class="keyword">while</span> (k &gt; <span class="number">0</span> &amp;&amp; cur.next != <span class="keyword">null</span>)&#123;</span><br><span class="line">        cur = cur.next;</span><br><span class="line">        k--;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//k比链表长，返回空</span></span><br><span class="line">    <span class="keyword">if</span>(k != <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> head;</span><br><span class="line">    <span class="comment">//让两个链表一起走</span></span><br><span class="line">    <span class="keyword">while</span> (cur.next != <span class="keyword">null</span>)&#123;</span><br><span class="line">        cur = cur.next;</span><br><span class="line">        pre = pre.next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//删除pre后一个节点</span></span><br><span class="line">    pre.next = pre.next.next;</span><br><span class="line">    head = newHead.next;</span><br><span class="line">    newHead = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">return</span> head;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="树-1"><a href="#树-1" class="headerlink" title="树"></a>树</h2><h3 id="树的重构"><a href="#树的重构" class="headerlink" title="树的重构"></a>树的重构</h3><p>根据先序和中序数组来重构一棵二叉树</p>
+<p>思路：先序数组中，第一个值为头节点，从中序中找到与头节点相同的下标，构造头节点，然后拷贝数组，构造左子树，拷贝数组构造右子树，递归完成。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//根据前序和中序构建二叉树</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Node <span class="title">reConstructBinaryTree</span><span class="params">(<span class="keyword">int</span>[] arrPre, <span class="keyword">int</span>[] arrIn)</span></span>&#123;</span><br><span class="line">        <span class="comment">//如果两个长度不等或为空，直接返回</span></span><br><span class="line">        <span class="keyword">if</span> (arrPre.length != arrIn.length || arrPre.length &lt; <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">//base case</span></span><br><span class="line">        <span class="keyword">if</span> (arrPre.length == <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> Node(arrPre[<span class="number">0</span>]);</span><br><span class="line">        <span class="comment">//在arrIn中找到与arrPre[0]相等的头节点</span></span><br><span class="line">        <span class="keyword">int</span> index = -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;arrIn.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (arrIn[i] == arrPre[<span class="number">0</span>])&#123;</span><br><span class="line">                index = i;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//没找到头节点，返回</span></span><br><span class="line">        <span class="keyword">if</span> (index == -<span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">//构造头节点</span></span><br><span class="line">        Node head = <span class="keyword">new</span> Node(arrPre[<span class="number">0</span>]);</span><br><span class="line">        <span class="comment">//左子树前序遍历</span></span><br><span class="line">        <span class="keyword">int</span>[] lPreChild = <span class="keyword">new</span> <span class="keyword">int</span>[index];</span><br><span class="line">        System.arraycopy(arrPre,<span class="number">1</span>,lPreChild,<span class="number">0</span>,index);</span><br><span class="line">        <span class="comment">//左子树中序遍历</span></span><br><span class="line">        <span class="keyword">int</span>[] lInChild = <span class="keyword">new</span> <span class="keyword">int</span>[index];</span><br><span class="line">        System.arraycopy(arrIn,<span class="number">0</span>,lInChild,<span class="number">0</span>,index);</span><br><span class="line">        head.left = reConstructBinaryTree(lPreChild,lInChild);</span><br><span class="line">        <span class="comment">//右子树前序遍历</span></span><br><span class="line">        <span class="keyword">int</span>[] rPreChild = <span class="keyword">new</span> <span class="keyword">int</span>[arrPre.length-index-<span class="number">1</span>];</span><br><span class="line">        System.arraycopy(arrPre,index+<span class="number">1</span>,rPreChild,<span class="number">0</span>,rPreChild.length);</span><br><span class="line">        <span class="comment">//右子树中序遍历</span></span><br><span class="line">        <span class="keyword">int</span>[] rInChild = <span class="keyword">new</span> <span class="keyword">int</span>[rPreChild.length];</span><br><span class="line">        System.arraycopy(arrIn,index+<span class="number">1</span>,rInChild,<span class="number">0</span>,rPreChild.length);</span><br><span class="line">        head.right = reConstructBinaryTree(rPreChild,rInChild);</span><br><span class="line">        <span class="keyword">return</span> head;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="树的子结构"><a href="#树的子结构" class="headerlink" title="树的子结构"></a>树的子结构</h3><p>输入两棵二叉树A和B，判断B是不是A的子结构。</p>
+<p>思路：遍历树A，找到与B相同值的节点。判断两个子树是否有一样的结构。递归的解法为：判断A树，A树的左子树，A树的右子树是否与B数结构相同。判断函数为：如果B树为空了，说明结构相同；如果A树空了，B树不空，肯定不同；如果当前节点的值不同，肯定不同；再判断左右子树是否相同。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//看一个树是不是另外一个树的子树</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">HasSubtree</span><span class="params">(Node root1, Node root2)</span> </span>&#123;</span><br><span class="line">       <span class="comment">//层序遍历root1，找到与root2头节点相同的节点</span></span><br><span class="line">       <span class="comment">//判断两个树是否相同</span></span><br><span class="line">       <span class="keyword">if</span>(root1 == <span class="keyword">null</span> || root2 == <span class="keyword">null</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">       <span class="comment">//看当前节点是否相同或者左子树或者右子树</span></span><br><span class="line">       <span class="keyword">return</span> isSameTree(root1,root2) || isSameTree(root1.left,root2)</span><br><span class="line">               || isSameTree(root1.right,root2);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">isSameTree</span><span class="params">(Node root1, Node root2)</span> </span>&#123;</span><br><span class="line">       <span class="comment">//判断两个树是否相同</span></span><br><span class="line">       <span class="comment">//base case</span></span><br><span class="line">       <span class="comment">//如果root2为空，说明是真</span></span><br><span class="line">       <span class="keyword">if</span> (root2 == <span class="keyword">null</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">       <span class="comment">//如果root1为空，且右子树不为空，说明是假</span></span><br><span class="line">       <span class="keyword">if</span> (root1 == <span class="keyword">null</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">       <span class="comment">//判断当前</span></span><br><span class="line">       <span class="keyword">if</span> (root1.value != root2.value)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">       <span class="comment">//判断左，右子树</span></span><br><span class="line">       <span class="keyword">return</span> isSameTree(root1.left,root2.left) &amp;&amp; isSameTree(root1.right,root2.right);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="二叉树的镜像"><a href="#二叉树的镜像" class="headerlink" title="二叉树的镜像"></a>二叉树的镜像</h3><p>请完成一个函数，输入一个二叉树，该函数输出它的镜像。</p>
+<p>思路：递归完成。如果树为空，返回；如果树的左右子树均为空，返回，否则交换左右子树；对左右子树进行同样操作。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//得到一个二叉树的镜像</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Mirror</span><span class="params">(Node root)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//base case</span></span><br><span class="line">    <span class="keyword">if</span> (root == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="comment">//交换左右子树</span></span><br><span class="line">    <span class="keyword">if</span> (root.left == <span class="keyword">null</span> &amp;&amp; root.right == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    Node temp = root.left;</span><br><span class="line">    root.left = root.right;</span><br><span class="line">    root.right = temp;</span><br><span class="line">    <span class="comment">//递归左右子树</span></span><br><span class="line">    Mirror(root.left);</span><br><span class="line">    Mirror(root.right);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="对称的二叉树"><a href="#对称的二叉树" class="headerlink" title="对称的二叉树"></a>对称的二叉树</h3><p>请实现一个函数，用来判断一棵二叉树是不是对称的。如果一棵二叉树和它的镜像一样，那么它是对称的。</p>
+<p>思路：比较这棵树与自己是否为镜像。递归解决，如果两个有一个为空，若是均为空，说明为真，若一个为空，另一个不为空，说明肯定不对称。判断当前节点值是否相同。判断root的左子树与root的右子树是否对称，判断root的右子树与root的左子树是否对称。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//判断一个树是否对称</span></span><br><span class="line">   <span class="comment">//可以判断两棵树是否为镜像树</span></span><br><span class="line">   <span class="function"><span class="keyword">boolean</span> <span class="title">isSymmetrical</span><span class="params">(Node root)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (root == <span class="keyword">null</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">       <span class="comment">//调用递归子函数</span></span><br><span class="line">       <span class="keyword">return</span> isSubSym(root,root);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">isSubSym</span><span class="params">(Node root1, Node root2)</span> </span>&#123;</span><br><span class="line">       <span class="comment">//base case</span></span><br><span class="line">       <span class="keyword">if</span> (root1 == <span class="keyword">null</span> || root2 == <span class="keyword">null</span>)&#123;</span><br><span class="line">           <span class="keyword">if</span> (root1 == <span class="keyword">null</span> &amp;&amp; root2 == <span class="keyword">null</span>)</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">           <span class="comment">//一个为空，一个不是，返回假</span></span><br><span class="line">           <span class="keyword">else</span></span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">//判断当前节点是否相同</span></span><br><span class="line">       <span class="keyword">if</span> (root1.value != root2.value)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">       <span class="comment">//判断当前树的左子树与镜像的右子树</span></span><br><span class="line">       <span class="keyword">return</span> isSubSym(root1.left,root2.right) &amp;&amp; isSubSym(root1.right,root2.left);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="二分"><a href="#二分" class="headerlink" title="二分"></a>二分</h2><h3 id="找旋转数组的最小值"><a href="#找旋转数组的最小值" class="headerlink" title="找旋转数组的最小值"></a>找旋转数组的最小值</h3><p>把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。输入一个非递减排序的数组的一个旋转，输出旋转数组的最小元素。例如数组{3,4,5,1,2}为{1,2,3,4,5}的一个旋转，该数组的最小值为1。<br>NOTE：给出的所有元素都大于0，若数组大小为0，请返回0。</p>
 <p>思路：先判断，如果最左边数比最右边树小，那么最左边的是最小的。如果最左边的与中间和最右边数相等，那么没法二分，只能顺序查找。</p>
 <p>用二分模板，左边指向左侧升序数组，右边指向右侧升序数组，当左右相邻，说明左边到了升序数组末尾，右边到了右边升序数组的开头，这样右边的数为最小数。不然，当左边数比中间数小，说明左边为升序，那么将左边移动到中间；否则将右边移动到中间。判断依据是，在旋转数组中，最小的数一定不是出现在升序数组中。</p>
@@ -2570,6 +2698,16 @@
 <p>因为要求不能重复，因此想到可以用哈希表跟双指针来维护一个窗口，如果右边的元素跟窗口内元素不重复，移动窗口，并更新最大窗口值；如果右边的元素重复了，则将窗口往左滑动，直到没有重复的。</p>
 <p>精髓在于双指针跟哈希表。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(String str)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> l = <span class="number">0</span>, r = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> ans = <span class="number">0</span>;</span><br><span class="line">    Set&lt;Character&gt; set = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">    <span class="keyword">while</span> (r &lt; str.length())&#123;</span><br><span class="line">        <span class="comment">//如果没有进来过，移动右窗口</span></span><br><span class="line">        <span class="keyword">if</span> (!set.contains(str.charAt(r)))&#123;</span><br><span class="line">            set.add(str.charAt(r++));</span><br><span class="line">            <span class="comment">//更新结果</span></span><br><span class="line">            ans = Math.max(ans,r-l);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">//如果包含了，则缩小窗口</span></span><br><span class="line">            set.remove(str.charAt(l++));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="最长回文子串"><a href="#最长回文子串" class="headerlink" title="最长回文子串"></a>最长回文子串</h3><p>给定一个字符串 <code>s</code>，找到 <code>s</code> 中最长的回文子串。你可以假设 <code>s</code> 的最大长度为 1000。</p>
+<p>字符串这种要输出最大长度的子串的，可以用<strong>子串长度</strong>及<strong>开始位置</strong>来确定其子串。</p>
+<p>方法一：中间扩散法</p>
+<p>遍历字符串，找到其最左边的与当前位置相同的位置，找到最右边与中间位置相同的位置，然后两边指针左右的字符如果相等，指针分别左右移动，统计两个指针夹住的最大长度及起始位置即可。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//中心扩散法</span></span><br><span class="line">   <span class="comment">//先找到最左跟最右的，然后向两端开始比较</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">longestPalindrome1</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span>(s == <span class="keyword">null</span> || s.length() &lt; <span class="number">2</span>)</span><br><span class="line">           <span class="keyword">return</span> s;</span><br><span class="line">       <span class="comment">//最大数，默认第一个为最大的</span></span><br><span class="line">       <span class="keyword">int</span> maxNum = <span class="number">1</span>;</span><br><span class="line">       <span class="comment">//可以不用哈希表，记录起始位置就可以</span></span><br><span class="line">       <span class="keyword">int</span> start = <span class="number">0</span>;</span><br><span class="line">       <span class="comment">//两个指针</span></span><br><span class="line">       <span class="keyword">int</span> p1 = <span class="number">0</span>, p2 = <span class="number">0</span>;</span><br><span class="line">       <span class="comment">//循环去找</span></span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; s.length(); i++) &#123;</span><br><span class="line">           <span class="comment">//找出最左的</span></span><br><span class="line">           p1 = i;</span><br><span class="line">           <span class="keyword">while</span> (p1 &gt;= <span class="number">1</span> &amp;&amp; s.charAt(p1-<span class="number">1</span>) == s.charAt(p1))&#123;</span><br><span class="line">               <span class="comment">//记录开始位置</span></span><br><span class="line">               p1--;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//找到最右的</span></span><br><span class="line">           p2 = i;</span><br><span class="line">           <span class="keyword">while</span> (p2 &lt; s.length() - <span class="number">1</span> &amp;&amp; s.charAt(p2+<span class="number">1</span>) == s.charAt(p2))&#123;</span><br><span class="line">               <span class="comment">//记录开始位置</span></span><br><span class="line">               p2++;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//向两边扩展</span></span><br><span class="line">           <span class="keyword">while</span>(p1 &gt;= <span class="number">1</span> &amp;&amp; p2 &lt; s.length() - <span class="number">1</span> &amp;&amp; s.charAt(p1-<span class="number">1</span>) == s.charAt(p2+<span class="number">1</span>))&#123;</span><br><span class="line">               p1--;</span><br><span class="line">               p2++;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//p1-p2为回文子串的长度</span></span><br><span class="line">           <span class="keyword">if</span>(maxNum &lt; p2 - p1 + <span class="number">1</span>)&#123;</span><br><span class="line">               maxNum = p2 - p1 + <span class="number">1</span>;</span><br><span class="line">               start = p1;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//更新i</span></span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">//取出最大长度对应的子串</span></span><br><span class="line">       <span class="keyword">return</span> s.substring(start,start+maxNum);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>方法二：动态规划法</p>
+<p>用二维数组统计哪些角标处的是回文子串，如<code>dp[2][0]</code>代表0-2角标处的是回文子串，用两个指针遍历，一个从1开始往后，第二个从0开始到第一个指针，如果第二个指针与第一个指针处字符相等，如果角标差小于等于2，说明子串长度在3以内，不用判断dp数组，不然就需要<code>dp[i-1][j+1]</code>之间为真，即其子串是回文的。然后统计长度及起始信息即可。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//dp</span></span><br><span class="line">    <span class="comment">//如果某两个角标之间的已经是回文的了，那么可以不用寻找</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">longestPalindrome4</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s == <span class="keyword">null</span> || s.length() &lt; <span class="number">2</span>)</span><br><span class="line">            <span class="keyword">return</span> s;</span><br><span class="line">        <span class="keyword">int</span> maxNum = <span class="number">1</span>;</span><br><span class="line">        <span class="comment">//可以不用哈希表，记录起始位置就可以</span></span><br><span class="line">        <span class="keyword">int</span> start = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">boolean</span>[][] dp = <span class="keyword">new</span> <span class="keyword">boolean</span>[s.length()][s.length()];</span><br><span class="line">        <span class="comment">//统计j-i之间的情况</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; s.length(); i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; i; j++) &#123;</span><br><span class="line">                <span class="comment">//如果相等，且之间距离在2之间（3个以内），或j+1-i-1为回文，计算</span></span><br><span class="line">                <span class="keyword">if</span> (s.charAt(j) == s.charAt(i) &amp;&amp; (i-j&lt;=<span class="number">2</span> || dp[i-<span class="number">1</span>][j+<span class="number">1</span>]))&#123;</span><br><span class="line">                    <span class="comment">//更改dp状态</span></span><br><span class="line">                    dp[i][j] = <span class="keyword">true</span>;</span><br><span class="line">                    <span class="comment">//统计信息</span></span><br><span class="line">                    <span class="keyword">if</span> (maxNum &lt; i-j+<span class="number">1</span>)&#123;</span><br><span class="line">                        maxNum = i-j+<span class="number">1</span>;</span><br><span class="line">                        start = j;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> s.substring(start,start+maxNum);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="链表-2"><a href="#链表-2" class="headerlink" title="链表"></a>链表</h2><h3 id="LRU缓存机制"><a href="#LRU缓存机制" class="headerlink" title="LRU缓存机制"></a>LRU缓存机制</h3><p>运用你所掌握的数据结构，设计和实现一个  LRU (最近最少使用) 缓存机制。它应该支持以下操作： 获取数据 get 和 写入数据 put 。</p>
 <p>获取数据 get(key) - 如果密钥 (key) 存在于缓存中，则获取密钥的值（总是正数），否则返回 -1。<br>写入数据 put(key, value) - 如果密钥不存在，则写入其数据值。当缓存容量达到上限时，它应该在写入新数据之前删除最久未使用的数据值，从而为新的数据值留出空间。时间复杂度O(1)。</p>
@@ -5498,7 +5636,7 @@
 <p>客户端与连接服务，主要完成类似于连接处理、授权认证及相关的安全方案。该层上引入了线程池的概念，为通过认证安全接入的客户端提供线程。可实现基于SSL的安全链接。</p>
 </li>
 <li><p>服务层</p>
-<p>完成大多数的核心服务功能，如缓存、SQL接口，完成缓存的查询，SQL的分析和优化及部分内置函数执行。</p>
+<p>完成大多数的核心服务功能，如SQL接口，完成缓存的查询，SQL的分析和优化及部分内置函数执行。</p>
 </li>
 <li><p>引擎层</p>
 <p>存储引擎层，存储引擎真正负责MySQL中数据的存储和提取，服务器通过API与存储引擎通信。</p>
@@ -5508,6 +5646,7 @@
 </li>
 </ol>
 <h3 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h3><p>插件式存储引擎架构将查询处理和其他的系统任务以及数据的存储提取相分离。</p>
+<p>存储引擎是针对表而生效的，而不是数据库。</p>
 <p>查看存储引擎</p>
 <p>show engines;</p>
 <p>show variables like ‘%storage_engine%’;</p>
@@ -5554,6 +5693,11 @@
 <td>默认安装</td>
 <td align="left">是</td>
 <td>是</td>
+</tr>
+<tr>
+<td>表文件</td>
+<td align="left">3个，frm存放表结构信息，MYD存放数据，MYI存放表索引</td>
+<td>2个，frm存放表结构信息，</td>
 </tr>
 </tbody></table>
 <p>阿里巴巴大部分mysql数据库使用的为percona的原型加以修改，percona提升了高负载下InnoDB性能，更多的诊断与控制行为。</p>
@@ -5652,9 +5796,16 @@
 <p>红黑树：也是二叉平衡查找树，最长路径不超过最短路径2倍即可。数据多时，树的高度会比较高。</p>
 <p>红黑树的旋转涉及到整棵树，因此需要将全部数据加载进内存，而且树的高度较高，而索引结构通常很大，一般以索引文件存在于硬盘中，使用红黑树IO次数多，因此红黑树不太适合索引的设计，而B树（B与B+）分块从磁盘中读取文件，只读取需要的块，树的高度更低，IO次数更少，适用于外部数据的读取，更适合索引的结构设计。</p>
 <p>B+树结点数据存储一般应该为页的整数倍，Mysql在读取时候，默认一页为16k。</p>
-<h4 id="B树与B-树区别"><a href="#B树与B-树区别" class="headerlink" title="B树与B+树区别"></a>B树与B+树区别</h4><p>B树与B+树均为平衡多路查找树，避免了二叉查找树树高度过高IO频繁的问题，所有叶节点高度相同，因此树是平衡的。</p>
+<h4 id="B树与B-树区别"><a href="#B树与B-树区别" class="headerlink" title="B树与B+树区别"></a>B树与B+树区别</h4><blockquote>
+<p>详细的数据结构，可参考此网站，动态展示了树的变化过程</p>
+<p><code>https://www.cs.usfca.edu/~galles/visualization/Algorithms.html</code></p>
+</blockquote>
+<p>B树与B+树均为平衡多路查找树，避免了二叉查找树树高度过高IO频繁的问题，所有叶节点高度相同，因此树是平衡的。</p>
 <p>B树在所有节点上既存储数据又存储索引。如果一个节点为16k，而因为数据放在每一个节点中，数据需要占据一定的内存，因此每个节点存放数据大小有限。</p>
-<p>而B+树在B树的基础之上，仅用叶子节点存储数据，非叶子节点的关键字个数与指针相同，可存储更多关键字，非叶子节点不存放数据，可支持更多范围查找，所有的<strong>叶子节点</strong>有指针指向下一个节点。B+树可以存储更多数据，一般3层可以支持千万级别的数据量查询。</p>
+<p>而B+树在B树的基础之上，仅用叶子节点存储数据或指向数据的指针（InnoDB中主键索引中叶子节点有数据，非主键索引存放主键索引地址；MyISAM中主键与非主键索引均存放数据地址），非叶子节点的关键字个数与指针相同，可存储更多关键字，非叶子节点不存放数据，是从叶子节点中提取出的冗余索引，便于去查找数据，所有节点索引从左至右递增。所有的<strong>叶子节点</strong>有指针指向下一个节点。</p>
+<img src="/2020/02/09/MySQL/B+%E6%A0%91%E8%8A%82%E7%82%B9.png" class title="This is an example image">
+
+<p>每个节点如果设置太大，那么单次IO时间太长；如果设置太小，则树的高度不可控。Mysql默认设置一个节点16kb（一页），如果索引设置bigint为8字节，存储地址的字符大小为6字节，这样单个索引+指针占用14字节，这样可以存储1170个索引。若叶子节点存放数据，单个索引+数据大小假设为16kb，则一个叶子节点可放16个索引+数据，则总的为1170x1170x16约等于2.2kw。因此B+树可以存储更多数据，一般3层可以支持千万级别的数据量查询。而根节点一般常驻内存，3层的B+树一次查询的IO次数为2。</p>
 <p>这样，B+树的优势为：更有利于对数据库的<strong>扫描</strong>与<strong>范围查询</strong>（叶子节点存在指针）。</p>
 <p>B树的优势为：在某些查询条件下，查询效率更高，为O(1)。</p>
 <p>数据结构没有好坏之分，只有合不合适。</p>
@@ -5961,19 +6112,6 @@
 <p>在慢日志中可以具体看出那条sql语句超出了阈值时间。</p>
 <p>查询当前系统中有多少条慢查询记录</p>
 <p>show global status like ‘%Slow_queries’;</p>
-<h3 id="日志分析工具"><a href="#日志分析工具" class="headerlink" title="日志分析工具"></a>日志分析工具</h3><p>mysqldumpslow</p>
-<ul>
-<li>s：按照何种方式排序</li>
-<li>c：访问次数</li>
-<li>l：锁定时间</li>
-<li>r：返回记录</li>
-<li>t：查询时间</li>
-<li>al：平均锁定时间</li>
-<li>ar：平均返回记录数</li>
-<li>at：平均查询时间</li>
-<li>t：返回前面多少条的记录</li>
-<li>g：后边搭配正则匹配表达式，大小写敏感</li>
-</ul>
 <h3 id="Show-Profile"><a href="#Show-Profile" class="headerlink" title="Show Profile"></a>Show Profile</h3><p>mysql提供的用来分析当前会话中语句执行的<strong>资源消耗</strong>情况，可以用于SQL的调优的测量。     </p>
 <p>默认情况下，参数处于关闭状态，并保存15次的运行结果。</p>
 <ol>
