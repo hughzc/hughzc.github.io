@@ -95,7 +95,7 @@ return：结束当前的方法，直接返回
 
 #### 在 Java 中，如何跳出当前的多重嵌套循环
 
-给外面的循环定义一个名称，在需要跳出的地方使用break 循环名即可
+给外面的循环定义一个标签，在需要跳出的地方使用break 循环名即可
 
 ~~~java
         loop1:
@@ -106,38 +106,6 @@ return：结束当前的方法，直接返回
             }
         }
 ~~~
-
-### 方法
-
-#### main方法
-
-public static void main(String[] args)
-
-main方法是Java程序的入口，public表示任何类和对象可以访问，static表示方法随类而加载，可使用类名来调用，void表明没有返回值，main为JVM识别的特殊方法名，不是关键字。字符串数组args可以用来输入参数。main为最先加载的方法（不一定最先执行），因此需要被静态调用。
-
-是否有其他写法？
-
-public与static可以交换顺序，也可以定义为final，也可以用synchronized来修饰main方法。
-
-#### 在main方法执行前输出
-
-可以使用静态代码块，静态代码块在类加载时被调用
-
-~~~java
-public class Test{
-	static{
-		Sout("Hello1");
-	}
-	main(){
-		Sout("Hello2");
-	}
-}
-~~~
-
-#### 函数的重载与覆盖
-
-- 重载：重载发生于**一个类**中，若同名的方法有不同的输入参数列表（参数类型不同，参数个数不同或均不同）视为重载
-- 覆盖：也称为覆写，重写，override，发生在**子类和父类**之间，要求子类重写方法与父类有相同的参数列表和返回类型，子类方法权限大于等于父类方法（父类方法不能被private修饰），子类方法声明异常不能多于父类异常（其子类或子集）。
 
 
 
@@ -218,7 +186,7 @@ public class Test{
 
 - final可以修饰类、方法、变量，修饰类表明该类不能被继承，修饰方法表明该方法不能被重写，修饰变量表明该变量为常量不能重新被赋值，但若修饰的是对象的引用，不可变的是引用。
 - finally一般作用在try-catch代码块中，处理异常时将一定要执行的方法放在finally中，表示不管是否出现异常，该代码块都一定会执行（存在try语句，在try语句中没有执行System.exist(0)），一般放关闭资源的代码。
-- finalize是Object类的方法，一般由垃圾回收器调用，当调用Syetem.gc()的时候，由垃圾回收器调用finalize()，回收垃圾，是一个对象是否可回收的最后判断。
+- finalize是Object类的方法，一般由垃圾回收器调用，当调用Syetem.gc()的时候，由垃圾回收器调用finalize()，回收垃圾，是一个对象是否可回收的最后判断，最后的自救机会，但只有一次。
 
 ### this与super
 
@@ -257,8 +225,6 @@ super的用法与this类似
 3. this与super均要放在构造函数的第一行
 4. this与super不能出现在一个构造函数中，因为this()中调用其他构造函数，其他构造函数中有super()
 5. 二者均不可在static环境中使用，如static变量，static方法，static代码块
-
-
 
 ## 面向对象
 
@@ -410,11 +376,65 @@ super的用法与this类似
 
 #### 静态变量和实例变量区别
 
+静态变量，随类的加载而加载，被当前类所有对象共享，内存中只有一份。
 
+实例变量：随每次创建对象而创建，有几个对象就有几个实例变量。
 
-### 匿名对象
+### 方法
 
+#### main方法
 
+public static void main(String[] args)
+
+main方法是Java程序的入口，public表示任何类和对象可以访问，static表示方法随类而加载，可使用类名来调用，void表明没有返回值，main为JVM识别的特殊方法名，不是关键字。字符串数组args可以用来输入参数。main为最先加载的方法（不一定最先执行），因此需要被静态调用。
+
+是否有其他写法？
+
+public与static可以交换顺序，也可以定义为final，也可以用synchronized来修饰main方法。
+
+#### 在main方法执行前输出
+
+可以使用静态代码块，静态代码块在类加载时被调用
+
+~~~java
+public class Test{
+	static{
+		Sout("Hello1");
+	}
+	main(){
+		Sout("Hello2");
+	}
+}
+~~~
+
+#### 函数的重载与覆盖
+
+都是实现多态的方式。
+
+- 重载：重载发生于**一个类**中，若同名的方法有不同的输入参数列表（参数类型不同，参数个数不同或均不同）视为重载，编译时的多态性，前绑定
+- 覆盖：也称为覆写，重写，override，发生在**子类和父类**之间，要求子类重写方法与父类有相同的参数列表和返回类型，子类方法权限大于等于父类方法（父类方法不能被private修饰），子类方法声明异常不能多于父类异常（其子类或子集）。运行时的多态性，后绑定，精髓。
+
+#### 静态方法和实例方法有何不同？
+
+1. 调用方式不同，实例方法只能通过对象.方法调用，而静态方法多了类名.方法，无需创建对象。
+2. 访问成员变量限制，在静态方法中只能访问静态成员（静态成员变量和静态方法），不能访问实例成员，而实例方法没有此限制。
+
+#### == 和 equals 的区别是什么
+
+==比较的是地址，equals分两种情况
+
+- 该类覆写了equals方法，比较的是值或内容
+- 该类没有覆写equals方法，比较的仍然为地址
+
+#### hashCode 与 equals
+
+将对象加入Set或Map集合中，必须要覆写hashCode或equals方法。通过hashCode计算哈希散列值，寻找在桶中的位置，然后在该桶处的链表或树上通过equals方法来寻找是否有相同的节点，如果有就进行替换（HashMap的put方法逻辑）。覆写hashCode与equals需要确保
+
+- 两个相等对象的哈希值相同
+- 两个相等对象返回equals返回true
+- 哈希值相等的对象不一定相等
+
+这样在重写equals时必须重写hashCode，哈希值不等的对象即使有相同的数据也不等。
 
 ### 构造方法
 
@@ -437,6 +457,72 @@ super的用法与this类似
 - 在new对象时自动调用该方法
 
 ### 内部类
+
+#### 内部类定义
+
+将类定义在内的内部，方便访问外部类中成员。外部类要访问内部类中成员，必须新建外部类对象。内部类可以访问外部类中数据的原理是持有外部类的this引用。
+
+#### 内部类种类
+
+- 成员内部类（成员位置上非静态类）
+
+  需要先创建外部类对象，再创建内部类对象
+
+  ~~~java
+  Outer.Inner in = new Outer().new Inner();
+  ~~~
+
+- 局部内部类（定义在方法中的内部类）
+
+  可访问外部类中所有方法
+
+- 匿名内部类（没有名字的内部类，开发较多）
+
+- 静态内部类（static修饰）
+
+  不可以访问外部类中的非静态变量，外部类可通过外部类的对象调用，不用新建内部类对象
+
+  ~~~java
+  Outer.StaticInner inner = new Outer.StaticInner();
+  ~~~
+
+#### 匿名内部类
+
+- 必须继承一个抽象类或接口
+- 不能定义任何静态成员与静态方法
+- 所在方法的形参被匿名内部类使用，需要用final修饰
+- 匿名内部类不能是抽象的，必须实现继承的类或实现的接口所有的抽象方法
+
+创建方式如下
+
+~~~java
+new 类/接口{ 
+  //匿名内部类实现部分
+}
+~~~
+
+#### 内部类优点
+
+- 方便访问其外部类中所有数据
+- 不被其他包中的类所见，封装性较好
+
+#### 局部内部类和匿名内部类访问局部变量的时候，为什么变量必须要加上final？
+
+因为生命周期不同，局部变量存储在栈中，在方法执行结束后，非final的局部变量被销毁，但局部内部类对此变量引用仍然存在，这样当要调用的时候就会出错，增加final可以延长局部变量的生命周期。
+
+### 值传递
+
+值传递指在方法调用时，传递的是参数列表值的拷贝
+
+引用传递指方法调用时，传递的是引用的地址
+
+#### 当一个对象被当作参数传递到一个方法后，此方法可改变这个对象的属性，并可返回变化后的结果，那么这里到底是值传递还是引用传递
+
+值传递，Java语言的传递只支持值传递，当对象实例被传入方法，方法得到的只是参数的拷贝，因此方法中参数的值为此对象实例的一个引用，对象的属性可以在被调用时改变，但对对象引用的改变无法传递给调用者。
+
+- 方法不能修改一个**基本数据类型**的参数（即数值型或布尔型》
+- 方法可以改变一个对象参数的状态（存储在堆内存中）
+- 方法不能让对象参数的引用
 
 ### 常见类
 
@@ -532,6 +618,8 @@ hello指向的是常量池中的徐爱那个，而“hel”+“lo”也指向常
 
 ## 集合
 
+Java中的内存泄漏多与集合容器相关。当集合中持有生命周期较短的对象，当对象作用已经结束，需要被销毁时，因为有长生命周期的集合持有，如果不进行手动销毁，会存在内存泄漏。
+
 ### List与Set
 
 Collection下有List、Set和Queue，重点说明List与Set的区别。
@@ -572,6 +660,52 @@ Collection下有List、Set和Queue，重点说明List与Set的区别。
 
 其中，Vector虽安全，但不适用于高并发。HashSet底层为HashMap，在add元素时，以键的形式放入，值为PRESENT。TreeSet的核心在排序，不排序用HashSet。TreeSet有两种排序方式，方式一是被排序类实现Compareble接口（实现equals()、hashcode()、compareTo()方法），方式二为传入比较器，比较器需要实现Comparator接口（实现compare()方法）。TreeSet底层为TreeMap，两种排序方式比较器优先级较高。
 
+#### ArrayList 和 LinkedList 的区别
+
+1. 数据结构实现：ArrayList底层为动态数组（可动态扩容），LinkedList底层为双向链表
+2. 随机查询效率：ArrayList随机查询效率更高，而LinkedList只能依靠遍历，因此ArrayList查询效率更高
+3. 增加和删除效率：在增加和删除非首尾元素时，LinkedList效率更高，因为ArrayList的增加和删除操作会影响到其他位置的元素，涉及元素的移动
+4. 内存空间占用：LinkedList比ArrayList更占内存，因为LinkedList中除了存放数据，还有指向前后的引用
+5. 线程安全方面：二者都是不安全的
+
+因此，如果涉及频繁的查询操作，ArrayList更合适；涉及频繁的增删操作，LinkedList更合适
+
+#### ArrayList 和Vector 的区别
+
+1. 线程安全：Vector使用synchronized保障线程安全，ArrayList不是
+2. 性能：因为Vector存在锁，因此性能不如ArrayList
+3. 扩容：ArrayList和Vector均可以动态扩容，Vector新容量为原来的2倍，而ArrayList新容量为原来的1.5倍
+
+在不需要线程安全时，建议使用ArrayList。
+
+如果想在多线程下使用ArrayList，可以使用Collections.synchronizedList(list)方法
+
+#### List遍历时删除问题
+
+如果直接for循环遍历List，再进行remove操作，会报ConcurrentModificationException，因为使用了foreach语句时，会自动生成一个Iterator来遍历list，但同时该list又在被iterator.remove()方法修改，不允许在其他地方进行删除，因此这样会出问题。
+
+解决办法1：使用迭代器来获取List中全部元素，再调用iterator的remove方法
+
+~~~java
+Iterator<Integer> it = list.iterator();
+while(it.hasNext()){
+   *// do something*
+   it.remove();
+}
+~~~
+
+解决办法2：利用下标来获取元素，再使用删除
+
+~~~java
+		for (int i = 0; i < list.size(); i++) {
+            list.remove(list.get(i));
+        }
+~~~
+
+#### HashSet实现原理
+
+HashSet基于HashMap而实现，HashSet中的值存放于HashMap的key上，HashMap的value全部为PRESENT，HashSet底层方面基本是调用HashMap来实现的。
+
 ### HashMap
 
 HashMap为Java中非常重要和常用的一种数据结构，下面将重点介绍HashMap的底层原理及方法实现。
@@ -611,8 +745,24 @@ HashMap的put方法逻辑是：
 
 在构造哈希表时，若不指明初始大小，默认为16，若大小达到了容量16*负载因子0.75，用大数组去替代小数组，重新调整hashmap大小为原来2倍，比较耗时。
 
+具体逻辑为创建一个大小为原数组大小2倍的新数组，要原数组中的元素重新计算在新数组中的索引，然后添加至新数组中。
+
 - 在多线程环境下，调整大小会存在条件竞争，容易造成**死锁**
 - rehashing是一个比较耗时的过程
+
+在JDK7前，哈希表扩容，需要重新计算每个元素在新的数组中的位置，然后进行移动。在JDK8中进行了优化，通过位运算来判断元素是否需要移动，如果位置不变可直接放入对应的位置；如果出现了变化，新的位置是原来的下标位置+原数组长度。
+
+可以这么做是因为计算hash的时候，采用的是散列后的哈希值与上数组长度减一。初始为16，二进制的长度减一为1111，当扩容后，数组新长度为11111，如果一个key倒数第5位本来计算就是0，这样当扩容后计算的位置还是不变的，如果倒数第5位是1，相当于要加上10000，即老数组长度16，因此若有变化将原来老数组下标加上老数组长度就是在新数组中的位置。
+
+#### 负载因子
+
+为何负载因子要选为0.75，而不是更高的1，或者更小的0.5呢。如果负载因子选为1，则resize()的阈值会变得比较高，更不容易扩容，减少了rehash的成本，但是这样桶中元素更密集，哈希碰撞更严重，降低了查询效率。如果选为0.5，则resize()的阈值变得很低，扩容频繁，虽然桶中元素分布更散列，但扩容成本变高。因此为了权衡扩容成本与查询效率，选了折中的数字0.75。
+
+#### cpu占用100%的问题
+
+出现在JDK7，因为在JDK7中链表元素的插入采用的是头插法，即如果插入元素的顺序为1,2,3，链表的顺序是3->2->1，然后在扩容的时候，当两个线程均新建了一个新的数组，一个数组将链表元素放入到新数组中，由于从头节点开始放，因此此时的顺序是1->2->3，而对于第二个链表，其当前记录指针e若指向3，e的next指向2，此时会让3再指向2，这样相当于形成了一个循环链表，这样当使用get()方法的时候，就会死循环。
+
+JDK8后，链表插入采用尾插入的方法，这样便解决了死循环问题，但在多线程下HashMap仍然会存在节点丢失等问题，因此不能在单线程下使用。
 
 #### 如何减少碰撞
 
@@ -665,7 +815,7 @@ static final int hash(Object key){
 
 要了解红黑树是什么，为什么要有红黑树。
 
-红黑树是二叉查找树，不同的是在每个结点上增加一个存储位来表示颜色，Red或Black。而红黑树的特点是通过对任何一条从根到叶子的路径上各个结点的着色方式的限制，红黑树确保没有一条路径比其他路径长出两倍，树是接近平衡的。
+红黑树是**相对平衡**的**二叉查找树**，不同的是在每个结点上增加一个存储位来表示颜色，Red或Black。而红黑树的特点是通过对任何一条从根到叶子的路径上各个结点的着色方式的限制，**红黑树确保没有一条路径比其他路径长出两倍**，树是接近平衡的。没有AVL树那么平衡。
 
 二叉查找树简单理解是：
 
@@ -678,7 +828,7 @@ static final int hash(Object key){
 
 1. 每个节点要么红、要么黑
 2. 根节点是黑
-3. 叶节点是黑的
+3. 叶节点是黑的空节点
 4. 若一个节点是红，两个儿子都是黑的（不存在两个连续的红色节点）
 5. 对任意节点，其到叶节点尾端指针的每条路径都包含相同数目的黑节点
 
@@ -689,6 +839,8 @@ static final int hash(Object key){
 #### HashMap与HashTable
 
 因为HashMap在多线程下不安全，而线程安全的类有HashTable，其线程安全原因是使用了synchronized修饰符，锁为调用者的this，与Collections.synchronizedMap(hashMap)几乎无区别，只是锁不一样，synchronizedMap锁为Object类的mutex，hashMap方法均用synchronized(mutex)加锁。
+
+而HashTable初始容量为11，与HashMap不同。扩容时，计算容量为2倍原来容量+1。
 
 ~~~java
 public class Hashtable<K,V> extends Dictionary<K,V> 
@@ -701,6 +853,32 @@ public class Hashtable<K,V> extends Dictionary<K,V>
 ~~~
 
 但HashTable在多线程下效率较低，因此又引入了ConcurrentHashMap。
+
+二者的区别概括为
+
+- 线程安全
+
+  HashMap不安全，HashTable安全
+
+- 能否存空键
+
+  HashMap可以，计算散列值时null的hash为0，HashTable不可以
+
+- 初始容量与扩容
+
+  HashMap默认初始16，HashTable为11；
+
+  扩容时，HashMap为原来2倍，HashTable为原来2倍+1；
+
+  指定容量，HashMap会计算与指定的最接近的2的整数次幂作为初始容量，HashTable按照指定的
+
+- 效率
+
+  HashMap效率更高，HashTable因为有synchronized，效率更低
+
+- 底层结构
+
+  HashMap1.8后底层为数组+链表+红黑树，HashTable没有树化的机制
 
 #### HashMap与ConcurrentHashMap
 
@@ -756,4 +934,88 @@ ConcurrentHashMap的put方法
 - ConcurrentHashMap线程安全，CAS+synchronized，数组+链表+红黑树
 - HashMap的key、value均可为null，而其他两个类不支持
 
-# Java高级
+## 设计模式
+
+### 创建型模式
+
+#### 单例模式
+
+单例模式的需求为一个类只允许产生一个对象，实现的方式有饿汉式，懒汉式与嵌套类式。
+
+饿汉式
+
+~~~java
+public class Singleton1{
+	private static Singleton1 instance = new Singleton1();
+    private singleton1(){}
+    public static Singleton1 getInstance(){
+        return instance;
+    }
+}
+~~~
+
+基本思路为直接创建好一个私有的静态的对象，私有构造函数，创建一个public的静态方法去返回此对象（静态方法只能访问静态成员）。这种方法的优点是线程安全，缺点为如果不用到getInstance()方法，仍然会创建一个对象，增加开销。
+
+懒汉式
+
+~~~java
+public class Singleton2{
+	private static volatile Singleton1 instance = null;
+    private singleton1(){}
+    public static Singleton2 getInstance(){
+        if(instance == null){
+            synchronized(Singleton2.class){
+                if(instance == null){
+                    instance = new Singleton2;
+                }
+            }
+        }
+        return s;
+    }
+}
+~~~
+
+基本思路也为创建一个私有静态对象，但一开始不初始，私有构造函数，创建public的静态方法返回此对象，需要加上双重验证，加synchronized是为了保证线程安全，外面加上一层判断是为了提高效率，其中因为new这个语句不是原子性的，为了避免语句重排，出现s没有被初始化就返回的情况，需要让instance被volatile修饰，利用内存屏障保证不重排语句。优点是节约了资源，缺点是写法比较复杂，写错了容易线程不安全。
+
+嵌套内部类
+
+~~~java
+public class Singleton3{
+    private singleton1(){}
+	private static class Holder{
+        private static instance = new Singleton3();
+    }
+    public static Singleton3 getInstance(){
+        return Holder.instance;
+    }
+}
+~~~
+
+在饿汉式基础上将对象构造放进内部类中，这样不调用内部类的时候不新建对象。
+
+基本思路为私有构造方法，定义一个私有的静态类，避免其他类访问，直接类名调用，此类中持有外部类的私有静态实例，外部类提供方法，返回内部类中的对象。这样静态类只在被调用时加载一次，因此只有一个对象。优点是不使用getInstance方法不实例化，节约资源。缺点是第一次加载比较慢。
+
+枚举类
+
+~~~java
+public enum Singleton4 {
+    INSTANCE;
+}
+//调用时
+Singleton4 s = Singleton4.INSTANCE;
+~~~
+
+写法简单，调用方便。
+
+JDK中用到的单例模式为：Runtime类，使用getRuntime()，使用的饿汉式。
+
+~~~java
+public class Runtime {
+    private static Runtime currentRuntime = new Runtime();
+    private Runtime() {}
+    public static Runtime getRuntime() {
+        return currentRuntime;
+    }
+}
+~~~
+

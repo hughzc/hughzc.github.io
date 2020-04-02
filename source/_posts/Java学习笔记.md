@@ -1981,7 +1981,7 @@ Collection coll = new ArrayList();
 
    ~~~java
    for(Iterator it = coll.iterator();it.hasNext();) {
-   	System.***out\***.println(it.next());
+   	System.out.println(it.next());
    }
    ~~~
 
@@ -4383,6 +4383,8 @@ SequenceInputStream(Enumeration<? **extends** InputStream> e)
 
 ​    如果要将多个文件写入同一个文件或者将文件碎片合并到一个文件，要用到序列流。序列流需要用到枚举，而枚举可以通过集合获取到。先将字节输入流存入ArrayList集合，然后用Collections工具类获取集合的枚举。这样从序列流中将数据写入到指定的路径下。如果要指定路径+文件后缀名，可以new File(dir,”1.mp3”);
 
+### 序列化
+
 #### 操作对象（装饰类）
 
 ObjectInputStream与ObjectOutputStream，操作对象的流。
@@ -4391,7 +4393,12 @@ ObjectInputStream与ObjectOutputStream，操作对象的流。
 
 **ObjectOutputStream**
 
-为了实现额外功能，相当于装饰类，将字节流对象关联。要存储的对象必须实现Serializable接口。
+为了实现额外功能，相当于装饰类，将字节流对象关联。
+
+序列化的条件为：
+
+1. 要存储的对象必须实现Serializable接口
+2. 该类的所有属性要是可序列化的。如果有一个属性是不需要可序列化的，该属性需要注明是瞬态的，使用`transient`关键字说明
 
 ~~~java
 public static void writeObj() throws IOException {
@@ -4423,7 +4430,7 @@ public static void writeObj() throws IOException {
 因为一次只能读一个对象，因此如果想多读几个对象，可使用以下方法。
 
 ~~~java
-try {
+		try {
 			while (true) {
 				Person p = (Person) ois.readObject();
 				System.out.println(p.getName() + ":" + p.getAge());
@@ -4437,15 +4444,17 @@ try {
 
 #### Serializable
 
-如果用原来的class文件，用更改后的类来接收，会报错。InvalidClassException。类实现Serializable接口，Serializable为标记接口，序列化运行时使用称为serialVersionUID的版本号与每个可序列化类相关联。该序列号在反序列化过程中用于验证序列化对象的发送者和接收者是否为该对象加载了与序列化兼容的类。如果接收者加载类的ID号与发送者的类的版本号不同，反序列化会导致InvalidClassException。
+如果用原来的class文件，用更改后的类来接收，会报错，异常为InvalidClassException。
 
-因此Serializable用于给被序列化的类加入ID号。用于判断类和对象是否是同一个版本。如果可序列化类未显示声明serialVersionUID，则序列化运行时将基于该类的各个方面计算该类的默认serialVersionUID。强烈建议所有可序列化都显示声明serialVersionUID值，因为计算默认ID对类的详细信息有较高的敏感性，根据编译期的不同可能千差万别。
+类实现Serializable接口，Serializable为标记接口，序列化运行时使用称为`serialVersionUID`的版本号与每个可序列化类相关联。该序列号在反序列化过程中用于验证序列化对象的发送者和接收者是否为该对象加载了与序列化兼容的类。如果接收者加载类的ID号与发送者的类的**版本号不同**，反序列化会导致InvalidClassException。
+
+因此Serializable用于给被序列化的类加入ID号。用于判断类和对象是否是同一个版本。如果可序列化类未显示声明serialVersionUID，则序列化运行时将基于该类的各个方面计算该类的默认serialVersionUID。强烈建议所有可序列化都**显示声明**`serialVersionUID`值，因为计算默认ID对类的详细信息有较高的敏感性，根据编译期的不同可能千差万别。
 
 一个可序列化的类可以通过声明一个名为"serialVersionUID"的字段来显式地声明它自己的serialVersionUID，该字段必须是static，final和long类型
 
   **private** **static** **final** **long** serialVersionUID = 9527L;
 
-  只要ID号一样，就算类文件变化了，那就依然可以读出，在服务器上可能会用到。
+  **只要ID号一样，就算类文件变化了，那就依然可以读出**，在服务器上可能会用到。
 
 #### 无法被写入的属性(static transient)
 
@@ -4453,11 +4462,46 @@ try {
 
 如果类中某一属性被静态修饰，则堆内存中没有此属性，因此无法被写入到对象中。对象输出流只能写入非静态的属性和非瞬态的。
 
+原因：
+
+- 静态优先与非静态加载到内存中，被static修饰的成员变量不能被序列化，序列化的都是对象
+
 **transient关键字**
 
-​    短暂的，暂时的。如果某一属性不是公用的，不能被static修饰，但是又不想写到对象中，可以使用transien关键字。
+​    短暂的，暂时的。如果某一属性不是公用的，不能被static修饰，但是又不想写到对象中，可以使用transient关键字。
 
-非静态数据不想被序列化可以使用这个关键字修饰。
+**非静态数据不想被序列化**可以使用这个关键字修饰。
+
+#### 序列化集合
+
+若要将对象存储在集合中，再进行序列化，需要将可序列化的对象存入集合，然后用序列化流的写Object方法写入，再用反序列化流的读Object方法读，要注意的是，方法为writeObject()和readObject()！！！
+
+~~~java
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        //用集合存储对象，并以对象流的方式存入数据，再将其读取出来
+        //1、定义集合，将对象存入
+        ArrayList<Person> list = new ArrayList<>();
+        list.add(new Person("张三",1));
+        list.add(new Person("张二",2));
+        list.add(new Person("张一",3));
+        //2、将对象流关联输出文件字节流
+        ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(new File("test.txt")));
+        //3、将集合序列化至指定地方
+        os.writeObject(list);
+        //4、创建反序列化流，从指定地方读取
+        ObjectInputStream oj = new ObjectInputStream(new FileInputStream("test.txt"));
+        //5、从反序列化流中读取对象
+        Object o = oj.readObject();
+        ArrayList<Person> list2 = (ArrayList<Person>)o;
+        //6、遍历集合，读取数据
+        for (Person person : list2) {
+            System.out.println(person.name+" "+person.age);
+        }
+        //7、释放资源
+        os.close();
+        oj.close();
+    }
+~~~
 
 ### File类
 
