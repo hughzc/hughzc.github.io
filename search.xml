@@ -277,6 +277,34 @@
 <h4 id="OOM异常"><a href="#OOM异常" class="headerlink" title="OOM异常"></a>OOM异常</h4><p>当一个线程发生了OOM异常后，另一个线程是可以正常执行的，因为发生OOM异常的线程会清空其堆内存，不影响其他线程的使用。</p>
 <h3 id="调优"><a href="#调优" class="headerlink" title="调优"></a>调优</h3><p>调优的目的：减少full gc，减少stop-the-world时间。</p>
 <p>让朝生夕死的对象，尽量在年轻代被minor gc，而少在老年代被full gc。方法之一为调整年轻代与老年代的内存分配比例。</p>
+<h4 id="常见jvm参数"><a href="#常见jvm参数" class="headerlink" title="常见jvm参数"></a>常见jvm参数</h4><blockquote>
+<p>来源于马士兵老师课程笔记</p>
+</blockquote>
+<p>JVM的命令行参数参考：<a href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html" target="_blank" rel="noopener">https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html</a></p>
+<p>HotSpot参数分类</p>
+<blockquote>
+<p>标准： - 开头，所有的HotSpot都支持</p>
+<p>非标准：-X 开头，特定版本HotSpot支持特定命令</p>
+<p>不稳定：-XX 开头，下个版本可能取消</p>
+</blockquote>
+<p>为了在发生OOM异常时，将堆信息dump出来，使用如下命令</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=d:\dump</span><br></pre></td></tr></table></figure>
+
+<h4 id="调优前概念"><a href="#调优前概念" class="headerlink" title="调优前概念"></a>调优前概念</h4><ul>
+<li>吞吐量：用户代码时间/（用户代码执行时间+垃圾回收时间）</li>
+<li>响应时间：Stop-the-World时间越短，响应时间越好</li>
+</ul>
+<p>需要确定是吞吐量优先还是响应时间优先。</p>
+<p>吞吐量优先的一般为：Pareller Scanvenge + Pareller Old</p>
+<ul>
+<li>科学计算</li>
+<li>吞吐量</li>
+<li>数据挖掘</li>
+</ul>
+<p>响应时间优先：1.8后为G1</p>
+<ul>
+<li>网站GUI API</li>
+</ul>
 <h1 id="GC"><a href="#GC" class="headerlink" title="GC"></a>GC</h1><h2 id="Java内存泄漏"><a href="#Java内存泄漏" class="headerlink" title="Java内存泄漏"></a>Java内存泄漏</h2><p>内存泄漏指的是不被使用的对象或内存一直占据着内存，理论上来说Java有GC垃圾回收，即不再被使用的对象会被垃圾回收，从内存中清除。</p>
 <p>但即使这样也会存在内存泄漏，长生命周期的对象持有者短生命周期对象的引用，虽然短生命周期的对象不再需要，但因为场面生命周期的对象持有着他的引用而导致不能被回收。</p>
 <h2 id="GC收集日志信息"><a href="#GC收集日志信息" class="headerlink" title="GC收集日志信息"></a>GC收集日志信息</h2><p>在IDEA中，使用Configuration中的VM options来配置</p>
@@ -314,14 +342,14 @@
 <li>普通GC（Minor GC）：只针对年轻代区域，因为大多数Java对象存活率不高，因此Minor GC非常频繁，一般回收速度也较快</li>
 <li>全局GC（Full GC）：发生在老年代的垃圾回收机制，出现了Major GC，经常会伴随至少一次的Minor GC（不绝对）。<strong>Major GC的速度一般比Minor GC慢10倍以上</strong>。</li>
 </ul>
-<h3 id="对象可达性分析"><a href="#对象可达性分析" class="headerlink" title="对象可达性分析"></a>对象可达性分析</h3><h4 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h4><ul>
+<h3 id="对象可达性分析"><a href="#对象可达性分析" class="headerlink" title="对象可达性分析"></a>对象可达性分析</h3><h4 id="引用计数法（ReferenceCount）"><a href="#引用计数法（ReferenceCount）" class="headerlink" title="引用计数法（ReferenceCount）"></a>引用计数法（ReferenceCount）</h4><ul>
 <li>判断对象的引用数量</li>
 <li>每个对象实例有引用计数器，被引用+1，完成引用-1</li>
 <li>任何引用为0的对象实例可被垃圾回收</li>
 <li>优点：效率高</li>
 <li>缺点：维护引用计数器，无法解决相互引用，主流JM并未使用</li>
 </ul>
-<h4 id="可达性分析"><a href="#可达性分析" class="headerlink" title="可达性分析"></a>可达性分析</h4><p>判断对象的引用链是否可达来决定对象是否被回收，从图论引入。从名为GC Roots的对象作为起始点，从这些节点向下搜索，搜素走过的路径就是引用链，若一个节点与GC Roots间没有引用链，则被判断为不可达的。</p>
+<h4 id="根可达算法（Rootearching）"><a href="#根可达算法（Rootearching）" class="headerlink" title="根可达算法（Rootearching）"></a>根可达算法（Rootearching）</h4><p>判断对象的引用链是否可达来决定对象是否被回收，从图论引入。从名为GC Roots的对象作为起始点，从这些节点向下搜索，搜素走过的路径就是引用链，若一个节点与GC Roots间没有引用链，则被判断为不可达的。</p>
 <p>从Root开始，将所有可达的对象进行标记，标记完后不可达的对象就是垃圾。</p>
 <p>可以用作GC Root的对象</p>
 <ul>
@@ -401,15 +429,19 @@
 <h3 id="常见收集器"><a href="#常见收集器" class="headerlink" title="常见收集器"></a>常见收集器</h3><img src="/2020/03/21/jvm/%E6%94%B6%E9%9B%86%E5%99%A8.png" class title="This is an example image">
 
 <p>图中为常见的JVM收集器，用实线相连代表可以搭配使用</p>
+<p><strong>1.8默认是Paraller Scavenge+ParallerOld</strong></p>
 <h3 id="年轻代常见收集器"><a href="#年轻代常见收集器" class="headerlink" title="年轻代常见收集器"></a>年轻代常见收集器</h3><h4 id="Serial收集器（-XX-UseSerialGC，复制算法）"><a href="#Serial收集器（-XX-UseSerialGC，复制算法）" class="headerlink" title="Serial收集器（-XX:+UseSerialGC，复制算法）"></a>Serial收集器（-XX:+UseSerialGC，复制算法）</h4><p>最基本也最悠久的，单线程，进行垃圾收集时<strong>停止所有工作线程</strong></p>
 <p>Client模式下年轻代默认的</p>
+<p><strong>Serial + Serial Old的组合</strong>，用于<strong>小型</strong>程序，<strong>几十兆</strong>内存</p>
 <img src="/2020/03/21/jvm/%E5%B9%B4%E8%BD%BB1.png" class title="This is an example image">
 
 <h4 id="ParNew收集器（-XX-UseParNewGC，复制算法）"><a href="#ParNew收集器（-XX-UseParNewGC，复制算法）" class="headerlink" title="ParNew收集器（-XX:+UseParNewGC，复制算法）"></a>ParNew收集器（-XX:+UseParNewGC，复制算法）</h4><p>多线程收集，多核下比Serial有优势</p>
 <p>在Server模式下非常重要，与Serial一样均可配合CMS使用</p>
+<p>PerNew + SerialOld组合，很少使用</p>
 <img src="/2020/03/21/jvm/%E5%B9%B4%E8%BD%BB2.png" class title="This is an example image">
 
-<h4 id="Paraller-Scavenge-XX-UseParallelGC，复制算法"><a href="#Paraller-Scavenge-XX-UseParallelGC，复制算法" class="headerlink" title="Paraller Scavenge(-XX:+UseParallelGC，复制算法)"></a>Paraller Scavenge(-XX:+UseParallelGC，复制算法)</h4><p>前面两个更关注系统的停顿时间，此收集器更关注系统的吞吐量（执行用户线程时间/CPU总执行时间），适合后台运算不需要太多交互的情况</p>
+<h4 id="Paraller-Scavenge-XX-UseParallelGC，复制算法"><a href="#Paraller-Scavenge-XX-UseParallelGC，复制算法" class="headerlink" title="Paraller Scavenge(-XX:+UseParallelGC，复制算法)"></a>Paraller Scavenge(-XX:+UseParallelGC，复制算法)</h4><p>ParellerOld + Pareller Scanvenge，1.8默认</p>
+<p>前面两个更关注系统的停顿时间，此收集器更关注系统的吞吐量（执行用户线程时间/CPU总执行时间），适合后台运算不需要太多交互的情况</p>
 <p>多核下执行有优势，Server下默认的年轻代收集器</p>
 <p>不能与CMS搭配使用，因为框架不兼容</p>
 
@@ -418,8 +450,10 @@
 <p><strong>Client</strong>模式下默认的老年代收集器 </p>
 <img src="/2020/03/21/jvm/%E8%80%81%E5%B9%B41.png" class title="This is an example image">
 
-<h4 id="ParellerOld（-XX-UseParellerOldGC，标记整理算法）"><a href="#ParellerOld（-XX-UseParellerOldGC，标记整理算法）" class="headerlink" title="ParellerOld（-XX:+UseParellerOldGC，标记整理算法）"></a>ParellerOld（-XX:+UseParellerOldGC，标记整理算法）</h4><p>多线程，吞吐量优先，配合ParallerScavenge使用</p>
-<h4 id="CMS（-XX-UseConcMarkSweepGC，标记清除算法）"><a href="#CMS（-XX-UseConcMarkSweepGC，标记清除算法）" class="headerlink" title="CMS（-XX:+UseConcMarkSweepGC，标记清除算法）"></a>CMS（-XX:+UseConcMarkSweepGC，标记清除算法）</h4><p>Concurrent Mark Sweep收集器，适用于程序对停顿比较敏感的情况，号称“<strong>最短用户停顿时间</strong>”，适合用在互联网站或者B/S系统服务器上。</p>
+<h4 id="ParellerOld（-XX-UseParellerOldGC，标记整理算法）"><a href="#ParellerOld（-XX-UseParellerOldGC，标记整理算法）" class="headerlink" title="ParellerOld（-XX:+UseParellerOldGC，标记整理算法）"></a>ParellerOld（-XX:+UseParellerOldGC，标记整理算法）</h4><p>ParellerOld + Pareller Scanvenge，1.8默认【PS + SerialOld】</p>
+<p>多线程，吞吐量优先，配合ParallerScavenge使用</p>
+<h4 id="CMS（-XX-UseConcMarkSweepGC，标记清除算法）"><a href="#CMS（-XX-UseConcMarkSweepGC，标记清除算法）" class="headerlink" title="CMS（-XX:+UseConcMarkSweepGC，标记清除算法）"></a>CMS（-XX:+UseConcMarkSweepGC，标记清除算法）</h4><p><strong>Parnew + CMS + SerialOld</strong></p>
+<p>Concurrent Mark Sweep收集器，适用于程序对停顿比较敏感的情况，号称“<strong>最短用户停顿时间</strong>”，适合用在互联网站或者B/S系统服务器上。</p>
 <img src="/2020/03/21/jvm/cms.png" class title="This is an example image">
 
 <ul>
@@ -430,7 +464,7 @@
 <li>并发清除：标记清除算法清除标记</li>
 <li>并发重置：重置CMS收集器的数据结构</li>
 </ul>
-<p>问题是不压缩存活对象，有碎片化问题。</p>
+<p>问题是不压缩存活对象，有碎片化问题。当碎片达到一定程度，CMS老年代分配对象分配不下时，使用SerialOld进行老年代回收。问题较多，没有一个版本默认，需要手工指定。</p>
 <h4 id="堆内存垃圾收集G1（-XX-UseG1GC，复制-标记整理算法）"><a href="#堆内存垃圾收集G1（-XX-UseG1GC，复制-标记整理算法）" class="headerlink" title="堆内存垃圾收集G1（-XX:+UseG1GC，复制+标记整理算法）"></a>堆内存垃圾收集G1（-XX:+UseG1GC，复制+标记整理算法）</h4><p>用于年轻代与老年代，为了替代CMS。JDK9默认。</p>
 <ul>
 <li>并行和并发的：采用多个CPU缩短stop-the-world停顿时间，与用户线程并发执行</li>
@@ -1187,7 +1221,8 @@
 <li>StringBuffer是线程安全的，而StringBuilder不是，StringBuffer在StringBuilder方法上加入了synchronized修饰，因此StringBuffer性能更低。多线程时使用StringBuffer，单线程下使用StringBuilder。</li>
 <li>若String类型的字符串，在编译时就可以确定为字符串常量，在编译完成后，字符串会自动拼接为一个常量，此时String性能会更好</li>
 </ul>
-<h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><h3 id="List与Set"><a href="#List与Set" class="headerlink" title="List与Set"></a>List与Set</h3><p>Collection下有List、Set和Queue，重点说明List与Set的区别。</p>
+<h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><p>Java中的内存泄漏多与集合容器相关。当集合中持有生命周期较短的对象，当对象作用已经结束，需要被销毁时，因为有长生命周期的集合持有，如果不进行手动销毁，会存在内存泄漏。</p>
+<h3 id="List与Set"><a href="#List与Set" class="headerlink" title="List与Set"></a>List与Set</h3><p>Collection下有List、Set和Queue，重点说明List与Set的区别。</p>
 <img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/list%E4%B8%8Eset.png" class title="This is an example image">
 
 <p>一、特点</p>
@@ -1243,6 +1278,13 @@
 </ol>
 <p>在不需要线程安全时，建议使用ArrayList。</p>
 <p>如果想在多线程下使用ArrayList，可以使用Collections.synchronizedList(list)方法</p>
+<h4 id="List遍历时删除问题"><a href="#List遍历时删除问题" class="headerlink" title="List遍历时删除问题"></a>List遍历时删除问题</h4><p>如果直接for循环遍历List，再进行remove操作，会报ConcurrentModificationException，因为使用了foreach语句时，会自动生成一个Iterator来遍历list，但同时该list又在被iterator.remove()方法修改，不允许在其他地方进行删除，因此这样会出问题。</p>
+<p>解决办法1：使用迭代器来获取List中全部元素，再调用iterator的remove方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Iterator&lt;Integer&gt; it = list.iterator();</span><br><span class="line"><span class="keyword">while</span>(it.hasNext())&#123;</span><br><span class="line">   *<span class="comment">// do something*</span></span><br><span class="line">   it.remove();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>解决办法2：利用下标来获取元素，再使用删除</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; list.size(); i++) &#123;</span><br><span class="line">          list.remove(list.get(i));</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+
 <h4 id="HashSet实现原理"><a href="#HashSet实现原理" class="headerlink" title="HashSet实现原理"></a>HashSet实现原理</h4><p>HashSet基于HashMap而实现，HashSet中的值存放于HashMap的key上，HashMap的value全部为PRESENT，HashSet底层方面基本是调用HashMap来实现的。</p>
 <h3 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h3><p>HashMap为Java中非常重要和常用的一种数据结构，下面将重点介绍HashMap的底层原理及方法实现。</p>
 <p>Java8以前：数组+链表</p>
@@ -1273,6 +1315,7 @@
 <li>rehashing是一个比较耗时的过程</li>
 </ul>
 <p>在JDK7前，哈希表扩容，需要重新计算每个元素在新的数组中的位置，然后进行移动。在JDK8中进行了优化，通过位运算来判断元素是否需要移动，如果位置不变可直接放入对应的位置；如果出现了变化，新的位置是原来的下标位置+原数组长度。</p>
+<p>可以这么做是因为计算hash的时候，采用的是散列后的哈希值与上数组长度减一。初始为16，二进制的长度减一为1111，当扩容后，数组新长度为11111，如果一个key倒数第5位本来计算就是0，这样当扩容后计算的位置还是不变的，如果倒数第5位是1，相当于要加上10000，即老数组长度16，因此若有变化将原来老数组下标加上老数组长度就是在新数组中的位置。</p>
 <h4 id="负载因子"><a href="#负载因子" class="headerlink" title="负载因子"></a>负载因子</h4><p>为何负载因子要选为0.75，而不是更高的1，或者更小的0.5呢。如果负载因子选为1，则resize()的阈值会变得比较高，更不容易扩容，减少了rehash的成本，但是这样桶中元素更密集，哈希碰撞更严重，降低了查询效率。如果选为0.5，则resize()的阈值变得很低，扩容频繁，虽然桶中元素分布更散列，但扩容成本变高。因此为了权衡扩容成本与查询效率，选了折中的数字0.75。</p>
 <h4 id="cpu占用100-的问题"><a href="#cpu占用100-的问题" class="headerlink" title="cpu占用100%的问题"></a>cpu占用100%的问题</h4><p>出现在JDK7，因为在JDK7中链表元素的插入采用的是头插法，即如果插入元素的顺序为1,2,3，链表的顺序是3-&gt;2-&gt;1，然后在扩容的时候，当两个线程均新建了一个新的数组，一个数组将链表元素放入到新数组中，由于从头节点开始放，因此此时的顺序是1-&gt;2-&gt;3，而对于第二个链表，其当前记录指针e若指向3，e的next指向2，此时会让3再指向2，这样相当于形成了一个循环链表，这样当使用get()方法的时候，就会死循环。</p>
 <p>JDK8后，链表插入采用尾插入的方法，这样便解决了死循环问题，但在多线程下HashMap仍然会存在节点丢失等问题，因此不能在单线程下使用。</p>
@@ -1331,9 +1374,30 @@
 
 <p>数学证明红黑树的操作时间复杂度最差为O(logN)。</p>
 <h4 id="HashMap与HashTable"><a href="#HashMap与HashTable" class="headerlink" title="HashMap与HashTable"></a>HashMap与HashTable</h4><p>因为HashMap在多线程下不安全，而线程安全的类有HashTable，其线程安全原因是使用了synchronized修饰符，锁为调用者的this，与Collections.synchronizedMap(hashMap)几乎无区别，只是锁不一样，synchronizedMap锁为Object类的mutex，hashMap方法均用synchronized(mutex)加锁。</p>
+<p>而HashTable初始容量为11，与HashMap不同。扩容时，计算容量为2倍原来容量+1。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Hashtable</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">Dictionary</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;, <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> V <span class="title">get</span><span class="params">(Object key)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> V <span class="title">put</span><span class="params">(K key, V value)</span> </span>&#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>但HashTable在多线程下效率较低，因此又引入了ConcurrentHashMap。</p>
+<p>二者的区别概括为</p>
+<ul>
+<li><p>线程安全</p>
+<p>HashMap不安全，HashTable安全</p>
+</li>
+<li><p>能否存空键</p>
+<p>HashMap可以，计算散列值时null的hash为0，HashTable不可以</p>
+</li>
+<li><p>初始容量与扩容</p>
+<p>HashMap默认初始16，HashTable为11；</p>
+<p>扩容时，HashMap为原来2倍，HashTable为原来2倍+1；</p>
+<p>指定容量，HashMap会计算与指定的最接近的2的整数次幂作为初始容量，HashTable按照指定的</p>
+</li>
+<li><p>效率</p>
+<p>HashMap效率更高，HashTable因为有synchronized，效率更低</p>
+</li>
+<li><p>底层结构</p>
+<p>HashMap1.8后底层为数组+链表+红黑树，HashTable没有树化的机制</p>
+</li>
+</ul>
 <h4 id="HashMap与ConcurrentHashMap"><a href="#HashMap与ConcurrentHashMap" class="headerlink" title="HashMap与ConcurrentHashMap"></a>HashMap与ConcurrentHashMap</h4><p>那么该如何优化HashTable呢？</p>
 <p><strong>通过锁细粒度化，将整锁拆解成多个锁进行优化</strong>。</p>
 <p>早期的ConcurrentHashMap通过<strong>分段锁Segment</strong>实现</p>
@@ -1613,15 +1677,33 @@
 <p>​    Thread.sleep只会让出CPU，不会导致锁行为的改变；Object.wait不仅会让出CPU，还是释放已经占有的同步资源锁</p>
 <p>二者相比，sleep类似于线程在厕所中睡着了，wait类似于从厕所中让出来睡着了。</p>
 <p>介绍了synchronized后，需要了解为什么每个对象都可以作为锁，即需要了解synchronized的底层原理</p>
-<h4 id="底层实现"><a href="#底层实现" class="headerlink" title="底层实现"></a>底层实现</h4><h4 id="实现基础"><a href="#实现基础" class="headerlink" title="实现基础"></a>实现基础</h4><p>实现synchronized的基础是以下两点</p>
+<h4 id="底层实现"><a href="#底层实现" class="headerlink" title="底层实现"></a>底层实现</h4><p>首先必须要明确的是synchronized锁的是对象，而不是代码。然后宏观上来看有以下级别的实现：</p>
+<ol>
+<li><p>源码级别</p>
+<p>同步代码块或同步方法</p>
+</li>
+<li><p>字节码级别</p>
+<p>moniterenter moniterexist 或 SYN_SYNCHRONIZED标识</p>
+</li>
+<li><p>JVM级别（Hotspot）</p>
+<p>锁升级的过程，依靠对象头中的Markword</p>
+</li>
+</ol>
+<h4 id="实现基础"><a href="#实现基础" class="headerlink" title="实现基础"></a>实现基础</h4><p>实现synchronized的基础是以下两点</p>
 <ul>
 <li>Java对象头</li>
 <li>Monitor</li>
 </ul>
-<h4 id="对象头结构"><a href="#对象头结构" class="headerlink" title="对象头结构"></a>对象头结构</h4><p>​    在JVM中，对象在内存中的布局有对象头、实例数据（存放类的属性数据信息）和对齐填充（虚拟机要求对象起始地址必须是8字节的整数倍）。一般synchronized使用的<strong>锁对象</strong>是存储在<strong>Java对象头</strong>里的，头结构由<strong>Mark Word</strong> 和<strong>CLass Metadata Address</strong>组成，其中CLass Metadata Address用于<strong>确定该对象是哪个类的实例</strong>；而<strong>Mark Word</strong>用于存储对象自身的运行时数据，是实现轻量级锁和偏向锁的<strong>关键</strong>，默认存储着对象的hashCode，分代年龄，锁类型，锁标志位等信息。</p>
+<h4 id="对象头结构"><a href="#对象头结构" class="headerlink" title="对象头结构"></a>对象头结构</h4><p>​    在JVM中，对象在内存中的布局有对象头、实例数据（存放类的属性数据信息）和对齐填充（虚拟机要求对象起始地址必须是8字节的整数倍）。</p>
+<p>一般synchronized使用的<strong>锁对象</strong>是存储在<strong>Java对象头</strong>里的，头结构由<strong>Mark Word</strong> ，<strong>CLass Pointer</strong>指针组成，如果为数组，还有数组长度。其中CLass Pointer用于<strong>确定该对象是哪个类的实例</strong>；而<strong>Mark Word</strong>用于存储对象自身的运行时数据，是实现轻量级锁和偏向锁的<strong>关键</strong>，默认存储着对象的<strong>identity hashCode</strong>（即用内存地址计算出的哈希值），<strong>分代年龄</strong>（4字节最大15），<strong>锁标志位</strong>，<strong>GC</strong>等信息。</p>
+<p>对于Object o = new Object()；Object对象的对象头，在64位的机器下，Markword是 8字节，一般默认压缩了ClassPointer指针跟栈中的对象引用指针，在不压缩下是8字节，压缩后变为4字节。因此Mardword+Class Pointer长度为8+4=12，而Object类中没有实例变量，为了对齐，需要有4字节的对其数据，因此Object对象在堆中占据空间为16字节。</p>
 <h4 id="Markword"><a href="#Markword" class="headerlink" title="Markword"></a>Markword</h4><img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/markword.png" class title="This is an example image">
 
 <p>MarkWord被设计为一个<strong>非固定</strong>的数据结构，以便存储更多有效数据，会根据对象本身的状态，复用存储空间，轻量级锁和偏向锁是JDK6后新增。</p>
+<p>用后两位来区分不同的锁，01为偏向锁，00为轻量级锁，10为重量级锁，用倒数第三位来区分无锁和偏向锁。</p>
+<h4 id="identity-hashcode"><a href="#identity-hashcode" class="headerlink" title="identity hashcode"></a>identity hashcode</h4><p>有关identity hashcode的问题，可以看到，只有在无锁状态下才有hashcode，如果一个对象计算了identity hashcode，则对象<strong>无法进入偏向</strong>状态。</p>
+<p>若是轻量级锁，在线程的栈帧中保存了无锁状态下的Markword，即Lock Record记录。</p>
+<p>若是重量级锁，在ObjectMonitor中有相应的成员变量。</p>
 <h4 id="Monitor"><a href="#Monitor" class="headerlink" title="Monitor"></a>Monitor</h4><p>对于重量级锁，锁标志位是10，指针指向的是monitor对象的起始地址，<strong>每个对象都有Monitor与之关联</strong>，monitor被线程持有后就处于锁定状态。在Java虚拟机中，monitor是由ObjectMonitor实现。monitor底层由C++实现，里面有两个队列，WaitSet（等待池）和EntryList（锁池），而owner指向持有ObjectMonitor对象的线程。</p>
 <p>具体过程为：当有多个线程同步访问同步代码时，进入锁池集合，当线程获取到锁对象的monitor以后，进入_Owner 区域并将owner变量设置为当前线程，Monitor中的计数器count+1，如果当前线程调用了wait()方法，会释放当前的Monitor，将owner变量设置为null，count减一，该线程进入等待池来等待被唤醒。若当前变量执行完毕，也会释放Monitor锁，并将对应的变量值复位。</p>
 <img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/monitor.png" class title="This is an example image">
@@ -1637,11 +1719,15 @@
 <p>而对于同步方法，并没有显式的monitorenter等，而是用ACC_SYNCHRONIZED访问标志来区分此方法是否是同步方法，当方法调用时，检查方法此标识是否被设置，如果设置则持有monitor，无论方法是否正常完成，释放monitor。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">synMethod</span><span class="params">()</span></span>;</span><br><span class="line">   descriptor: ()V</span><br><span class="line">   flags: ACC_PUBLIC, ACC_SYNCHRONIZED</span><br><span class="line">   Code:</span><br><span class="line">     stack=<span class="number">2</span>, locals=<span class="number">1</span>, args_size=<span class="number">1</span></span><br><span class="line">        0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        3: ldc           #5                  // String synchronized in method</span><br><span class="line">        5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        <span class="number">8</span>: <span class="keyword">return</span></span><br></pre></td></tr></table></figure>
 
-<p>在早期，synchronized属于重量级锁，效率低下，因为监视器锁（monitor）是依赖于底层的操作系统的Mutex Lock来实现的，而操作系统实现线程之间的切换时需要从用户态转换到核心态，这个状态之间的转换需要相对比较长的时间（时间成本相对较高）。而从JDK6以后，其性能有了较大提升</p>
-<h3 id="synchronized优化"><a href="#synchronized优化" class="headerlink" title="synchronized优化"></a>synchronized优化</h3><h4 id="锁的膨胀"><a href="#锁的膨胀" class="headerlink" title="锁的膨胀"></a><strong>锁的膨胀</strong></h4><p>锁并不会一开始就进入到重量级锁，在JDK6对锁优化后，锁的状态有四种，并且会根据实际情况膨胀升级，膨胀方向为无锁-&gt;偏向锁-&gt;轻量级锁-&gt;重量级锁。</p>
+<p>在早期，synchronized属于重量级锁，效率低下，因为监视器锁（monitor）是依赖于底层的操作系统的<strong>Mutex</strong> Lock来实现的，而操作系统实现线程之间的切换时需要从<strong>用户态转换到内核态(kernel)</strong>，这个状态之间的转换需要相对比较长的时间（时间成本相对较高），是相对于重量级的。而从JDK6以后，其性能有了较大提升。</p>
+<h3 id="synchronized优化"><a href="#synchronized优化" class="headerlink" title="synchronized优化"></a>synchronized优化</h3><h4 id="锁的膨胀"><a href="#锁的膨胀" class="headerlink" title="锁的膨胀"></a><strong>锁的膨胀</strong></h4><img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/%E9%94%81%E5%8D%87%E7%BA%A7.png" class title="This is an example image">
+
+<p>锁并不会一开始就进入到重量级锁，在JDK6对锁优化后，锁的状态有四种，并且会根据实际情况膨胀升级，膨胀方向为无锁-&gt;偏向锁-&gt;轻量级锁-&gt;重量级锁。</p>
+<p>锁只有在GC时才会降级。</p>
 <p><strong>偏向锁</strong></p>
 <p>在很多情况下，锁不存在多线程竞争，总是由一个线程多次获得。其核心的思想是：当一个线程获得了锁，锁就进入偏向模式，Markword的结构调整为偏向锁模式，当该线程再次请求锁的时候，获取锁的过程只要检查Markword的<strong>锁标记位</strong>是偏向锁且当前线程id与Markword中<strong>ThreadID</strong>相等即可，这样便可以省去很多锁申请的操作。</p>
-<p>​    适用条件：无锁竞争的场合，但不适用于比较激烈的多线程场合。偏向锁失败后会先升级为轻量级锁。</p>
+<p>​    适用条件：无锁竞争的场合，但不适用于比较激烈的多线程场合。偏向锁失败后，在safe point撤销，升级为轻量级锁。</p>
+<p>偏向锁默认4s后会开启，没有直接打开是因为程序刚启动的时候，竞争会比较激烈，直接开启偏向锁，影响性能。可以设置偏向锁没有时延，-XX:BiasedLockingStartupDelay=0，设置0延迟。立刻上偏向锁。此时对象是偏向锁，但没有被任何线程占有，称为<strong>匿名偏向锁</strong>。</p>
 <p><strong>轻量级锁</strong></p>
 <p>​    轻量级锁适用于线程交替执行同步代码，其依据是“对绝大部分的锁，在整个同步周期内都不存在竞争”，只允许顺序拿锁，但如果有竞争操作，轻量级锁会先尝试自旋，尝试失败后会膨胀为重量级锁。</p>
 <p>轻量级锁的加锁过程</p>
@@ -1651,9 +1737,13 @@
 <img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/%E8%BD%BB%E9%87%8F%E7%BA%A71.png" class title="This is an example image">
 
 <ol start="2">
-<li>拷贝对象头中的Mark Word复制到锁记录中</li>
-<li>拷贝成功后，虚拟机将使用CAS操作尝试将对象的Mark Word更新为指向Lock Record的指针，并将Lock Record中owner指针指向object mark word。如果更新成功，执行步骤4，否则执行步骤5</li>
-<li>如果更新成功，当前线程就拥有了该对象的锁，并且对象mark word锁标志设置成‘00’，表示此对象处于轻量级锁状态，此时线程堆栈与对象头的状态如下</li>
+<li><p>拷贝对象头中的Mark Word复制到锁记录中</p>
+<p>需要保存轻量级锁之前的Markword原因是，当上偏向锁后，对象的很多信息在Markword中会被丢失，因此需要被记录下来。</p>
+</li>
+<li><p>拷贝成功后，虚拟机将使用CAS操作尝试将对象的Mark Word更新为指向Lock Record的指针，并将Lock Record中owner指针指向object mark word。如果更新成功，执行步骤4，否则执行步骤5</p>
+</li>
+<li><p>如果更新成功，当前线程就拥有了该对象的锁，并且对象mark word锁标志设置成‘00’，表示此对象处于轻量级锁状态，此时线程堆栈与对象头的状态如下</p>
+</li>
 </ol>
 <img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/%E8%BD%BB%E9%87%8F%E7%BA%A72.png" class title="This is an example image">
 
@@ -1668,9 +1758,11 @@
 </ol>
 <p><strong>自旋锁</strong></p>
 <p>轻量级锁失败后，虚拟机为了避免线程真实地在操作系统层面挂起，还会进行一项称为自旋锁的优化手段。依赖的思想是也许几个CPU周期后就可以获得锁，虚拟机会让当前等待锁的线程做几个空循环（称为自旋的原因），经过固定的若干次循环后，如果得到锁，就进入临界区。反之，就会将线程真实地在操作系统层面挂起。</p>
-<p>自旋锁的缺点是：若锁被其他线程长时间占用，会带来许多性能上的开销</p>
-<p>因此自旋<strong>需要有一定的限度</strong>，如果超出限度还没有获取到锁，就要用传统的方法去挂起线程。</p>
+<p>自旋锁的缺点是：若锁被其他线程长时间占用，会带来许多性能上的开销，因为要一直消耗CPU资源</p>
+<p>因此自旋<strong>需要有一定的限度</strong>，默认是自旋等待<strong>10次</strong>（-XX:PreBlockSpin）或自旋的线程数超过<strong>CPU核数的一半</strong>，如果超出限度还没有获取到锁，就要用传统的方法去挂起线程。</p>
 <p>对自旋锁有优化，为<strong>自适应自旋锁</strong>，自旋的次数不再固定，而是由前一次在同一个锁上的自旋时间及锁的拥有者的状态来决定，这样JVM依据之前自旋成功率在增加或减少自旋次数，<strong>更加精确</strong>。</p>
+<p><strong>重量级锁</strong></p>
+<p>如果轻量级锁升级为重量级锁，那么Markword锁标志位从00改为10，Markword中指针指向重量级锁（互斥锁）。依靠的monitor，而monitor在操作系统层面依靠的是mutex，涉及到从用户态到内核态的切换，比较耗时。</p>
 <p>比较三种锁如下</p>
 <table>
 <thead>
@@ -1831,12 +1923,43 @@
 </ul>
 <p>如果操作volatile修饰的变量是复合的（多条操作），如value++这种（先读，后自增），即使value被volatile修饰也会引发线程安全问题。synchronized会创建内存屏障，保证所有CPU结果刷到主内存中，可以保证操作的内存可见性，因此在synchronized代码块或方法中操作的变量可以省略volatile修饰。而如果对一个变量的操作是原子性的，如操作布尔类型的变量，加上volatile就可以实现可见性，实现线程安全的目的，此时可以省略synchronized。</p>
 <h5 id="如何保证可见性"><a href="#如何保证可见性" class="headerlink" title="如何保证可见性"></a>如何保证可见性</h5><p>当写一个volatile变量时，JMM把该线程对应的工作内存中的共享变量刷新到主内存中；当读取一个volatile变量时，JMM会把该线程对应的工作内存置为无效，只能从主线程中重新读取。</p>
+<p>涉及到CPU的结构，CPU一般有3级缓存，每个CPU内有2级缓存，多核CPU共享3级缓存，而3级缓存共享主内存。CPU在读取数据是，从1级缓存，2级，3级，主内存这样的顺序读取，写入顺序是主内存，3级，2级，1级。在读取数据的时候，根据局部性原理会多读取一些数据，按照一块64字节的cache line即<strong>缓存行</strong>来读取。CPU级别的内存可见性是以缓存行为单位的。在常用的Intel CPU内，是依靠<strong>MESI缓存行一致性协议</strong>来保证内存可见性的。MESI是CPU缓存的4种状态：</p>
+<ul>
+<li>Modified</li>
+<li>Exclusive</li>
+<li>Shared</li>
+<li>Invalid</li>
+</ul>
+<p>而使用了缓存行一致性后，会存在一个问题，如果线程1要修改x变量，线程2要修改y变量，若x与y变量在一个缓存行中，线程1修改了x变量后要通知线程2，线程2修改了y变量后要通知线程1，这时候就比较浪费效率。解决办法是缓存行对齐，即故意添加一些无用数据，使得x与y不在一个缓存行中，如Disruptor，使用了缓存行对齐来提高运行效率。下图为其源码中使用到了缓存行对齐的部分：</p>
+<img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/%E7%BC%93%E5%AD%98%E8%A1%8C%E5%AF%B9%E9%BD%90.png" class title="This is an example image">
+
+<p>总的来说，对于实现可见性方面，系统底层的实现为：</p>
+<ul>
+<li>使用MESI缓存一致性</li>
+<li>锁总线（数据量超过缓存行）</li>
+</ul>
 <h5 id="如何禁止重排序"><a href="#如何禁止重排序" class="headerlink" title="如何禁止重排序"></a>如何禁止重排序</h5><p>内存屏障（Memory Barrier）</p>
 <ol>
 <li>保证特性操作的执行顺序</li>
 <li>保证某些变量的内存可见性</li>
 </ol>
-<p>通过插入内存屏障禁止指令在内存屏障前后的指令执行重排序优化；强制刷出各种CPU的缓存数据，因此任何CPU上的线程能够读取到这些数据的最新版本。</p>
+<p>通过插入内存屏障禁止指令在<strong>内存屏障前后的指令执行重排序优化</strong>；强制刷出各种CPU的缓存数据，因此任何CPU上的线程能够读取到这些数据的最新版本。</p>
+<ol>
+<li><p>源码层面 volatile</p>
+</li>
+<li><p>字节码层面 ACC_VOLATILE标记</p>
+</li>
+<li><p>jvm层面，jvm规范要求加内存屏障</p>
+<p>sfence(写屏障) mfence(全屏障) lfence(读屏障)等系统原语</p>
+<ul>
+<li>写操作前加屏障，写完才能读</li>
+<li>读操作前加屏障，读完才能写</li>
+</ul>
+</li>
+<li><p>hot spot层面</p>
+<p>没有使用fence，使用lock addl指令</p>
+</li>
+</ol>
 <h5 id="单例双重检测"><a href="#单例双重检测" class="headerlink" title="单例双重检测"></a>单例双重检测</h5><p>广为人知的单例模式懒汉式在多线程下是不安全的，因此有如下的双重检测</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> Singleton instance;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(instance != <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">synchronized</span>(Singleton<span class="class">.<span class="keyword">class</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(instance != <span class="keyword">null</span>)&#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -1885,15 +2008,17 @@
 <p>为了不让某些语句进行重排序，使用volatile关键字，利用内存屏障禁止相关语句重排序，这样就保证了语句的有序性。</p>
 <p>因此从宏观上，synchronized通过排它锁保证了单线程下的有序性，但因为此线程的结果会对其他线程造成影响，有时候synchronized需要配合volatile一起使用。这样才能更好的达到有序性。</p>
 <p>而CAS操作，其为轻量级的锁，一般需要让临界区资源变量被volatile修饰，保证其可见性，然后通过compare and set的方式对其进行操作。</p>
-<h3 id="CAS-Compare-and-Swap"><a href="#CAS-Compare-and-Swap" class="headerlink" title="CAS(Compare and Swap)"></a>CAS(Compare and Swap)</h3><p>​    乐观锁最常见的实现方式，默认没有数据冲突，如果有就回滚数据并重新提交。</p>
+<h3 id="CAS-Compare-and-Swap"><a href="#CAS-Compare-and-Swap" class="headerlink" title="CAS(Compare and Swap)"></a>CAS(Compare and Swap)</h3><p>​    CAS叫做自旋锁或无锁（无重量级锁），是乐观锁最常见的实现方式，默认没有数据冲突，如果有就回滚数据并重新提交。</p>
 <p>CAS是一种高效实现数据安全性的方法</p>
 <ul>
 <li>支持原子更新操作，适用于计数器，序列发生器（给变量自增的工具）等场景</li>
 <li>属于乐观锁机制，号称lock-free（底层仍有加锁行为）</li>
 <li>CAS操作失败时由开发者决定是否继续尝试，还是执行其他操作</li>
 </ul>
-<h4 id="CAS思想"><a href="#CAS思想" class="headerlink" title="CAS思想"></a>CAS思想</h4><p>包含有三个操作数——内存位置（V），预期原值（A）和新值（B）</p>
-<p>将内存位置（主内存）的值与预期原值比较，如果匹配则自动将该位置值更新为新值，并返回true；否则不做任何操作，并返回false。</p>
+<h4 id="CAS思想及原理"><a href="#CAS思想及原理" class="headerlink" title="CAS思想及原理"></a>CAS思想及原理</h4><img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/CAS.png" class title="This is an example image">
+
+<p>包含有三个操作数——内存位置（V），预期原值（A）和新值（B）</p>
+<p>将内存位置（主内存）的值与预期原值比较，如果匹配则自动将该位置值更新为新值；否则进行自旋，重新获取值再进行操作。</p>
 <p>对于volatile修饰的变量，虽然保证了内存可见性，但不能保证操作原子性，反编译如下代码</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CASTest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="keyword">int</span> value;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">()</span></span>&#123;</span><br><span class="line">        value++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -1907,6 +2032,7 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span> == expect) &#123;</span><br><span class="line">	<span class="keyword">this</span> = update</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>即如果期望值A与主内存处为同一地址，那么就将主内存中的地址修改为更新后的值位置；否则不做修改。因此CAS的关键在于将期望值与主内存中值进行比较，确保值没有变动才进行修改。</p>
+<p>而unsafe类中，看其C++源码，发现更底层使用的汇编指令cmpxchg1，是非原子的，存在问题是如果有线程比较完后来写入数据的时候，又有线程进行了数据写入，则仍然不安全，因此会有指令LOCK_IF_MP，multi processor如果是多核处理器，会在这条指令前加上lock指令。因此<strong>CAS最底层</strong>的指令为<code>lock cmpxchg</code>，锁定的是北桥信号，没有锁总线。</p>
 <p>在J.U.C包中的atomic包中提供了常用的原子性数据以及引用、数组等相关原子类型和更新操作工具，是很多线程安全服务的首选。那么CAS这么好用，有没有什么缺点呢？</p>
 <h4 id="CAS缺点及解决方式"><a href="#CAS缺点及解决方式" class="headerlink" title="CAS缺点及解决方式"></a>CAS缺点及解决方式</h4><ul>
 <li>CAS中存在自旋等待，若循环时间长，开销很大，浪费CPU资源</li>
@@ -2547,7 +2673,7 @@
 <p>此题具体的实现代码如下</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//使用二分的思路</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title">findNum2</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (arr == <span class="keyword">null</span> || arr.length &lt; <span class="number">2</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">//看是否在0-n-1范围之内</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (arr[i] &lt; <span class="number">0</span> || arr[i] &gt; arr.length-<span class="number">1</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//二分，看哪边的数字更多，再继续找</span></span><br><span class="line">        <span class="keyword">int</span> left = <span class="number">1</span>, right = arr.length - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (left &lt; right)&#123;</span><br><span class="line">            <span class="keyword">int</span> mid = left + ((right-left) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">            <span class="comment">//计算个数</span></span><br><span class="line">            <span class="keyword">int</span> count = getFre(arr,left,mid);</span><br><span class="line">            <span class="keyword">if</span> (count &gt; mid + <span class="number">1</span> - left)&#123;</span><br><span class="line">                right = mid;</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//去另一半</span></span><br><span class="line">                left = mid+<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> count = getFre(arr,left,right);</span><br><span class="line">        <span class="keyword">if</span> (count &gt; <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> left;</span><br><span class="line">        <span class="comment">//没有找到</span></span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//统计在l-m之间出现的次数</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getFre</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> l, <span class="keyword">int</span> m)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (arr[i] &gt;= l &amp;&amp; arr[i] &lt;= m)&#123;</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="矩阵中的路径"><a href="#矩阵中的路径" class="headerlink" title="矩阵中的路径"></a>矩阵中的路径</h3><p>请设计一个函数，用来判断在一个矩阵中是否存在一条包含某字符串所有字符的路径。路径可以从矩阵中的任意一个格子开始，每一步可以在矩阵中向左，向右，向上，向下移动一个格子。如果一条路径经过了矩阵中的某一个格子，则该路径不能再进入该格子。</p>
+<h3 id="矩阵中的路径【回溯】"><a href="#矩阵中的路径【回溯】" class="headerlink" title="矩阵中的路径【回溯】"></a>矩阵中的路径【回溯】</h3><p>请设计一个函数，用来判断在一个矩阵中是否存在一条包含某字符串所有字符的路径。路径可以从矩阵中的任意一个格子开始，每一步可以在矩阵中向左，向右，向上，向下移动一个格子。如果一条路径经过了矩阵中的某一个格子，则该路径不能再进入该格子。</p>
 <p>思路：回溯的经典案例。如果当前字符可以，则看其上下左右的是否符合，不进入已经去过的位置，如果匹配长度为字符串的长度，返回真，不然的话就返回假，并重置当前所做的操作。</p>
 <p>关键在于要维护一个与矩阵大小相同的布尔型矩阵，表示当前字符是否已经遍历过，如果遍历过了则不进入，如果当前字符与要遍历的第i个字符相等，则将布尔型的矩阵相对应位置置为true，再看其上下左右的，如果失败了，则让当前位置的标志重置为false。</p>
 <p>容易错的点为，base case判断不完全，应该有</p>
@@ -2582,6 +2708,10 @@
 <p>思路：找到第一个为偶数的数字，在其之后找到第一个为奇数的数字，让中间数字整体后移，空出来的原来偶数的位置放奇数。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//保证数组元素是相对有序的</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reOrderArray2</span><span class="params">(<span class="keyword">int</span> [] arr)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (arr == <span class="keyword">null</span> || arr.length &lt; <span class="number">2</span>)</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        <span class="comment">//遍历数组，找到一个为偶数的，再找到后面为奇数的，将偶数-奇数段整体后移，空出来的放奇数</span></span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (i &lt; arr.length)&#123;</span><br><span class="line">            <span class="comment">//为奇数，则继续找</span></span><br><span class="line">            <span class="keyword">while</span> (!isEven(arr[i]))&#123;</span><br><span class="line">                i++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//从i+1开始找，为偶数继续找</span></span><br><span class="line">            j = i + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">while</span> (j &lt; arr.length &amp;&amp; isEven(arr[j]))&#123;</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//如果j还在范围内，交换i+1-j-1之间的数</span></span><br><span class="line">            <span class="keyword">if</span> (j &lt; arr.length)&#123;</span><br><span class="line">                <span class="keyword">int</span> temp = arr[j];</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> k = j-<span class="number">1</span>; k &gt;= i; k--) &#123;</span><br><span class="line">                    arr[k+<span class="number">1</span>] = arr[k];</span><br><span class="line">                &#125;</span><br><span class="line">                arr[i] = temp;</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//超出了就结束</span></span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
+<h2 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h2><h3 id="栈的压入、弹出序列"><a href="#栈的压入、弹出序列" class="headerlink" title="栈的压入、弹出序列"></a>栈的压入、弹出序列</h3><p>输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如序列1、2、3、4、5是某栈的压栈序列，序列4、5、3、2、1是该压栈序列对应的一个弹出序列，但4、3、5、1、2就不可能是该压栈序列的弹出序列。</p>
+<p>思路：准备一个栈，两个指针，i指向数组1，j指向数组2，循环条件为i没有越界或栈不为空（i越界后 ，有可能j还可以往后继续判断），如果栈为空且栈顶元素与j位置不同，若i越界了，返回假，不然将i位置元素压入栈，i后移。如果栈顶元素与j位置相同，弹出栈顶元素，j后移。循环结束后，如果i与j都越界，说明是符合的，不然就返回假。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isPopOrder</span><span class="params">(<span class="keyword">int</span> [] pushA,<span class="keyword">int</span> [] popA)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//base</span></span><br><span class="line">        <span class="keyword">if</span> (pushA == <span class="keyword">null</span> || popA == <span class="keyword">null</span> || pushA.length != popA.length)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="comment">//准备栈</span></span><br><span class="line">        Stack&lt;Integer&gt; stack = <span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (i &lt; pushA.length || !stack.isEmpty())&#123;</span><br><span class="line">            <span class="comment">//如果栈为空或栈顶元素不为popA[j]，将pushA[i]压入栈</span></span><br><span class="line">            <span class="keyword">if</span> (stack.isEmpty() || stack.peek() != popA[j])&#123;</span><br><span class="line">                <span class="keyword">if</span> (i == pushA.length)</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">                stack.push(pushA[i++]);</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                stack.pop();</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (i == pushA.length &amp;&amp; j == i)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><h3 id="替换空格"><a href="#替换空格" class="headerlink" title="替换空格"></a>替换空格</h3><p>请实现一个函数，把字符串中的每个空格替换成“%20”，如输入“We are happy”，则输出“We%are%happy”</p>
 <p>方法：先统计传入的字符串str中空格的个数，然后建造一个新的字符数组，其长度为str非空格字符长度+空格个数*待替换字符串长度，然后用两个指针，一个遍历str，一个指向新的字符数组末尾，如果str当前不为空格，直接复制到新数组，新数组指针移动；如果str当前为空格，新数组从后逐个拷贝传入的字符串，直到遍历完str。</p>
 <p>其中要注意的是新数组长度，需要先将原数组长度减去空格，再加上空格长度乘待替换字符串长度。如果不减去空格长度，新数组前面会有空余。如果没有空格，直接返回输入字符串即可</p>
@@ -2593,7 +2723,13 @@
 <p>对于打印矩阵，找到第一个不是0的位置，然后将后面的数字全部打印即可。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//打印从1-n所有的数</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">print1ToMaxOfNDigits</span><span class="params">(<span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (n &lt;= <span class="number">0</span>)</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">      <span class="keyword">char</span>[] ch = <span class="keyword">new</span> <span class="keyword">char</span>[n];</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; ch.length; i++) &#123;</span><br><span class="line">          ch[i] = <span class="string">'0'</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">//只要第一位没有进位，就继续</span></span><br><span class="line">      <span class="keyword">while</span> (!increacement(ch))&#123;</span><br><span class="line">          <span class="comment">//打印矩阵</span></span><br><span class="line">          printNum(ch);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printNum</span><span class="params">(<span class="keyword">char</span>[] ch)</span> </span>&#123;</span><br><span class="line">      <span class="comment">//如果当前位数不为0，就加入</span></span><br><span class="line">      <span class="keyword">int</span> n = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">while</span> (n &lt; ch.length)&#123;</span><br><span class="line">          <span class="keyword">if</span> (ch[n] == <span class="string">'0'</span>)&#123;</span><br><span class="line">              n++;</span><br><span class="line">          &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">              <span class="keyword">break</span>;</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> i = n; i &lt; ch.length; i++) &#123;</span><br><span class="line">          System.out.print(ch[i]);</span><br><span class="line">      &#125;</span><br><span class="line">      System.out.println();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">increacement</span><span class="params">(<span class="keyword">char</span>[] ch)</span> </span>&#123;</span><br><span class="line">      <span class="comment">//从最后一位开始，模拟自增</span></span><br><span class="line">      <span class="keyword">int</span> len = ch.length - <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">int</span> sum = <span class="number">0</span>;<span class="comment">//当前位数的和</span></span><br><span class="line">      <span class="keyword">int</span> addNum = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> i = len; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">          <span class="comment">//当前位加上进位</span></span><br><span class="line">          sum = ch[i] - <span class="string">'0'</span> + addNum;</span><br><span class="line">          <span class="comment">//如果是最低位，加一</span></span><br><span class="line">          <span class="keyword">if</span> (i == len)&#123;</span><br><span class="line">              sum++;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">//如果sum为10了，看是不是第一位，是的话返回true</span></span><br><span class="line">          <span class="keyword">if</span> (sum == <span class="number">10</span>)&#123;</span><br><span class="line">              <span class="keyword">if</span> (i == <span class="number">0</span>)&#123;</span><br><span class="line">                  <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">              &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                  <span class="comment">//不是，需要当前位改成0，进位</span></span><br><span class="line">                  sum = <span class="number">0</span>;</span><br><span class="line">                  ch[i] = (<span class="keyword">char</span>)(sum + <span class="string">'0'</span>);</span><br><span class="line">                  addNum = <span class="number">1</span>;</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">              <span class="comment">//没有进位，直接返回</span></span><br><span class="line">              ch[i] = (<span class="keyword">char</span>)(sum + <span class="string">'0'</span>);</span><br><span class="line">              <span class="keyword">break</span>;</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
 
+<h3 id="字符串全部子序列"><a href="#字符串全部子序列" class="headerlink" title="字符串全部子序列"></a>字符串全部子序列</h3><p>打印一个字符串的全部子序列，包括空字符串。子串是连在一起的，子序列中的字符在字符串中不一定是连在一起的。</p>
+<p>思路：初始为一个空字符串，遍历每一个字符，可以选择要当前的字符或者不要，然后递归子字符串。最后输出的就是全部的子序列。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printAllSebSeq</span><span class="params">(String str)</span></span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (str == <span class="keyword">null</span>)</span><br><span class="line">           System.out.println(<span class="string">""</span>);</span><br><span class="line">       allSubSequence(str.toCharArray(),<span class="number">0</span>,<span class="string">""</span>);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">allSubSequence</span><span class="params">(<span class="keyword">char</span>[] ch, <span class="keyword">int</span> i, String s)</span> </span>&#123;</span><br><span class="line">       <span class="comment">//base case</span></span><br><span class="line">       <span class="keyword">if</span> (i == ch.length)&#123;</span><br><span class="line">           System.out.println(s);</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">//选择而要当前子串与不要</span></span><br><span class="line">       allSubSequence(ch,i+<span class="number">1</span>,s);</span><br><span class="line">       allSubSequence(ch,i+<span class="number">1</span>,s+ch[i]);</span><br><span class="line">       <span class="keyword">return</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
+<h3 id="打印字符串的全排列"><a href="#打印字符串的全排列" class="headerlink" title="打印字符串的全排列"></a>打印字符串的全排列</h3><p>打印一个字符串的全排列，如字符串123，有6种全排列，打印出来。</p>
+<p>思路：递归。将所有的字符依次与第一个交换，然后递归变化交换后的子串。递归结束后，将字符交换回来，即回溯不影响下一次的结果。base case为没有子串为止，输出字符串。为了在遍历字符串进行交换的时候，不对重复的字符做操作，在每轮交换前定义一个set，只有没有出现过的字符才进行操作。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//字符串的全排列</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printAllPermutations</span><span class="params">(String str)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (str == <span class="keyword">null</span>)&#123;</span><br><span class="line">           System.out.println(<span class="string">""</span>);</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       process(str.toCharArray(),<span class="number">0</span>);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//作用，打印出字符串的全排列</span></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(<span class="keyword">char</span>[] ch, <span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">       <span class="comment">//base case</span></span><br><span class="line">       <span class="keyword">if</span> (i == ch.length)&#123;</span><br><span class="line">           System.out.println(String.valueOf(ch));</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       HashSet&lt;Character&gt; set = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">       <span class="comment">//将当前字符与后面每一个交换，然后递归子串</span></span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> j = i; j &lt; ch.length; j++) &#123;</span><br><span class="line">           <span class="keyword">if</span> (!set.contains(ch[j]))&#123;</span><br><span class="line">               set.add(ch[j]);</span><br><span class="line">               swap(ch,i,j);</span><br><span class="line">               <span class="comment">//处理子串</span></span><br><span class="line">               process(ch,i+<span class="number">1</span>);</span><br><span class="line">               <span class="comment">//回溯，交换回来</span></span><br><span class="line">               swap(ch,i,j);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">char</span>[] ch, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">char</span> temp = ch[i];</span><br><span class="line">       ch[i] = ch[j];</span><br><span class="line">       ch[j] = temp;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="链表-1"><a href="#链表-1" class="headerlink" title="链表"></a>链表</h2><h3 id="反向打印链表"><a href="#反向打印链表" class="headerlink" title="反向打印链表"></a>反向打印链表</h3><p>输入一个链表的头节点，从尾到头反过来打印出每个节点的值。</p>
 <p>方法1：遍历链表，将值存入栈。遍历栈，弹出值。</p>
@@ -2634,6 +2770,14 @@
 <h3 id="对称的二叉树"><a href="#对称的二叉树" class="headerlink" title="对称的二叉树"></a>对称的二叉树</h3><p>请实现一个函数，用来判断一棵二叉树是不是对称的。如果一棵二叉树和它的镜像一样，那么它是对称的。</p>
 <p>思路：比较这棵树与自己是否为镜像。递归解决，如果两个有一个为空，若是均为空，说明为真，若一个为空，另一个不为空，说明肯定不对称。判断当前节点值是否相同。判断root的左子树与root的右子树是否对称，判断root的右子树与root的左子树是否对称。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//判断一个树是否对称</span></span><br><span class="line">   <span class="comment">//可以判断两棵树是否为镜像树</span></span><br><span class="line">   <span class="function"><span class="keyword">boolean</span> <span class="title">isSymmetrical</span><span class="params">(Node root)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (root == <span class="keyword">null</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">       <span class="comment">//调用递归子函数</span></span><br><span class="line">       <span class="keyword">return</span> isSubSym(root,root);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">isSubSym</span><span class="params">(Node root1, Node root2)</span> </span>&#123;</span><br><span class="line">       <span class="comment">//base case</span></span><br><span class="line">       <span class="keyword">if</span> (root1 == <span class="keyword">null</span> || root2 == <span class="keyword">null</span>)&#123;</span><br><span class="line">           <span class="keyword">if</span> (root1 == <span class="keyword">null</span> &amp;&amp; root2 == <span class="keyword">null</span>)</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">           <span class="comment">//一个为空，一个不是，返回假</span></span><br><span class="line">           <span class="keyword">else</span></span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">//判断当前节点是否相同</span></span><br><span class="line">       <span class="keyword">if</span> (root1.value != root2.value)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">       <span class="comment">//判断当前树的左子树与镜像的右子树</span></span><br><span class="line">       <span class="keyword">return</span> isSubSym(root1.left,root2.right) &amp;&amp; isSubSym(root1.right,root2.left);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="从上往下打印二叉树"><a href="#从上往下打印二叉树" class="headerlink" title="从上往下打印二叉树"></a>从上往下打印二叉树</h3><p>普通的就是层序遍历，有意思点的是从上到下按层打印二叉树，同一层结点从左至右输出。每一层输出一行。</p>
+<p>思路：大体仍是层序遍历，但是需要一下子将同一层的全部加入或打印，这样就需要统计一层的节点个数，初始一层为1个，将每层的左右节点全部加入，统计当层的个数，然后更新下一层的个数。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//按层打印，一层为一行</span></span><br><span class="line">    ArrayList&lt;ArrayList&lt;Integer&gt;&gt; print(Node root) &#123;</span><br><span class="line">        ArrayList&lt;ArrayList&lt;Integer&gt;&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">if</span> (root == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> res;</span><br><span class="line">        ArrayList&lt;Integer&gt; list = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">int</span> pre = <span class="number">0</span>, cur = <span class="number">1</span>;</span><br><span class="line">        Queue&lt;Node&gt; queue = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">        queue.offer(root);</span><br><span class="line">        <span class="keyword">while</span> (!queue.isEmpty())&#123;</span><br><span class="line">            <span class="comment">//不一下子只弹出一个，而是弹出上一层的个数</span></span><br><span class="line">            list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">            <span class="comment">//更新当前个数，作为下一次的pre</span></span><br><span class="line">            pre = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cur; i++) &#123;</span><br><span class="line">                root = queue.poll();</span><br><span class="line">                list.add(root.value);</span><br><span class="line">                <span class="keyword">if</span> (root.left != <span class="keyword">null</span>)&#123;</span><br><span class="line">                    queue.offer(root.left);</span><br><span class="line">                    pre++;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (root.right != <span class="keyword">null</span>)&#123;</span><br><span class="line">                    queue.offer(root.right);</span><br><span class="line">                    pre++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//循环完后，将一层结果加入，更新cur</span></span><br><span class="line">            res.add(list);</span><br><span class="line">            cur = pre;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="之字型打印二叉树"><a href="#之字型打印二叉树" class="headerlink" title="之字型打印二叉树"></a>之字型打印二叉树</h3><p>请实现一个函数按照之字形顺序打印二叉树，即第一行按照从左到右的顺序打印，第二层按照从右到左的顺序打印，第三行再按照从左到右的顺序打印，其他行以此类推。</p>
+<p>思路：在之前从上往下打印的基础上增加了顺序判断，正常为从左到右打印，从右到左相当于是从左到右入栈的结果，因此在之前的基础上，加入判断即可，如果需要从右到左输出，加入栈中。然后将栈中元素全部添加至list中。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//按照之字型打印树</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> ArrayList&lt;ArrayList&lt;Integer&gt;&gt; printZhiTree(Node root)&#123;</span><br><span class="line">       ArrayList&lt;ArrayList&lt;Integer&gt;&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">       <span class="keyword">if</span> (root == <span class="keyword">null</span>)</span><br><span class="line">           <span class="keyword">return</span> res;</span><br><span class="line">       <span class="comment">//广度优先遍历</span></span><br><span class="line">       Queue&lt;Node&gt; queue = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">       queue.offer(root);</span><br><span class="line">       <span class="keyword">boolean</span> flagZhi = <span class="keyword">true</span>;</span><br><span class="line">       <span class="keyword">int</span> pre = <span class="number">0</span>, cur = <span class="number">1</span>;</span><br><span class="line">       Stack&lt;Integer&gt; stack = <span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">       <span class="keyword">while</span> (!queue.isEmpty())&#123;</span><br><span class="line">           <span class="comment">//当层元素</span></span><br><span class="line">           ArrayList&lt;Integer&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">           pre = <span class="number">0</span>;</span><br><span class="line">           <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cur; i++) &#123;</span><br><span class="line">               <span class="comment">//弹出元素</span></span><br><span class="line">               <span class="comment">//如果是true，直接加入list</span></span><br><span class="line">               <span class="comment">//如果是false，加入栈</span></span><br><span class="line">               root = queue.poll();</span><br><span class="line">               <span class="keyword">if</span> (flagZhi)&#123;</span><br><span class="line">                   list.add(root.value);</span><br><span class="line">               &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                   stack.add(root.value);</span><br><span class="line">               &#125;</span><br><span class="line">               <span class="keyword">if</span> (root.left != <span class="keyword">null</span>) &#123;</span><br><span class="line">                   queue.offer(root.left);</span><br><span class="line">                   pre++;</span><br><span class="line">               &#125;</span><br><span class="line">               <span class="keyword">if</span> (root.right != <span class="keyword">null</span>) &#123;</span><br><span class="line">                   queue.offer(root.right);</span><br><span class="line">                   pre++;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//将栈中或队列中元素信息取出</span></span><br><span class="line">           <span class="keyword">if</span> (!flagZhi)&#123;</span><br><span class="line">               <span class="keyword">while</span> (!stack.isEmpty())&#123;</span><br><span class="line">                   list.add(stack.pop());</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//更新一层信息</span></span><br><span class="line">           res.add(list);</span><br><span class="line">           cur = pre;</span><br><span class="line">           flagZhi = !flagZhi;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> res;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="二分"><a href="#二分" class="headerlink" title="二分"></a>二分</h2><h3 id="找旋转数组的最小值"><a href="#找旋转数组的最小值" class="headerlink" title="找旋转数组的最小值"></a>找旋转数组的最小值</h3><p>把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。输入一个非递减排序的数组的一个旋转，输出旋转数组的最小元素。例如数组{3,4,5,1,2}为{1,2,3,4,5}的一个旋转，该数组的最小值为1。<br>NOTE：给出的所有元素都大于0，若数组大小为0，请返回0。</p>
 <p>思路：先判断，如果最左边数比最右边树小，那么最左边的是最小的。如果最左边的与中间和最右边数相等，那么没法二分，只能顺序查找。</p>
@@ -2680,7 +2824,7 @@
 <p>求指数的时候，可以用递归的方式，如果是偶数，<code>f(n)=f(n/2)*f(n/2)</code>，如果是奇数，<code>f(n)=f(n-1)/2*f(n-1)/2*base</code>。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//自定义power函数</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">power</span><span class="params">(<span class="keyword">double</span> base, <span class="keyword">int</span> exponent)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">double</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//分三种情况，指数大于0，小于0，等于0的情况</span></span><br><span class="line">    <span class="keyword">if</span> (exponent &gt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="comment">//大于0正常计算</span></span><br><span class="line">        res = getPower(base,exponent);</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span> (exponent &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="comment">//小于0，看是否为0,</span></span><br><span class="line">        <span class="keyword">if</span> (base == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">//0的负数次方没有意义</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            res = <span class="number">1</span> / getPower(base,-exponent);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//指数为0，返回1</span></span><br><span class="line">        res = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">double</span> <span class="title">getPower</span><span class="params">(<span class="keyword">double</span> base, <span class="keyword">int</span> exponent)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//递归解决</span></span><br><span class="line">    <span class="keyword">if</span> (exponent == <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (exponent == <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> base;</span><br><span class="line">    <span class="keyword">double</span> res = getPower(base,exponent &gt;&gt; <span class="number">1</span>);</span><br><span class="line">    res *= res;</span><br><span class="line">    <span class="comment">//如果是奇数，再乘上base</span></span><br><span class="line">    <span class="keyword">if</span> ((exponent &amp; <span class="number">1</span>) == <span class="number">1</span>)</span><br><span class="line">        res *= base;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h1 id="leetcode"><a href="#leetcode" class="headerlink" title="leetcode"></a>leetcode</h1><h2 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h2><h3 id="有效的括号"><a href="#有效的括号" class="headerlink" title="有效的括号"></a>有效的括号</h3><p>题目描述：给定一个只包括 <code>&#39;(&#39;</code>，<code>&#39;)&#39;</code>，<code>&#39;{&#39;</code>，<code>&#39;}&#39;</code>，<code>&#39;[&#39;</code>，<code>&#39;]&#39;</code> 的字符串，判断字符串是否有效。</p>
+<h1 id="leetcode"><a href="#leetcode" class="headerlink" title="leetcode"></a>leetcode</h1><h2 id="栈-1"><a href="#栈-1" class="headerlink" title="栈"></a>栈</h2><h3 id="有效的括号"><a href="#有效的括号" class="headerlink" title="有效的括号"></a>有效的括号</h3><p>题目描述：给定一个只包括 <code>&#39;(&#39;</code>，<code>&#39;)&#39;</code>，<code>&#39;{&#39;</code>，<code>&#39;}&#39;</code>，<code>&#39;[&#39;</code>，<code>&#39;]&#39;</code> 的字符串，判断字符串是否有效。</p>
 <p>有效字符串需满足：</p>
 <ol>
 <li>左括号必须用相同类型的右括号闭合。</li>
