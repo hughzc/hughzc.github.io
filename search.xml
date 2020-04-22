@@ -3235,7 +3235,7 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> left = 数<span class="number">1</span>, right = 数<span class="number">2</span>;</span><br><span class="line"><span class="keyword">while</span>(left &lt; right)&#123;</span><br><span class="line">    <span class="keyword">int</span> mid = left + ((right - left) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span>(判断条件<span class="number">1</span>)&#123;</span><br><span class="line">        left = mid + <span class="number">1</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        right = mid;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//或者</span></span><br><span class="line">    <span class="keyword">if</span>(判断条件<span class="number">1</span>)&#123;</span><br><span class="line">        right = mid - <span class="number">1</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        left = mid;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//在while结束后，对left处的值选择性进行判断</span></span><br><span class="line"><span class="comment">//多种输出可能</span></span><br><span class="line"><span class="keyword">return</span> left;</span><br><span class="line"><span class="keyword">return</span> arr[left];</span><br><span class="line"><span class="keyword">return</span> -<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
 
 <p>此题具体的实现代码如下</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//使用二分的思路</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title">findNum2</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (arr == <span class="keyword">null</span> || arr.length &lt; <span class="number">2</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">//看是否在0-n-1范围之内</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (arr[i] &lt; <span class="number">0</span> || arr[i] &gt; arr.length-<span class="number">1</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//二分，看哪边的数字更多，再继续找</span></span><br><span class="line">        <span class="keyword">int</span> left = <span class="number">1</span>, right = arr.length - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (left &lt; right)&#123;</span><br><span class="line">            <span class="keyword">int</span> mid = left + ((right-left) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">            <span class="comment">//计算个数</span></span><br><span class="line">            <span class="keyword">int</span> count = getFre(arr,left,mid);</span><br><span class="line">            <span class="keyword">if</span> (count &gt; mid + <span class="number">1</span> - left)&#123;</span><br><span class="line">                right = mid;</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//去另一半</span></span><br><span class="line">                left = mid+<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> count = getFre(arr,left,right);</span><br><span class="line">        <span class="keyword">if</span> (count &gt; <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> left;</span><br><span class="line">        <span class="comment">//没有找到</span></span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//统计在l-m之间出现的次数</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getFre</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> l, <span class="keyword">int</span> m)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (arr[i] &gt;= l &amp;&amp; arr[i] &lt;= m)&#123;</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//使用二分的思路</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title">findNum2</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (arr == <span class="keyword">null</span> || arr.length &lt; <span class="number">2</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">       <span class="comment">//看是否在0-n-1范围之内</span></span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">           <span class="keyword">if</span> (arr[i] &lt; <span class="number">0</span> || arr[i] &gt; arr.length-<span class="number">1</span>)</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">//二分，看哪边的数字更多，再继续找</span></span><br><span class="line">       <span class="keyword">int</span> left = <span class="number">1</span>, right = arr.length - <span class="number">1</span>;</span><br><span class="line">       <span class="keyword">while</span> (left &lt; right)&#123;</span><br><span class="line">           <span class="keyword">int</span> mid = left + ((right-left) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">           <span class="comment">//计算个数</span></span><br><span class="line">           <span class="keyword">int</span> count = getFre(arr,left,mid);</span><br><span class="line">           <span class="keyword">if</span> (count &gt; mid + <span class="number">1</span> - left)&#123;</span><br><span class="line">               right = mid;</span><br><span class="line">           &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">               <span class="comment">//去另一半</span></span><br><span class="line">               left = mid+<span class="number">1</span>;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">int</span> count = getFre(arr,left,right);</span><br><span class="line">       <span class="keyword">if</span> (count &gt; <span class="number">1</span>)</span><br><span class="line">           <span class="keyword">return</span> left;</span><br><span class="line">       <span class="comment">//没有找到</span></span><br><span class="line">       <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//统计在l-m之间出现的次数</span></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getFre</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> l, <span class="keyword">int</span> m)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">           <span class="keyword">if</span> (arr[i] &gt;= l &amp;&amp; arr[i] &lt;= m)&#123;</span><br><span class="line">               count++;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> count;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="矩阵中的路径【回溯】"><a href="#矩阵中的路径【回溯】" class="headerlink" title="矩阵中的路径【回溯】"></a>矩阵中的路径【回溯】</h3><p>请设计一个函数，用来判断在一个矩阵中是否存在一条包含某字符串所有字符的路径。路径可以从矩阵中的任意一个格子开始，每一步可以在矩阵中向左，向右，向上，向下移动一个格子。如果一条路径经过了矩阵中的某一个格子，则该路径不能再进入该格子。</p>
 <p>思路：回溯的经典案例。如果当前字符可以，则看其上下左右的是否符合，不进入已经去过的位置，如果匹配长度为字符串的长度，返回真，不然的话就返回假，并重置当前所做的操作。</p>
@@ -3348,8 +3348,6 @@
 <p>思路：如果一个数出现3次，那么他的每一位出现的次数都是3的倍数。那么统计所有数字所有位是1的次数，用32的数组来存，如果某一位是3的倍数，说明当前位只出现一次的数是0，不然就是1.</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//一个数出现1次，其他都出现了3次</span></span><br><span class="line">   <span class="comment">//统计所有数的每一位二进制个数，如果当前位可以整除3，说明那个数当前位是0，否则是1</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">singleNumber</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (nums == <span class="keyword">null</span> || nums.length &lt; <span class="number">1</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">       <span class="keyword">int</span>[] bitsMap = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">32</span>];<span class="comment">//存每一位的个数</span></span><br><span class="line">       <span class="keyword">int</span> bit = <span class="number">1</span>;</span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> num : nums) &#123;</span><br><span class="line">           bit = <span class="number">1</span>;</span><br><span class="line">           <span class="comment">//统计当前数每一位</span></span><br><span class="line">           <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">31</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">               <span class="keyword">if</span> ((num &amp; bit) != <span class="number">0</span>)&#123;</span><br><span class="line">                   <span class="comment">//当前位+1</span></span><br><span class="line">                   bitsMap[i]++;</span><br><span class="line">               &#125;</span><br><span class="line">               <span class="comment">//看下一位</span></span><br><span class="line">               bit = bit &lt;&lt; <span class="number">1</span>;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">//看每一位</span></span><br><span class="line">       <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">32</span>; i++) &#123;</span><br><span class="line">           <span class="comment">//将之前结果左移</span></span><br><span class="line">           res = res &lt;&lt; <span class="number">1</span>;</span><br><span class="line">           res += bitsMap[i] % <span class="number">3</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> res;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
-
-
 <h2 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h2><h3 id="栈的压入、弹出序列"><a href="#栈的压入、弹出序列" class="headerlink" title="栈的压入、弹出序列"></a>栈的压入、弹出序列</h3><p>输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如序列1、2、3、4、5是某栈的压栈序列，序列4、5、3、2、1是该压栈序列对应的一个弹出序列，但4、3、5、1、2就不可能是该压栈序列的弹出序列。</p>
 <p>思路：准备一个栈，两个指针，i指向数组1，j指向数组2，循环条件为i没有越界或栈不为空（i越界后 ，有可能j还可以往后继续判断），如果栈为空且栈顶元素与j位置不同，若i越界了，返回假，不然将i位置元素压入栈，i后移。如果栈顶元素与j位置相同，弹出栈顶元素，j后移。循环结束后，如果i与j都越界，说明是符合的，不然就返回假。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isPopOrder</span><span class="params">(<span class="keyword">int</span> [] pushA,<span class="keyword">int</span> [] popA)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//base</span></span><br><span class="line">        <span class="keyword">if</span> (pushA == <span class="keyword">null</span> || popA == <span class="keyword">null</span> || pushA.length != popA.length)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="comment">//准备栈</span></span><br><span class="line">        Stack&lt;Integer&gt; stack = <span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (i &lt; pushA.length || !stack.isEmpty())&#123;</span><br><span class="line">            <span class="comment">//如果栈为空或栈顶元素不为popA[j]，将pushA[i]压入栈</span></span><br><span class="line">            <span class="keyword">if</span> (stack.isEmpty() || stack.peek() != popA[j])&#123;</span><br><span class="line">                <span class="keyword">if</span> (i == pushA.length)</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">                stack.push(pushA[i++]);</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                stack.pop();</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (i == pushA.length &amp;&amp; j == i)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
@@ -3372,6 +3370,23 @@
 <h3 id="打印字符串的全排列"><a href="#打印字符串的全排列" class="headerlink" title="打印字符串的全排列"></a>打印字符串的全排列</h3><p>打印一个字符串的全排列，如字符串123，有6种全排列，打印出来。</p>
 <p>思路：递归。将所有的字符依次与第一个交换，然后递归变化交换后的子串。递归结束后，将字符交换回来，即回溯不影响下一次的结果。base case为没有子串为止，输出字符串。为了在遍历字符串进行交换的时候，不对重复的字符做操作，在每轮交换前定义一个set，只有没有出现过的字符才进行操作。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//字符串的全排列</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printAllPermutations</span><span class="params">(String str)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (str == <span class="keyword">null</span>)&#123;</span><br><span class="line">           System.out.println(<span class="string">""</span>);</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       process(str.toCharArray(),<span class="number">0</span>);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">//作用，打印出字符串的全排列</span></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(<span class="keyword">char</span>[] ch, <span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">       <span class="comment">//base case</span></span><br><span class="line">       <span class="keyword">if</span> (i == ch.length)&#123;</span><br><span class="line">           System.out.println(String.valueOf(ch));</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       HashSet&lt;Character&gt; set = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">       <span class="comment">//将当前字符与后面每一个交换，然后递归子串</span></span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> j = i; j &lt; ch.length; j++) &#123;</span><br><span class="line">           <span class="keyword">if</span> (!set.contains(ch[j]))&#123;</span><br><span class="line">               set.add(ch[j]);</span><br><span class="line">               swap(ch,i,j);</span><br><span class="line">               <span class="comment">//处理子串</span></span><br><span class="line">               process(ch,i+<span class="number">1</span>);</span><br><span class="line">               <span class="comment">//回溯，交换回来</span></span><br><span class="line">               swap(ch,i,j);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">char</span>[] ch, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">char</span> temp = ch[i];</span><br><span class="line">       ch[i] = ch[j];</span><br><span class="line">       ch[j] = temp;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>方法2：dfs，一个字符串的全排列其实可以看成是树，每次从没有选择过的字符串中进行选择，加入到结果集中，到最后的时候将结果集打印即可。</p>
+<img src="/2020/02/25/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%85%A8%E6%8E%92%E5%88%97.png" class title="This is an example image">
+
+<p>因此遍历树可以使用深度优先遍历dfs，dfs的核心点在于</p>
+<ol>
+<li>截止条件，什么时候返回</li>
+<li>遍历候选节点<ul>
+<li>筛选候选节点</li>
+<li>改变状态</li>
+<li>进行下一次的dfs</li>
+<li>状态回溯</li>
+</ul>
+</li>
+</ol>
+<p>关键就是截止条件+遍历候选节点</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="keyword">char</span>[] ch, <span class="keyword">boolean</span>[] f, <span class="keyword">int</span> i, <span class="keyword">char</span>[] res)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//1、截止条件</span></span><br><span class="line">    <span class="keyword">if</span> (i == ch.length)&#123;</span><br><span class="line">        <span class="comment">//结果加入，返回</span></span><br><span class="line">        System.out.println(String.valueOf(res));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//2、遍历候选节点</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; ch.length; j++) &#123;</span><br><span class="line">        <span class="keyword">char</span> c = ch[j];</span><br><span class="line">        <span class="comment">//2.1，筛选</span></span><br><span class="line">        <span class="keyword">if</span> (!f[j])&#123;</span><br><span class="line">            <span class="comment">//如果当前没有被选过，修改状态</span></span><br><span class="line">            f[j] = <span class="keyword">true</span>;</span><br><span class="line">            <span class="comment">//加入到结果</span></span><br><span class="line">            res[i] = c;</span><br><span class="line">            <span class="comment">//下一次dfs</span></span><br><span class="line">            dfs(ch,f,i+<span class="number">1</span>,res);</span><br><span class="line">            <span class="comment">//回溯，修改状态</span></span><br><span class="line">            f[j] = <span class="keyword">false</span>;</span><br><span class="line">            res[i] = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="最长不含重复字符的子字符串"><a href="#最长不含重复字符的子字符串" class="headerlink" title="最长不含重复字符的子字符串"></a>最长不含重复字符的子字符串</h3><p>请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。</p>
 <p>输入: “abcabcbb”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。</p>
@@ -3424,7 +3439,7 @@
 
 <h2 id="树-1"><a href="#树-1" class="headerlink" title="树"></a>树</h2><h3 id="树的重构"><a href="#树的重构" class="headerlink" title="树的重构"></a>树的重构</h3><p>根据先序和中序数组来重构一棵二叉树</p>
 <p>思路：先序数组中，第一个值为头节点，从中序中找到与头节点相同的下标，构造头节点，然后拷贝数组，构造左子树，拷贝数组构造右子树，递归完成。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//根据前序和中序构建二叉树</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Node <span class="title">reConstructBinaryTree</span><span class="params">(<span class="keyword">int</span>[] arrPre, <span class="keyword">int</span>[] arrIn)</span></span>&#123;</span><br><span class="line">        <span class="comment">//如果两个长度不等或为空，直接返回</span></span><br><span class="line">        <span class="keyword">if</span> (arrPre.length != arrIn.length || arrPre.length &lt; <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">//base case</span></span><br><span class="line">        <span class="keyword">if</span> (arrPre.length == <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> Node(arrPre[<span class="number">0</span>]);</span><br><span class="line">        <span class="comment">//在arrIn中找到与arrPre[0]相等的头节点</span></span><br><span class="line">        <span class="keyword">int</span> index = -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;arrIn.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (arrIn[i] == arrPre[<span class="number">0</span>])&#123;</span><br><span class="line">                index = i;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//没找到头节点，返回</span></span><br><span class="line">        <span class="keyword">if</span> (index == -<span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">//构造头节点</span></span><br><span class="line">        Node head = <span class="keyword">new</span> Node(arrPre[<span class="number">0</span>]);</span><br><span class="line">        <span class="comment">//左子树前序遍历</span></span><br><span class="line">        <span class="keyword">int</span>[] lPreChild = <span class="keyword">new</span> <span class="keyword">int</span>[index];</span><br><span class="line">        System.arraycopy(arrPre,<span class="number">1</span>,lPreChild,<span class="number">0</span>,index);</span><br><span class="line">        <span class="comment">//左子树中序遍历</span></span><br><span class="line">        <span class="keyword">int</span>[] lInChild = <span class="keyword">new</span> <span class="keyword">int</span>[index];</span><br><span class="line">        System.arraycopy(arrIn,<span class="number">0</span>,lInChild,<span class="number">0</span>,index);</span><br><span class="line">        head.left = reConstructBinaryTree(lPreChild,lInChild);</span><br><span class="line">        <span class="comment">//右子树前序遍历</span></span><br><span class="line">        <span class="keyword">int</span>[] rPreChild = <span class="keyword">new</span> <span class="keyword">int</span>[arrPre.length-index-<span class="number">1</span>];</span><br><span class="line">        System.arraycopy(arrPre,index+<span class="number">1</span>,rPreChild,<span class="number">0</span>,rPreChild.length);</span><br><span class="line">        <span class="comment">//右子树中序遍历</span></span><br><span class="line">        <span class="keyword">int</span>[] rInChild = <span class="keyword">new</span> <span class="keyword">int</span>[rPreChild.length];</span><br><span class="line">        System.arraycopy(arrIn,index+<span class="number">1</span>,rInChild,<span class="number">0</span>,rPreChild.length);</span><br><span class="line">        head.right = reConstructBinaryTree(rPreChild,rInChild);</span><br><span class="line">        <span class="keyword">return</span> head;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//根据前序和中序构建二叉树</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Node <span class="title">reConstructBinaryTree</span><span class="params">(<span class="keyword">int</span>[] arrPre, <span class="keyword">int</span>[] arrIn)</span></span>&#123;</span><br><span class="line">       <span class="comment">//如果两个长度不等或为空，直接返回</span></span><br><span class="line">       <span class="keyword">if</span> (arrPre.length != arrIn.length || arrPre.length &lt; <span class="number">1</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">       <span class="comment">//base case</span></span><br><span class="line">       <span class="keyword">if</span> (arrPre.length == <span class="number">1</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">new</span> Node(arrPre[<span class="number">0</span>]);</span><br><span class="line">       <span class="comment">//在arrIn中找到与arrPre[0]相等的头节点</span></span><br><span class="line">       <span class="keyword">int</span> index = -<span class="number">1</span>;</span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;arrIn.length; i++) &#123;</span><br><span class="line">           <span class="keyword">if</span> (arrIn[i] == arrPre[<span class="number">0</span>])&#123;</span><br><span class="line">               index = i;</span><br><span class="line">               <span class="keyword">break</span>;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">//没找到头节点，返回</span></span><br><span class="line">       <span class="keyword">if</span> (index == -<span class="number">1</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">       <span class="comment">//构造头节点</span></span><br><span class="line">       Node head = <span class="keyword">new</span> Node(arrPre[<span class="number">0</span>]);</span><br><span class="line">       <span class="comment">//左子树前序遍历</span></span><br><span class="line">       <span class="keyword">int</span>[] lPreChild = <span class="keyword">new</span> <span class="keyword">int</span>[index];</span><br><span class="line">       System.arraycopy(arrPre,<span class="number">1</span>,lPreChild,<span class="number">0</span>,index);</span><br><span class="line">       <span class="comment">//左子树中序遍历</span></span><br><span class="line">       <span class="keyword">int</span>[] lInChild = <span class="keyword">new</span> <span class="keyword">int</span>[index];</span><br><span class="line">       System.arraycopy(arrIn,<span class="number">0</span>,lInChild,<span class="number">0</span>,index);</span><br><span class="line">       head.left = reConstructBinaryTree(lPreChild,lInChild);</span><br><span class="line">       <span class="comment">//右子树前序遍历</span></span><br><span class="line">       <span class="keyword">int</span>[] rPreChild = <span class="keyword">new</span> <span class="keyword">int</span>[arrPre.length-index-<span class="number">1</span>];</span><br><span class="line">       System.arraycopy(arrPre,index+<span class="number">1</span>,rPreChild,<span class="number">0</span>,rPreChild.length);</span><br><span class="line">       <span class="comment">//右子树中序遍历</span></span><br><span class="line">       <span class="keyword">int</span>[] rInChild = <span class="keyword">new</span> <span class="keyword">int</span>[rPreChild.length];</span><br><span class="line">       System.arraycopy(arrIn,index+<span class="number">1</span>,rInChild,<span class="number">0</span>,rPreChild.length);</span><br><span class="line">       head.right = reConstructBinaryTree(rPreChild,rInChild);</span><br><span class="line">       <span class="keyword">return</span> head;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="树的子结构"><a href="#树的子结构" class="headerlink" title="树的子结构"></a>树的子结构</h3><p>输入两棵二叉树A和B，判断B是不是A的子结构。</p>
 <p>思路：遍历树A，找到与B相同值的节点。判断两个子树是否有一样的结构。递归的解法为：判断A树，A树的左子树，A树的右子树是否与B数结构相同。判断函数为：如果B树为空了，说明结构相同；如果A树空了，B树不空，肯定不同；如果当前节点的值不同，肯定不同；再判断左右子树是否相同。</p>
@@ -3470,8 +3485,6 @@
 <h3 id="二叉树的深度"><a href="#二叉树的深度" class="headerlink" title="二叉树的深度"></a>二叉树的深度</h3><p>输入一棵二叉树的根节点，求该树的深度。从根节点到叶节点依次经过的节点（含根、叶节点）形成树的一条路径，最长路径的长度为树的深度。</p>
 <p>思路：深度优先遍历，一个节点的深度，等于左右子树最大深度+1</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//求二叉树的深度</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">treeDepth</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (root == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> getInOrderDepth(root);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">getInOrderDepth</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//base case</span></span><br><span class="line">    <span class="keyword">if</span> (root == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//处理当前的</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> + Math.max(getInOrderDepth(root.left),getInOrderDepth(root.right));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
 
 <h2 id="堆-1"><a href="#堆-1" class="headerlink" title="堆"></a>堆</h2><h3 id="最小的K个数"><a href="#最小的K个数" class="headerlink" title="最小的K个数"></a>最小的K个数</h3><p>输入n个整数，找出其中最小的K个数。例如输入4,5,1,6,2,7,3,8这8个数字，则最小的4个数字是1,2,3,4。</p>
 <p>思路：最小的K个数的类型一般用堆，遍历数组，如果堆容量小于k，直接放入k，不然如果当前数小于堆顶的数，弹出堆顶的数，将当前数加入。</p>
@@ -7362,6 +7375,1073 @@
       </tags>
   </entry>
   <entry>
+    <title>Linux使用</title>
+    <url>/2020/01/29/Linux%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<h1 id="Linux基础"><a href="#Linux基础" class="headerlink" title="Linux基础"></a>Linux基础</h1><h2 id="Linux介绍"><a href="#Linux介绍" class="headerlink" title="Linux介绍"></a>Linux介绍</h2><p>Linux操作系统，免费，开源，安全，高效，稳定，处理高并发性能好，企业级开发用的多。</p>
+<a id="more"></a>
+
+<h2 id="Linux目录结构"><a href="#Linux目录结构" class="headerlink" title="Linux目录结构"></a>Linux目录结构</h2><p>Linux文件系统采用级层式的树状目录结构，在此结构中的最上层是根目录“/”，在此目录下创建其他目录。</p>
+<p>Linux世界里，一切皆文件。</p>
+<img src="/2020/01/29/Linux%E4%BD%BF%E7%94%A8/%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84.png" class title="This is an example image">
+
+<ul>
+<li>/bin 存放常用指令</li>
+<li>/home 存放普通用户的主目录，每个用户有个自己的目录，一般以用户账号命名</li>
+<li>/root 系统管理用用户主目录</li>
+<li>/etc 所有系统管理需要的<strong>配置文件</strong>和子目录</li>
+<li>/usr 用户的很多应用程序和文件都在此目录下<ul>
+<li>/usr/local 给另一个主机额外安装软件所安装的目录</li>
+</ul>
+</li>
+<li>/boot 存放的启动linux使用时的核心文件</li>
+<li>/dev 类似设备管理器，把所有硬件用文件形式存储</li>
+<li>/media 识别的设备挂载目录</li>
+<li>/mnt 让用户<strong>临时挂载别的文件系统</strong>，将外部存储挂载在/mnt/上</li>
+<li>/lib 系统开机需要的动态链接共享库，类似于DLL文件</li>
+<li>/opt 给主机<strong>额外安装软件</strong>所摆放的目录</li>
+<li>/tmp 存放临时文件</li>
+<li>/var 不断扩充的东西，习惯将经常被修改的目录放在此目录下，包括各种日志文件</li>
+</ul>
+<p>总结：</p>
+<ol>
+<li>linux目录中有且只有一个根目录</li>
+<li>linux各个目录存放内容是规划好的，不应乱放文件</li>
+<li>linux以文件形式管理设备，因此linux系统一切皆文件</li>
+</ol>
+<h2 id="Linux远程登录"><a href="#Linux远程登录" class="headerlink" title="Linux远程登录"></a>Linux远程登录</h2><p>使用XShell6远程登录到Linux。使用XFtp6，远程上传下载文件。需要linux开启sshd服务，该服务监听22端口。</p>
+<p>XShell，选择linux的ip地址，输入账户名与密码即可。</p>
+<p>XFTP，用于在windows与linux下传输文件。</p>
+<h2 id="vi与vim"><a href="#vi与vim" class="headerlink" title="vi与vim"></a>vi与vim</h2><p>vi为文本编辑器，vim可以编辑程序，vi的增强版。</p>
+<img src="/2020/01/29/Linux%E4%BD%BF%E7%94%A8/vim%E5%88%87%E6%8D%A2.png" class title="This is an example image">
+
+<h3 id="常用模式"><a href="#常用模式" class="headerlink" title="常用模式"></a>常用模式</h3><h4 id="正常模式"><a href="#正常模式" class="headerlink" title="正常模式"></a>正常模式</h4><p>默认的，使用上下左右移动光标，使用删除字符和删除整行处理档案内容，也可以使用复制贴上。可以使用快捷键。</p>
+<h4 id="插入模式"><a href="#插入模式" class="headerlink" title="插入模式"></a>插入模式</h4><p>该模式下，可以输入内容。一般按i进入插入模式。</p>
+<h4 id="命令行模式"><a href="#命令行模式" class="headerlink" title="命令行模式"></a>命令行模式</h4><p>在插入模式下按ESC切换到正常模式，:切换到编辑模式，提供相关指令，完成读取、存盘、替换、离开vim、显示行号等动作在此模式中达成。</p>
+<p>:wq，写并退出；:q，退出不保存；:q!，强制退出不保存</p>
+<h3 id="快捷键使用"><a href="#快捷键使用" class="headerlink" title="快捷键使用"></a>快捷键使用</h3><p>1、拷贝当前行 yy，拷贝当前行向下的5行 5yy，并粘贴 p</p>
+<p>2、删除当前行 dd，删除当前行向下5行 5dd</p>
+<p>3、文件下查询某个单词【命令行下 /关键字，回车查找，输入n就是查找下一个】</p>
+<p>4、设置文件行号，取消文件的行号【命令行下 :set nu 和 :set nonu】set number</p>
+<p>5、编辑/etc/profile文件，使用快捷键到文档最末行【G】和最首行【gg】，都是在正常模式下进行</p>
+<p>6、撤销 u，输入hello再撤销，在<strong>正常模式下</strong>输入u</p>
+<p>7、编辑 /etc/profile文件，并将光标移动到第20行 shift+g</p>
+<ul>
+<li>显示行号 :set nu</li>
+<li>输入20</li>
+<li>输入shift+g</li>
+</ul>
+<h2 id="关机与重启"><a href="#关机与重启" class="headerlink" title="关机与重启"></a>关机与重启</h2><ul>
+<li><p>shutdown</p>
+<ul>
+<li>shutdown -h now 立即关闭</li>
+<li>shutdown -h 1 1分钟后关机</li>
+<li>shutdown -r now 立即重启</li>
+</ul>
+</li>
+<li><p>halt</p>
+<p>直接使用，效果是关机</p>
+</li>
+<li><p>reboot</p>
+<p>现在重启</p>
+</li>
+<li><p>sync</p>
+<p>把内存数据同步到磁盘</p>
+</li>
+</ul>
+<p>不管是重启还是关闭系统，首先运行sync命令，把内存数据写到磁盘中</p>
+<h2 id="登录与注销"><a href="#登录与注销" class="headerlink" title="登录与注销"></a>登录与注销</h2><p>登录少用root，避免失误。可使用普通用户登录，使用su -用户名来切换管理员身份。</p>
+<p>在提示符下输入logout可注销用户。logout在图形</p>
+<h2 id="用户管理"><a href="#用户管理" class="headerlink" title="用户管理"></a>用户管理</h2><p>Linux多用户多任务系统，使用系统资源的用户，需要向系统管理员申请一个账号。Linux用户至少属于一个组。</p>
+<p>家目录/home，用户登录时进入到对应的家目录。</p>
+<h3 id="添加用户"><a href="#添加用户" class="headerlink" title="添加用户"></a>添加用户</h3><p>useradd 【选项】用户名</p>
+<p>useradd -d 指定目录 新的用户名 给新创建的用户指定家目录</p>
+<h3 id="指定密码"><a href="#指定密码" class="headerlink" title="指定密码"></a>指定密码</h3><p>passwd 用户名 指定密码</p>
+<p>pwd 查看当前目录</p>
+<h3 id="删除用户"><a href="#删除用户" class="headerlink" title="删除用户"></a>删除用户</h3><p>userdel 用户名</p>
+<p>删除用户但保留家目录 userdel 用户名</p>
+<p>删除用户但不保留家目录 userdel -r 用户名</p>
+<p>一般保留家目录</p>
+<h3 id="查询用户信息"><a href="#查询用户信息" class="headerlink" title="查询用户信息"></a>查询用户信息</h3><p>id 用户名</p>
+<p>看用户id号，所在组的id，组名</p>
+<p>whoami 看当前用户名称</p>
+<h3 id="切换用户"><a href="#切换用户" class="headerlink" title="切换用户"></a>切换用户</h3><p>su - 用户名</p>
+<p>高权限到低权限用户不用输入密码，反之需要</p>
+<p>当要回到原来用户，使用exit指令</p>
+<h3 id="用户组"><a href="#用户组" class="headerlink" title="用户组"></a>用户组</h3><p>类似于角色，系统可以对有共性的多个用户进行统一的管理</p>
+<p>新增组</p>
+<p>groupadd 组名</p>
+<p>删除组</p>
+<p>groupdel 组名</p>
+<p>增加用户时指定组</p>
+<p>useradd -g 用户组 用户名</p>
+<p>修改用户组</p>
+<p>usermod -g 用户组 用户名</p>
+<h3 id="用户和组相关文件"><a href="#用户和组相关文件" class="headerlink" title="用户和组相关文件"></a>用户和组相关文件</h3><ul>
+<li><p>用户配置文件（用户信息）</p>
+<p>/etc/passwd</p>
+<p>每行含义</p>
+<p>用户名：口令：用户标识号：组标识号：注释性描述：主目录：登录shell</p>
+</li>
+</ul>
+<img src="/2020/01/29/Linux%E4%BD%BF%E7%94%A8/%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF.png" class title="This is an example image">
+
+<ul>
+<li><p>组配置文件（组信息）</p>
+<p>etc/group</p>
+</li>
+<li><p>口令配置信息（密码和登录信息，加密）</p>
+<p>/etc/shadow</p>
+<p>组名：口令：组标识号：组内用户列表</p>
+</li>
+</ul>
+<img src="/2020/01/29/Linux%E4%BD%BF%E7%94%A8/%E7%BB%84%E4%BF%A1%E6%81%AF.png" class title="This is an example image">
+
+<h2 id="实用指令"><a href="#实用指令" class="headerlink" title="实用指令"></a>实用指令</h2><h3 id="指令运行级别"><a href="#指令运行级别" class="headerlink" title="指令运行级别"></a>指令运行级别</h3><p>0：关机</p>
+<p>1：单用户（找回丢失密码）</p>
+<p>2：多用户无网络服务【少】</p>
+<p>3：<strong>多用户网络服务</strong>【多】</p>
+<p>4：保留</p>
+<p>5：图形界面【多】</p>
+<p>6：重启</p>
+<p>系统运行级别配置文件 /etc/inittab</p>
+<p>切换到指令运行级别</p>
+<p>语法 init [012356]</p>
+<h4 id="找回root密码"><a href="#找回root密码" class="headerlink" title="找回root密码"></a>找回root密码</h4><p>如何找回丢失的root密码</p>
+<p>思路：开机后在启动前输入回车，界面输入e，新界面选择kernel，输入e，在界面输入 1，再次输入b，进入到单用户模式，使用passwd root，修改root密码。进入单用户模式，root不需要密码就可以登录。</p>
+<p>不能远程使用此方式。</p>
+<h3 id="帮助指令"><a href="#帮助指令" class="headerlink" title="帮助指令"></a>帮助指令</h3><p>当对某个指令不熟悉的时候，可以使用linux提供的帮助指令来了解指令使用方法</p>
+<h4 id="man-获得基本帮助信息"><a href="#man-获得基本帮助信息" class="headerlink" title="man 获得基本帮助信息"></a>man 获得基本帮助信息</h4><p>基本语法</p>
+<p>man 【命令或配置文件】</p>
+<h4 id="help指令"><a href="#help指令" class="headerlink" title="help指令"></a>help指令</h4><p>基本语法</p>
+<p>help 命令（功能描述，获得shell内置命令的帮助信息）</p>
+<h3 id="文件目录类"><a href="#文件目录类" class="headerlink" title="文件目录类"></a>文件目录类</h3><h4 id="pwd指令"><a href="#pwd指令" class="headerlink" title="pwd指令"></a>pwd指令</h4><p>pwd 显示当前工作目录的绝对路径</p>
+<h4 id="ls指令"><a href="#ls指令" class="headerlink" title="ls指令"></a>ls指令</h4><p>ls 【选项】【目录或文件】</p>
+<p>常用选项</p>
+<ul>
+<li>-a：显示当前目录所有的文件和目录，包括隐藏的</li>
+<li>-l：以列表的方式显示信息</li>
+<li>-h：以人更方便的方式查看</li>
+</ul>
+<h4 id="cd指令"><a href="#cd指令" class="headerlink" title="cd指令"></a>cd指令</h4><p>cd 【参数】切换到指定目录</p>
+<p>常用参数</p>
+<p>绝对路径或相对路径</p>
+<p>若当前在root目录下，为了到home</p>
+<ul>
+<li>/home 绝对路径</li>
+<li>../home 相对路径，从当前工作目录开始定位到需要的目录去</li>
+</ul>
+<p>cd ~ 或者cd：回到自己的家目录</p>
+<p>cd ..回到上一级目录</p>
+<h4 id="mkdir指令"><a href="#mkdir指令" class="headerlink" title="mkdir指令"></a>mkdir指令</h4><p>mkdir用于创建目录</p>
+<ul>
+<li><p>基本语法</p>
+<p>mkdir 【选项】要创建的目录</p>
+</li>
+<li><p>常用选项</p>
+<p>-p：创建多级目录</p>
+</li>
+</ul>
+<p>mkdir /home/dog，在home下创建dog目录</p>
+<p>创建多级目录的时候，需要加上-p</p>
+<p>mkdir -p /home/animal/tiger</p>
+<h4 id="rmdir指令"><a href="#rmdir指令" class="headerlink" title="rmdir指令"></a>rmdir指令</h4><p>rmdir删除空目录</p>
+<ul>
+<li><p>基于语法</p>
+<p>rmdir 【选项】要删除的空目录</p>
+</li>
+<li><p>细节</p>
+<p>rmdir删除的是空目录，若<strong>目录下有内容无法删除</strong></p>
+<p>删除非空目录，使用<strong>rm -rf</strong> 要删除的目录</p>
+</li>
+</ul>
+<h4 id="touch指令"><a href="#touch指令" class="headerlink" title="touch指令"></a>touch指令</h4><p>touch指令创建空文件</p>
+<ul>
+<li><p>基本语法</p>
+<p>touch 文件名称【文件名称】</p>
+<p>可以一次性创建多个文件，文件名用空格隔开</p>
+</li>
+</ul>
+<h4 id="cp指令【重要】"><a href="#cp指令【重要】" class="headerlink" title="cp指令【重要】"></a>cp指令【重要】</h4><p>cp指令拷贝文件到指令目录</p>
+<ul>
+<li><p>基本语法</p>
+<p>cp 【选项】source dest将源拷贝至dest</p>
+</li>
+<li><p>常用选项</p>
+<p>-r ：递归复制整个文件夹</p>
+<p>cp aaa.txt bb/ 将当前目录下的aaa.txt拷贝至当前目录的bb目录下</p>
+<p>cp -r test bb/ test中有多个文件，将test整个目录拷贝至bb目录下</p>
+<p>\cp -r test bb/  强制覆盖 \cp</p>
+</li>
+<li><p>注意</p>
+<p>注意当前目录位置，准确定位source与dest</p>
+</li>
+</ul>
+<h4 id="rm指令"><a href="#rm指令" class="headerlink" title="rm指令"></a>rm指令</h4><p>rm指令移除文件或目录</p>
+<ul>
+<li><p>基本语法</p>
+<p>rm 【选项】要删除的文件或目录</p>
+</li>
+<li><p>常用选项</p>
+<p>-r：<strong>递归删除</strong>整个文件夹</p>
+<p>-f：<strong>强制删除</strong>而不提示</p>
+</li>
+</ul>
+<p>rm -rf bb 强制递归删除bb文件夹</p>
+<h4 id="mv指令"><a href="#mv指令" class="headerlink" title="mv指令"></a>mv指令</h4><p>mv<strong>移动文件</strong>与目录或<strong>重命名</strong></p>
+<ul>
+<li><p>基本语法</p>
+<p>mv oldNameFile newNameFile（重命名）</p>
+<p>mv temp/movefile /targetFolder（移动文件）</p>
+</li>
+</ul>
+<p>mv aaa.txt pig.txt 将当前目录的aaa给移动到当前目录的pig，已经有aaa所以给重命名</p>
+<p>mv pig.txt /root/ 将当前目录的pig移动到/root目录下</p>
+<h4 id="cat指令"><a href="#cat指令" class="headerlink" title="cat指令"></a>cat指令</h4><p>cat查看文件内容，以只读的方式打开</p>
+<ul>
+<li><p>基本语法</p>
+<p>cat【选项】要查看的文件</p>
+</li>
+<li><p>常用选项</p>
+<p>-n：显示行号</p>
+</li>
+</ul>
+<p>cat -n /etc/profile | more    cat指令打开文件，显示行号，并以管道用more来分页</p>
+<p>cat只能浏览文件，而不能修改文件，为了浏览方便，一般会带上 管道命令 | more</p>
+<h4 id="more指令"><a href="#more指令" class="headerlink" title="more指令"></a>more指令</h4><p>more指令是基于VI编辑器的文本过滤器，以全屏的方式<strong>按页显示文本文件的内容</strong>。</p>
+<ul>
+<li><p>基本语法</p>
+<p>more 要查看的文件</p>
+</li>
+<li><p>快捷键</p>
+<ul>
+<li>空格 下翻一页</li>
+<li>ENTER 向下翻一行</li>
+<li>q 立刻离开more，不再显示该文件内容</li>
+<li>Ctrl+F 向下滚动一屏</li>
+<li>Ctrl+B 返回上一屏</li>
+<li>= 输出当前的行号</li>
+<li>:f 输出文件名和当前的行号</li>
+</ul>
+</li>
+</ul>
+<h4 id="less指令"><a href="#less指令" class="headerlink" title="less指令"></a>less指令</h4><p>less指令用于分屏查看文件内容，功能与more相似，比more更强大，支持各种显示终端。less指令在显示文件内容时，<strong>不是一次将整个文件加载后才显示</strong>，而是根据需要加载内容。<strong>对于显示大型文件有较高的效率</strong>。</p>
+<ul>
+<li><p>基本语法</p>
+<p>less 要查看的文件</p>
+</li>
+<li><p>操作说明</p>
+<ul>
+<li>空格或pagedown 下翻一页</li>
+<li>pageup 上翻一页</li>
+<li>/子串 向下查找 n：向下找 N：向上找</li>
+<li>?子串 向上查找 n：向上查找 N：向下查找</li>
+<li>q 离开less</li>
+</ul>
+</li>
+</ul>
+<h4 id="gt-指令和-gt-gt-指令"><a href="#gt-指令和-gt-gt-指令" class="headerlink" title="&gt;指令和&gt;&gt;指令"></a>&gt;指令和&gt;&gt;指令</h4><p><code>&gt;</code><strong>重定向</strong>将原来内容覆盖</p>
+<p><code>&gt;&gt;</code><strong>追加</strong>，将新内容追加到原来尾部</p>
+<p>基本语法</p>
+<ol>
+<li>ls -l &gt; 文件 列表的内容写入到文件中（覆盖写）</li>
+<li>ls -al &gt;&gt;文件 列表内容追加到文件的末尾（不会覆盖）</li>
+<li>cat 文件1 &gt; 文件2 将文件1的内容覆盖到文件2</li>
+<li>echo “内容”&gt;&gt;文件</li>
+</ol>
+<p>ls -l &gt; a.txt 将ls -l的内容覆盖写入到a.txt中，如果该文件不存在则创建</p>
+<p>ls -l &gt;&gt; a.txt 将ls -l显示的内容追加到后面文件中去</p>
+<p>cat /etc/profile &gt; b.txt 将profile中内容覆盖到b.txt中</p>
+<p>echo “hello,world” &gt;&gt; b.txt 将内容追加到b.txt中</p>
+<h4 id="echo指令"><a href="#echo指令" class="headerlink" title="echo指令"></a>echo指令</h4><p>echo输出内容到控制台</p>
+<ul>
+<li><p>基本语法</p>
+<p>echo 【选项】【输出内容】</p>
+</li>
+<li><p>应用实例</p>
+<p>使用echo输出环境变量，输出当前的环境路径 echo $PATH</p>
+<p>使用echo指令输出hello.world  echo “hello,word”</p>
+</li>
+</ul>
+<h4 id="head指令"><a href="#head指令" class="headerlink" title="head指令"></a>head指令</h4><p>head用于显示文件的开头部分内容，默认情况下head指令显示文件的前10行内容</p>
+<ul>
+<li><p>基本语法</p>
+<p>head 文件 查看文件头10行内容</p>
+<p>head -n 5 文件 查看文件前5行内容，5可以是任意行数</p>
+</li>
+</ul>
+<p>head -n 5 /etc/profile 查看profile前5行内容</p>
+<h4 id="tail指令【实用】"><a href="#tail指令【实用】" class="headerlink" title="tail指令【实用】"></a>tail指令【实用】</h4><p>tail用于输出文件中尾部的内容，默认情况下tail显示文件后10行内容</p>
+<ul>
+<li><p>基本语法</p>
+<p>tail 文件 查看文件后10行内容</p>
+<p>tail -n 5 文件 查看文件后5行内容</p>
+<p>tail -f 文件 <strong>实时追踪</strong>该文档的所有更新【工作常用】</p>
+</li>
+</ul>
+<p>tail -f a.txt 实时追踪a.txt中最新添加的文件，如果有变化就会看到</p>
+<h4 id="ln指令"><a href="#ln指令" class="headerlink" title="ln指令"></a>ln指令</h4><p>软链接也叫符号链接，类似于windows中的快捷方式，主要存放链接其他文件的路径</p>
+<ul>
+<li><p>基本用法</p>
+<p>ln -s 【原文件或目录】【软链接名】给原文件增加一个软链接</p>
+</li>
+<li><p>应用实例</p>
+<p>ln -s /root linkToRoot 在当前目录创建一个root目录的软链接，此目录相当于/root的快捷方式，但路径仍为软链接所在路径</p>
+<p>rm -rf linkToRoot 删除软链接，不能直接使用rm，因为是带内容的目录</p>
+</li>
+</ul>
+<h4 id="history指令【好用】"><a href="#history指令【好用】" class="headerlink" title="history指令【好用】"></a>history指令【好用】</h4><p>查看已经执行过历史命令，也可以执行历史指令</p>
+<ul>
+<li><p>基本语法</p>
+<p>histoty 查看已经执行过的指令</p>
+</li>
+<li><p>应用实例</p>
+<p>histoty 显示所有的历史指令</p>
+<p>history 10 显示最近使用过的10个指令</p>
+<p>!5 查看历史编号为5的指令</p>
+</li>
+</ul>
+<h3 id="时间日期类"><a href="#时间日期类" class="headerlink" title="时间日期类"></a>时间日期类</h3><h4 id="date指令-显示当前日期【重点】"><a href="#date指令-显示当前日期【重点】" class="headerlink" title="date指令-显示当前日期【重点】"></a>date指令-显示当前日期【重点】</h4><ul>
+<li>基本语法<ul>
+<li>date 显示当前时间</li>
+<li>date+%Y显示当前年份</li>
+<li>date+%m显示当前月份</li>
+<li>date+%d显示当前哪一天</li>
+<li>date”+%Y-%m-%d %H:%M:%S” 显示年月日时分秒</li>
+</ul>
+</li>
+<li>应用案例<ul>
+<li>date 显示当前时间</li>
+<li>date “+%Y %m %d” 显示当前年月日，中间分隔符无所谓</li>
+<li>date “+%Y年%m月%d日 %H:%M:%S”  显示当前年月日时分秒</li>
+</ul>
+</li>
+</ul>
+<p>关键是加号</p>
+<h4 id="date指令-设置当前日期【重点】"><a href="#date指令-设置当前日期【重点】" class="headerlink" title="date指令-设置当前日期【重点】"></a>date指令-设置当前日期【重点】</h4><ul>
+<li><p>基本语法</p>
+<p>date -s 字符串时间</p>
+</li>
+<li><p>应用案例</p>
+<p>date -s “2020-04-20 15:45:00”  设置当前的时间</p>
+</li>
+</ul>
+<h4 id="cal指令"><a href="#cal指令" class="headerlink" title="cal指令"></a>cal指令</h4><p>cal查看日历时间</p>
+<ul>
+<li><p>基本语法</p>
+<p>cal【选项】不加选项，显示本月日历</p>
+</li>
+<li><p>应用案例</p>
+<p>cal 显示本月日历</p>
+<p>cal 2020 显示2020年的日历</p>
+</li>
+</ul>
+<h3 id="搜素查找类"><a href="#搜素查找类" class="headerlink" title="搜素查找类"></a>搜素查找类</h3><h4 id="find指令"><a href="#find指令" class="headerlink" title="find指令"></a>find指令</h4><p>find指令将从目录向下递归地遍历其各个子目录，将满足条件的文件或者目录显示在终端。</p>
+<ul>
+<li><p>基本语法</p>
+<p>find【搜索范围】【选项】</p>
+</li>
+<li><p>选项说明</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-name&lt;查询方式&gt;</td>
+<td>按照指定的文件名查找模式查找文件</td>
+</tr>
+<tr>
+<td>-user&lt;用户名&gt;</td>
+<td>查找属于指定用户的所有文件</td>
+</tr>
+<tr>
+<td>-size&lt;文件大小&gt;</td>
+<td>按照指定的大小查找文件</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>应用案例</p>
+<ul>
+<li><p>find /home -name hello.txt 找到home目录下叫hello.txt的文件</p>
+</li>
+<li><p>find /opt -user root 找到opt目录下root用户的文件</p>
+</li>
+<li><p>查找linux系统大于20 m的文件  +n 大于 -n 小于 n等于</p>
+<p>find / -size +20M  在根目录下按照文件大小大于20M查找</p>
+<p>find / -name “<code>*.txt</code>“ 查找根目录下后缀为txt的文件，注意，后缀要被引号括起来，不然会报错find: 路径必须在表达式之前</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="locate指令"><a href="#locate指令" class="headerlink" title="locate指令"></a>locate指令</h4><p>locate快速定位文件。利用的是系统建立的所有文件名称及路径的locate数据库，管理员要定期更新locate数据库。</p>
+<ul>
+<li><p>基本语法</p>
+<p>locate 搜索文件</p>
+</li>
+<li><p>特别说明</p>
+<p>第一次运行前，要使用<strong>updatedb</strong>指令创建locate数据库</p>
+</li>
+<li><p>案例</p>
+<p>找到hello.txt</p>
+<p>updatedb</p>
+<p>locate hello.txt</p>
+</li>
+</ul>
+<h4 id="grep指令和管道符号"><a href="#grep指令和管道符号" class="headerlink" title="grep指令和管道符号|"></a>grep指令和管道符号|</h4><p>grep过滤查找，管道符|，表示将前一个命令的处理结果输出传递给后面的命令处理。</p>
+<ul>
+<li><p>基本语法</p>
+<p>grep【选项】查找内容 源文件</p>
+</li>
+<li><p>常用选项</p>
+<ul>
+<li>-n 显示匹配行及行号</li>
+<li>-i  忽略字母大小写</li>
+</ul>
+</li>
+<li><p>应用案例</p>
+<p>cat hello.txt | grep -n hello 将cat的结果交给grep，将hello.txt中有hello的结果及行号显示出来。</p>
+<p>cat hello.txt | grep -ni hello 不区分大小写，将cat显示的结果交给grep，然后不区分大小写查找hello</p>
+</li>
+</ul>
+<h3 id="压缩和解压类"><a href="#压缩和解压类" class="headerlink" title="压缩和解压类"></a>压缩和解压类</h3><h4 id="gzip-gunzip指令【少】"><a href="#gzip-gunzip指令【少】" class="headerlink" title="gzip/gunzip指令【少】"></a>gzip/gunzip指令【少】</h4><p>gzip用于压缩文件，gunzip用于解压</p>
+<ul>
+<li><p>基本语法</p>
+<ul>
+<li><p>gzip 文件 压缩文件，只能将文件压缩为<code>*.gz</code>文件</p>
+</li>
+<li><p>gunzip 文件.gz 解压缩文件命令</p>
+</li>
+</ul>
+</li>
+<li><p>细节说明</p>
+<p>使用gzip对文件压缩后，<strong>不保留原来的文件</strong></p>
+</li>
+</ul>
+<h4 id="zip-unzip"><a href="#zip-unzip" class="headerlink" title="zip/unzip"></a>zip/unzip</h4><p>zip用于压缩文件，unzip用于解压，在项目打包发布中有用</p>
+<ul>
+<li><p>基本语法</p>
+<ul>
+<li><p>zip 【选项】XXX.zip 将要压缩的内容（ 压缩文件）</p>
+</li>
+<li><p>unzip【选项】XXX.zip（解压缩文件）</p>
+</li>
+</ul>
+</li>
+<li><p>常用选项</p>
+<p>zip</p>
+<ul>
+<li>-r ：递归压缩，即压缩目录</li>
+</ul>
+<p>unzip</p>
+<ul>
+<li>-d&lt;目录&gt;：指定解压缩文件的存放目录</li>
+</ul>
+</li>
+<li><p>应用实例</p>
+<p>zip -r mypackge.zip /home/ 将home目录下的所有文件压缩到mypackge中</p>
+<p>unzip -d /opt/tmp mypackge.zip 将压缩包解压到指定的路径tmp下</p>
+</li>
+</ul>
+<h4 id="tar指令【重要】"><a href="#tar指令【重要】" class="headerlink" title="tar指令【重要】"></a>tar指令【重要】</h4><p>tar指令是打包指令，最后打包的是.tar.gz文件</p>
+<ul>
+<li><p>基本语法</p>
+<p>tar【选项】XXX.tar.gz 打包的内容（打包目录，压缩后的文件格式.tar.gz）</p>
+</li>
+<li><p>选项说明</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-c</td>
+<td>产生.tar打包文件</td>
+</tr>
+<tr>
+<td>-v</td>
+<td>显示详细信息</td>
+</tr>
+<tr>
+<td>-f</td>
+<td>指定压缩的文件名</td>
+</tr>
+<tr>
+<td>-z</td>
+<td>打包同时压缩</td>
+</tr>
+<tr>
+<td>-x</td>
+<td>解包.tar文件</td>
+</tr>
+</tbody></table>
+<p>打包 -zcvf</p>
+<p>解压 -zxvf</p>
+</li>
+<li><p>应用实例</p>
+<ul>
+<li><p>压缩多个文件，将/home/a1.txt和/home/a2.txt压缩成a.tar.gz</p>
+<p>tar -zcvf a.tar.gz a1.txt a2.txt （a.tar.gz为打包后文件名，后面问要打包的文件）-zcvf记住</p>
+</li>
+<li><p>将/home文件夹压缩成myhome.tar.gz</p>
+<p>tar -zcvf myhome.tar.gz /home/（对home目录整体打包）</p>
+</li>
+<li><p>将a.tar.gz解压到当前目录</p>
+<p>tar -zxvf a.tar.gz（解压是-zxvf）</p>
+</li>
+<li><p>将myhome.tar.gz解压到/opt目录下</p>
+<p>tar -zxvf myhome.tar.gz -C /opt/（需要加上-C） 指定解压到的目录要事先存在</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="组管理与权限管理"><a href="#组管理与权限管理" class="headerlink" title="组管理与权限管理"></a>组管理与权限管理</h3><h4 id="Linux组基本介绍"><a href="#Linux组基本介绍" class="headerlink" title="Linux组基本介绍"></a>Linux组基本介绍</h4><p>在linux中每个用户必须属于一个组，不能独立于组外。在linux中每个文件有<strong>所有者</strong>、<strong>所在组</strong>、<strong>其他组</strong>的概念。</p>
+<h4 id="文件-目录所有者"><a href="#文件-目录所有者" class="headerlink" title="文件/目录所有者"></a>文件/目录所有者</h4><p>一般为文件的创建者，谁创建该文件，成为该文件的所有者</p>
+<h5 id="查看文件的所有者"><a href="#查看文件的所有者" class="headerlink" title="查看文件的所有者"></a>查看文件的所有者</h5><ol>
+<li><p>指令：<strong>ls -ahl</strong></p>
+</li>
+<li><p>案例</p>
+<p>创建tom，属于police组，再用tom创建文件，看文件所属</p>
+<p>groupadd police</p>
+<p>useradd -g police tom</p>
+<p>touch ok.txt</p>
+<p>ls -ahl</p>
+<p>结果如下</p>
+<p>-rw-r–r–. 1 tom  police    0 4月  20 21:08 ok.txt 显示了ok文件所有者是tom</p>
+</li>
+</ol>
+<h5 id="修改文件的所有者"><a href="#修改文件的所有者" class="headerlink" title="修改文件的所有者"></a>修改文件的所有者</h5><ol>
+<li><p>指令：chown 用户名 文件名（change owner）</p>
+</li>
+<li><p>案例</p>
+<p>root创建apple.txt，将所有者改为tom</p>
+<p>touch apple.txt</p>
+<p>chown tom apple.txt</p>
+<p>ls -ahl</p>
+<p>用户改了，但所在组没有改</p>
+</li>
+</ol>
+<h4 id="组的创建"><a href="#组的创建" class="headerlink" title="组的创建"></a>组的创建</h4><p>基本指令</p>
+<p>groupadd 组名</p>
+<p>创建用户fox放入monster中</p>
+<p>groupadd monster</p>
+<p>useradd -g monster fox</p>
+<p>id fox看所属组</p>
+<h4 id="文件所在组"><a href="#文件所在组" class="headerlink" title="文件所在组"></a>文件所在组</h4><h5 id="查看文件所在组"><a href="#查看文件所在组" class="headerlink" title="查看文件所在组"></a>查看文件所在组</h5><p>基本指令</p>
+<p>ls -ahl</p>
+<h5 id="修改文件所在组"><a href="#修改文件所在组" class="headerlink" title="修改文件所在组"></a>修改文件所在组</h5><p>chgrp 组名 文件</p>
+<p>chgrp police apple.txt 将apple所在组改为police</p>
+<h4 id="其他组"><a href="#其他组" class="headerlink" title="其他组"></a>其他组</h4><p>除文件的所有者和所在组的用户外，系统的其他用户都是文件的其他组</p>
+<h5 id="改变用户所在组"><a href="#改变用户所在组" class="headerlink" title="改变用户所在组"></a>改变用户所在组</h5><p>用root的管理权限可以改变某个用户所在的组。</p>
+<ol>
+<li>usermod -g 组名 用户名</li>
+<li>usermod -d 目录名 用户名 改变该用户登录的初始目录</li>
+</ol>
+<p>案例</p>
+<p>创建一个土匪组bandit，将tom从police改变为bandit</p>
+<p>usermod -g bandit tom</p>
+<h4 id="权限管理【重要】"><a href="#权限管理【重要】" class="headerlink" title="权限管理【重要】"></a>权限管理【重要】</h4><p>-rw-r–r–. 1 tom police 0 4月  20 21:08 ok.txt</p>
+<p>看具体内容，使用<strong>ls -ahl</strong></p>
+<p>从头开始看</p>
+<ul>
+<li>文件类型<ul>
+<li><code>-</code>普通文件</li>
+<li><code>d:</code>目录</li>
+<li><code>l:</code>软链接</li>
+<li><code>c</code>字符设备【键盘鼠标】</li>
+<li><code>b:</code>块文件，硬盘</li>
+</ul>
+</li>
+<li>文件<strong>所有者</strong>权限，3个一读<ul>
+<li><code>r</code>读</li>
+<li><code>w</code>写</li>
+</ul>
+</li>
+<li>文件<strong>所在组的用户</strong>的权限，3个一读<ul>
+<li><code>r--</code>只有读权限</li>
+</ul>
+</li>
+<li>文件的<strong>其他组用户</strong>的权限，3个一读<ul>
+<li><code>r--</code>只有读权限</li>
+</ul>
+</li>
+<li>若是文件，表示硬链接的数；若为目录，表示该目录子目录个数</li>
+<li>文件所有者 tom</li>
+<li>文件所在组 police</li>
+<li>文件大小 0字节；若是<strong>目录，统一4096</strong></li>
+<li>文件最后修改时间 4月  20 21:08</li>
+</ul>
+<h5 id="rwx权限"><a href="#rwx权限" class="headerlink" title="rwx权限"></a>rwx权限</h5><p>r=4,w=2,x=1</p>
+<p>rwx作用在<strong>文件</strong></p>
+<ol>
+<li>r代表可读：可以读取，查看</li>
+<li>w代表可写：可以修改，但不代表可以删除，只有对该文件所在目录有写文件，才能删除该文件</li>
+<li>x代表可执行：可以被执行</li>
+</ol>
+<p>rwx作用在<strong>目录</strong></p>
+<ol>
+<li>r代表可读：可以读取，ls查看目录内容</li>
+<li>w代表可写：可以修改，目录内创建+删除+重命名目录</li>
+<li>x代表可执行：可以进入该目录</li>
+</ol>
+<h5 id="修改权限"><a href="#修改权限" class="headerlink" title="修改权限"></a>修改权限</h5><p>通过chmod指令，可以修改文件或目录的权限</p>
+<p>第一种方式，+、-、=变更权限</p>
+<p>u：所有者，g：所有组，o：其他人，a：所有人（ugo的总和）</p>
+<p>1、chmod u=rwx,g=rx,o=x 文件目录名</p>
+<p>2、chmod o+w 文件目录名（给此文件其他用户增加w权限）</p>
+<p>3、chmod a-x 文件目录名（给所有用户减去x权限）</p>
+<p>案例</p>
+<p>1、给abc文件的所有者读写执行的权限，给所在组读执行权限，给其他组用户读执行权限</p>
+<p>chmod u=rwx,g=rx,o=rx abc</p>
+<p>这样修改后的权限为</p>
+<p>-rwxr-xr-x. 1 root root      0 4月  21 10:35 abc</p>
+<p>2、给abc文件的所有者除去执行的权限，增加组写的权限</p>
+<p>chmod u-x,g+w abc</p>
+<p>3、给abc文件的所有用户添加读的权限</p>
+<p>chmod a+r abc</p>
+<p>第二种方式</p>
+<p>通过数字变更权限<br>r=4 w=2 x=1   rwx=4+2+1=7</p>
+<p>chmod u=rwx,g=rx,o=x 文件目录名</p>
+<p>相当于 chmod 751 文件目录名</p>
+<p>案例</p>
+<p>将/home/abc.txt文件权限修改成rwxr-xr-x，使用数字的方式实现</p>
+<p>chmod 755 abc.txt</p>
+<h5 id="修改文件所有者-chown【重要】"><a href="#修改文件所有者-chown【重要】" class="headerlink" title="修改文件所有者-chown【重要】"></a>修改文件所有者-chown【重要】</h5><p>基本介绍</p>
+<p>chown newowner file 改变文件的所有者</p>
+<p>chown newowner:newgroup file 改变用户的所有者和所有组</p>
+<p>-R 如果是目录，则使其下所有子文件或目录<strong>递归</strong>生效</p>
+<p>案例</p>
+<p>1、将/home/abc.txt文件的所有者修改为tom</p>
+<p>chown tom abc.txt</p>
+<p>2、将/home/kkk目录下的所有的文件和目录所有者都修改成tom</p>
+<p>应该使用root用户操作</p>
+<p>chown -R tom kkk/ 将kkk目录下所有文件及子目录所有者递归的更改为tom</p>
+<h5 id="修改文件所在组-chgrp"><a href="#修改文件所在组-chgrp" class="headerlink" title="修改文件所在组-chgrp"></a>修改文件所在组-chgrp</h5><p>基本介绍</p>
+<p>chgrp newgroup file 修改文件的所有组</p>
+<p>案例</p>
+<p>1、将/home/abc.txt文件所在组修改为bandit</p>
+<p>chgrp bandit abc.txt</p>
+<p>2、将/home/kkk目录下的所有文件和目录的所在组都修改为bandit</p>
+<p>chgrp -R bandit /home/kkk</p>
+<h5 id="实践-警察和土匪游戏"><a href="#实践-警察和土匪游戏" class="headerlink" title="实践-警察和土匪游戏"></a>实践-警察和土匪游戏</h5><p>police，bandit</p>
+<p>jack,jerry：警察</p>
+<p>xh，xq：土匪</p>
+<p>1、创建组</p>
+<p>groupadd police</p>
+<p>groupadd bandit</p>
+<p>2、创建用户</p>
+<p>useradd -g police jack<br>useradd -g police jerry<br>useradd -g bandit xh<br>useradd -g bandit xq</p>
+<p>passwd 用户 指定密码</p>
+<p>3、jack创建一个文件，自己可以读写，本组人可以读，其他组人没有任何权限</p>
+<p>chmod 640 jack01.txt （6表示rw，4表示r，0表示都没有）</p>
+<p>4、jack修改该文件，让其他组人可以读，本组人可以读写</p>
+<p>chmod 664 jack01.txt或者chmod g=rw,o=r jack01.txt</p>
+<p>5、xh投靠警察，看是否可以写</p>
+<p>xh是无法进入jack目录的，因为对其他组用户jack目录没有权限，如果想让xh进入，起码需要有o=rx权限，需要root修改。</p>
+<p>先使用root用户修改其组 usermod -g police xh</p>
+<p>然后jack需要给/home/jack的文件夹增加本组用户的权限 chmod g=rx</p>
+<p>然后xh需要logout后重新登录，这时候就可以进入了</p>
+<h3 id="定时任务调度"><a href="#定时任务调度" class="headerlink" title="定时任务调度"></a>定时任务调度</h3><p>如果只是简单的任务，可以不用写脚本，直接在crontab中加入任务即可</p>
+<p>对于比较复杂的任务，需要写脚本（shell编程）</p>
+<ul>
+<li><p>概述</p>
+<p>任务调度，指系统在某个时间执行的特定的命令或程序</p>
+</li>
+<li><p>任务调度分类：</p>
+<p>1、系统工作：有些重要的任务必须周而复始的执行，如病毒扫描等</p>
+<p>2、个别用户工作：个别用户可能希望执行某些程序，如对mysql数据库的备份</p>
+</li>
+<li><p>基本语法</p>
+<p>crontab【选项】</p>
+</li>
+<li><p>常用选项</p>
+<p>-e：编辑crontab定时任务</p>
+<p>-l：查询crontab任务</p>
+<p>-r：删除当前用户所有的crontab任务</p>
+</li>
+</ul>
+<p>任务要求：</p>
+<p>​    设置任务调度文件 /etc/crontab</p>
+<p>​    设置个人任务调度。执行crontab -e 命令</p>
+<p>​    输入任务到调度文件</p>
+<p>​    如<code>*/1****ls -l /etc/ &gt;&gt; /tmp/to.txt</code></p>
+<p>​    即每小时的每分钟执行ls -l /etc/ &gt;&gt; /tmp/to.txt命令</p>
+<p>步骤：</p>
+<ol>
+<li>cron -e</li>
+<li><code>*/1 * * * * ls -l /etc/ &gt;&gt; /tmp/to.txt</code></li>
+<li>保存退出后生成程序</li>
+<li>每一分钟都自动执行</li>
+</ol>
+<p>参数细节说明</p>
+<ul>
+<li><p>5个占位符说明</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>含义</th>
+<th>范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第一个<code>*</code></td>
+<td>一小时中第几分钟</td>
+<td>0-59</td>
+</tr>
+<tr>
+<td>第二个<code>*</code></td>
+<td>一天中第几小时</td>
+<td>0-23</td>
+</tr>
+<tr>
+<td>第三个<code>*</code></td>
+<td>一个月中第几天</td>
+<td>1-31</td>
+</tr>
+<tr>
+<td>第四个<code>*</code></td>
+<td>一年当中的第几月</td>
+<td>1-12</td>
+</tr>
+<tr>
+<td>第五个<code>*</code></td>
+<td>一周当中的星期几</td>
+<td>0-7（0和7都代表星期日）</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>特殊符号说明</p>
+<table>
+<thead>
+<tr>
+<th>特殊符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>*</code></td>
+<td>代表任何时间，如第一个<code>*</code>代表一小时中每分钟都执行一次</td>
+</tr>
+<tr>
+<td>,</td>
+<td>代表不连续的时间。如<code>0 8,12,16 * * *</code>命令，代表在每天的8点0分，12点0分，16点0分都执行一次命令</td>
+</tr>
+<tr>
+<td>-</td>
+<td>代表连续的时间范围，如<code>0 5 * * 1-6</code>命令，代表在周一到周六的凌晨5点0分执行命令</td>
+</tr>
+<tr>
+<td><code>*/n</code></td>
+<td>代表每隔多久执行一次，如<code>*/10 * * * *</code>命令，代表每隔10分钟执行一次命令</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>定时案例</p>
+<p>星期几和几号最好不要同时出现，容易混乱</p>
+<img src="/2020/01/29/Linux%E4%BD%BF%E7%94%A8/vim%E5%88%87%E6%8D%A2.png" class title="This is an example image">
+
+</li>
+</ul>
+<p>应用实例</p>
+<p>1、每隔1分钟，将当前的日期和日历信息，追加到/tmp/mydate文件中</p>
+<p>步骤</p>
+<ul>
+<li><p>编写文件/home/mytask1.sh</p>
+<p>date &gt;&gt; /tmp/mydate</p>
+<p>cal &gt;&gt; /tmp/mydate</p>
+</li>
+<li><p>给mytask1.sh一个<strong>可执行权限</strong></p>
+<p>chmod u=rwx mytask1.sh</p>
+</li>
+<li><p>crontab -e</p>
+</li>
+<li><p><code>*/1 * * * * /home/mytask1.sh</code></p>
+</li>
+</ul>
+<p>小结：将要做的事写入sh脚本文件，然后使用crontab -e写入时间与指定要执行的文件</p>
+<p>2、每天凌晨2点，将mysql数据库testdb，备份到文件中</p>
+<p>步骤</p>
+<ul>
+<li><p>编写文件/home/mytask2.sh</p>
+<p>/usr/local/mysql/bin/mysqldymp -uroot -proot testdb &gt; /tmp/mydb.bak</p>
+</li>
+<li><p>给/home/mytask2.sh执行权限</p>
+<p>chmod u=rwx mytask2.sh</p>
+</li>
+<li><p>crontab -e</p>
+</li>
+<li><p><code>0 2 * * * /home/mytask2.sh</code></p>
+</li>
+</ul>
+<p>crond相关指令</p>
+<ol>
+<li>crontab -r：终止当前用户所有任务调度</li>
+<li>crontab -l：列出当前任务调度</li>
+<li>service crond restart：重启任务调度</li>
+</ol>
+<h3 id="Linux磁盘分区、挂载"><a href="#Linux磁盘分区、挂载" class="headerlink" title="Linux磁盘分区、挂载"></a>Linux磁盘分区、挂载</h3><h4 id="分区基础"><a href="#分区基础" class="headerlink" title="分区基础"></a>分区基础</h4><ol>
+<li><p>mbr分区（较老）</p>
+<p>分区数量有限制，兼容性好，最大只支持2TB</p>
+</li>
+<li><p>gtp分区</p>
+<p>分区无限制（操作系统可能限制），最大支持18EB容量</p>
+</li>
+</ol>
+<h4 id="Linux分区"><a href="#Linux分区" class="headerlink" title="Linux分区"></a>Linux分区</h4><p>linux将分区挂载（mount）在目录上。</p>
+<p>linux硬盘分成IDE硬盘与SCSI硬盘，现在基本是SCSI，SCSI硬盘标识为sdx~，x为盘号，a是基本盘，b是从属盘，c是辅助主盘，d是辅助从属盘。</p>
+<p>使用lsblk（<strong>老师不离开</strong>来看系统分区和挂载情况）</p>
+<p>lsblk -f<br>NAME   FSTYPE LABEL   UUID                                 MOUNTPOINT<br>sda<br>├─sda1 ext4           01691513-3a25-4427-a882-0d104c658d95 /boot<br>├─sda2 swap           4e6fe5c2-4cf0-4d17-9e4a-c371c077f57f [SWAP]<br>└─sda3 ext4           b62f2b73-1ed3-4946-a5e2-d2d214153d84 /<br>sr0    iso966 CentOS_6.10_Final</p>
+<p>sda1-3是分区情况，ext4与swap是分区类型，中间是唯一标识分区的UUID，后面为挂载点（文件系统）。</p>
+<ul>
+<li>新增一个硬盘</li>
+<li>分区 fdisk /dev/sdb<ul>
+<li>n 新增分区</li>
+<li>w 将分区写入硬盘并离开</li>
+</ul>
+</li>
+<li>格式化 mkfs -t ext4 /dev/sdb1</li>
+<li>挂载<ul>
+<li>先创建挂载目录 /home/newdisk</li>
+<li>挂载 mount /dev/sdb1 /home/newdisk</li>
+</ul>
+</li>
+<li>设置自动挂载（用久挂载，重启后仍然可以挂载）<ul>
+<li>vim /etc/fstab</li>
+<li>/dev/sdb1                                 /home/newdisk           ext4    defaults        0 0</li>
+<li>mount -a</li>
+</ul>
+</li>
+</ul>
+<p>如果想要取消挂在 umount /dev/sdb1</p>
+<h4 id="磁盘情况查询"><a href="#磁盘情况查询" class="headerlink" title="磁盘情况查询"></a>磁盘情况查询</h4><h5 id="查询系统整体磁盘使用情况"><a href="#查询系统整体磁盘使用情况" class="headerlink" title="查询系统整体磁盘使用情况"></a>查询系统整体磁盘使用情况</h5><ul>
+<li><p>基本语法</p>
+<p>df -h</p>
+</li>
+</ul>
+<h5 id="查询指定目录的磁盘占用情况"><a href="#查询指定目录的磁盘占用情况" class="headerlink" title="查询指定目录的磁盘占用情况"></a>查询指定目录的磁盘占用情况</h5><ul>
+<li><p>基本语法</p>
+<p>du -h /目录</p>
+<p>查询指定目录的磁盘占用情况，默认当前目录</p>
+<p>-s：指定目录占用大小汇总</p>
+<p>-h：带计量单位</p>
+<p>-a：含文件</p>
+<p>–max-depth=1子目录深度</p>
+<p>-c：列出明细的同时，增加汇总值</p>
+</li>
+<li><p>案例</p>
+<p>查询 /opt目录的磁盘占用情况，深度为1</p>
+<p>du -ach –max-depth=1 /opt</p>
+</li>
+</ul>
+<h5 id="工作实用指令"><a href="#工作实用指令" class="headerlink" title="工作实用指令"></a>工作实用指令</h5><p>1、统计/home文件夹下文件的个数</p>
+<p>ls -l /home | grep “^-“ | wc -l</p>
+<p>ls -l /home统计出home目录下所有文件加目录，然后将结果用管道交给grep筛选，条件是类型以-打头，代表是文件，将筛选后的结果用管道交给wc来统计</p>
+<p>2、统计/home文件夹下目录的个数</p>
+<p>ls -l /home | grep “^d” | wc -l</p>
+<p>3、统计/home文件夹下文件的个数，包括子文件</p>
+<p>ls -lR /home | grep “^-“ | wc -l 加入R选项递归统计</p>
+<p>4、统计/home文件夹下目录的个数，包括子目录</p>
+<p>ls -lR /home | grep “^d” | wc -l 加入R选项递归统计</p>
+<p>5、用树状结构显示目录</p>
+<p>yum安装 yum install tree</p>
+<p>然后使用tree查看</p>
+<h3 id="网络配置"><a href="#网络配置" class="headerlink" title="网络配置"></a>网络配置</h3><p>目前网络采用NAT模式，linux与windows通过虚拟网卡组成网络连接。linux的IP可能是动态的。linux通过windows虚拟网卡与windows通讯，在通过真实网卡来与外部网络通讯。</p>
+<p>ping 主机来判断网络是否连通</p>
+<h4 id="自动连接"><a href="#自动连接" class="headerlink" title="自动连接"></a>自动连接</h4><p>linux可以设置自动连接，但每次自动获取的ip可能不一样。不适用于做服务器，因为服务器的ip地址需要是固定的。</p>
+<h4 id="指定固定ip"><a href="#指定固定ip" class="headerlink" title="指定固定ip"></a>指定固定ip</h4><p>直接修改配置文件来指定ip，并可以连接到外网。</p>
+<p>/etc/sysconfig/network-scripts/ifcfg-eth0</p>
+<p>修改为192.168.65.129</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ONBOOT&#x3D;yes 启用boot配置</span><br><span class="line">BOOTPROTO&#x3D;static  以静态方式获取ip</span><br><span class="line">IPADDR&#x3D;192.168.65.129 指定ip</span><br><span class="line">GATEWAY&#x3D;192.168.65.2 网关</span><br><span class="line">DNS1&#x3D;192.168.65.2 dns和网关保持一致即可</span><br></pre></td></tr></table></figure>
+
+<p>service network restart 重启网络服务</p>
+<h3 id="进程管理【重点】"><a href="#进程管理【重点】" class="headerlink" title="进程管理【重点】"></a>进程管理【重点】</h3><h4 id="进程基本介绍"><a href="#进程基本介绍" class="headerlink" title="进程基本介绍"></a>进程基本介绍</h4><ol>
+<li>linux中每个执行的程序都称为一个进程，每一个进程都分配一个ID号</li>
+<li>每个进程都对应有父进程，父进程可以复制多个子进程</li>
+<li>每个进程以前台与后台方式存在。前台是屏幕上可以看到的</li>
+<li>一般系统服务以后台进程存在，常驻在系统中，关机结束</li>
+</ol>
+<h4 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h4><p>ps指令，查看哪些进程执行及执行情况，一般使用<strong>ps -aux</strong>，结合 | 使用，ps -aux | more</p>
+<p>ps -a：显示当前终端所有进程信息</p>
+<p>ps -u：以用户的格式显示进程信息</p>
+<p>ps -x：显示后台进程运行的参数</p>
+<h4 id="ps详解"><a href="#ps详解" class="headerlink" title="ps详解"></a>ps详解</h4><p>USER        PID %CPU %MEM    VSZ   RSS TTY      STAT  START   TIME    COMMAND<br>root          1         0.0      0.0    19356 1568 ?        Ss        19:52    0:02     /sbin/init</p>
+<p>USER为用户名，PID为进程id，CPU为当前进程占用CPU情况，MEM占用内存情况，VSZ占用虚拟内存情况，RSS使用物理内存情况，TTY使用终端，STAT当前进程状态（s休眠，r运行），START启动时间，TIME占用CPU总时间，COMMAND进程执行时命令行</p>
+<p>可以利用<strong>grep过滤</strong>，这种更经常使用</p>
+<p>如看是否有sshd服务 <strong>ps -aux | grep sshd</strong></p>
+<h4 id="应用实例"><a href="#应用实例" class="headerlink" title="应用实例"></a>应用实例</h4><h5 id="看进程父进程"><a href="#看进程父进程" class="headerlink" title="看进程父进程"></a>看进程父进程</h5><p>ps -ef | more</p>
+<p>PPID为父进程的ID号</p>
+<p>看sshd进程的父进程 ps -ef | grep sshd</p>
+<h4 id="终止进程"><a href="#终止进程" class="headerlink" title="终止进程"></a>终止进程</h4><p>kill 【选项】进程号（通过进程号杀死进程），经常使用-9</p>
+<p>killall 进程名称（通过进程名称杀死进程，也支持<strong>通配符</strong>）</p>
+<p>常用选项</p>
+<ul>
+<li>-9 表示强制进程停止</li>
+</ul>
+<p>案例</p>
+<p>1、踢掉某个非法登录用户</p>
+<p>先看sshd进程 ps -aux | grep sshd</p>
+<p>然后找到要踢掉的用户进程，如下</p>
+<p>hugh       3837  0.1  0.0 102136  1932 ?        S    20:59   0:00 sshd: hugh@pts/2</p>
+<p>然后kill对应进程号 kill 3837</p>
+<p>2、终止远程登录服务sshd，在适当时候再次重启sshd服务</p>
+<p>先ps -aux | grep sshd，然后kill对应进程号，这样便无法远程登录</p>
+<p>3、终止多个gedit编辑器【killall】</p>
+<p>killall gedit</p>
+<p>4、终止一个终端</p>
+<p>查看终端进程号 ps -aux | grep bash</p>
+<p>kill -9 终端进程号</p>
+<p>也可以终止自己</p>
+<h4 id="查看进程树pstree"><a href="#查看进程树pstree" class="headerlink" title="查看进程树pstree"></a>查看进程树pstree</h4><p>pstree【选项】，更加直观显示进程信息</p>
+<p>常用选项</p>
+<ul>
+<li>-p：显示进程的PID</li>
+<li>-u：显示进程的所属用户</li>
+</ul>
+<p>案例</p>
+<p>1、用树状形式显示进程pid</p>
+<p>pstree -p</p>
+<p>2、用树状形式显示进程的用户id</p>
+<p>pstree -u</p>
+<h4 id="服务管理"><a href="#服务管理" class="headerlink" title="服务管理"></a>服务管理</h4><p>服务service本质就是进程，但运行在后台，通常监听某个端口，等待其他进程请求。</p>
+<p>service管理指令</p>
+<p>service 服务名 【start|stop|restart|reload|status】</p>
+<p>在Centos 7后，不再使用service，而是systemctl</p>
+<p>案例</p>
+<p>查看防火墙状态，关闭，开启</p>
+<p>service iptables status 一般防火墙只开放22号端口（远程登录端口）</p>
+<p>关闭</p>
+<p>通过telnet指令检查linux的某个端口是否在监听，且可以访问</p>
+<p>dos下telnet ip地址 端口 ，wn10下需要开启telnet服务</p>
+<p>service关闭服务立刻生效，但只是暂时的，重启系统后，回归对以前服务的设置</p>
+<h5 id="查看服务名"><a href="#查看服务名" class="headerlink" title="查看服务名"></a>查看服务名</h5><p>方式一：setup指令</p>
+<p>方式二：/ect/init.d/服务名称</p>
+<p>ls -l /etc/init.d/</p>
+<h5 id="服务运行级别"><a href="#服务运行级别" class="headerlink" title="服务运行级别"></a>服务运行级别</h5><p>默认3和5</p>
+<p>0：关机</p>
+<p>1：单用户（找回丢失密码）</p>
+<p>2：多用户无网络服务【少】</p>
+<p>3：<strong>多用户网络服务</strong>【多】</p>
+<p>4：保留</p>
+<p>5：<strong>图形界面</strong>【多】</p>
+<p>6：重启</p>
+<p>系统运行级别配置文件 /etc/inittab，使用vi来修改</p>
+<p>开机流程</p>
+<p>开机—BIOS—/boot—init进程1—运行级别—运行对应服务</p>
+<p>服务对每个运行级别设置是否自启动</p>
+<h5 id="chkconfig指令【重要】"><a href="#chkconfig指令【重要】" class="headerlink" title="chkconfig指令【重要】"></a>chkconfig指令【重要】</h5><p>通过chkconfig可以给每个服务的各个运行级别设置自启动/关闭</p>
+<p>基本语法</p>
+<p><code>chkconfig --list</code> 看所有服务所有级别自启动设置</p>
+<ul>
+<li>查看服务 –list | grep xxx</li>
+<li><code>chkconfig 服务名 --list</code></li>
+<li><code>chkconfig -- level 5 服务名 on/off</code>设置服务在某个级别启动或者关闭</li>
+<li><code>chkconfig 服务名 on/off</code>设置所有级别下开启或者关闭</li>
+</ul>
+<p>chkconfig –list | grep sshd</p>
+<p>chkconfig iptables –list 看防火墙的</p>
+<p>chkconfig设置自启动或关闭后，需要重启才生效。</p>
+<h4 id="进程监控"><a href="#进程监控" class="headerlink" title="进程监控"></a>进程监控</h4><h5 id="动态监控进程"><a href="#动态监控进程" class="headerlink" title="动态监控进程"></a>动态监控进程</h5><p>top与ps命令类似，显示正在进行的进程，top执行一段时间可以更新正在运行的进程</p>
+<p>基本语法</p>
+<p>top【选项】</p>
+<p>选项</p>
+<ul>
+<li>-d 秒数：指定top命令每隔几秒更新，默认3秒</li>
+<li>-i：top不显示任何闲置或者僵死进程</li>
+<li>-p：通过指定监控进程ID来仅仅监控某个进程状态</li>
+</ul>
+<p>交互操作</p>
+<ul>
+<li>P：CPU使用率排序，默认</li>
+<li>M：内存使用率排序</li>
+<li>N：PID排序</li>
+<li>q：退出top</li>
+</ul>
+<p>实例</p>
+<p>1、监视特定用户【输入u】</p>
+<p>输入top，按下回车</p>
+<p>top - 10:01:03 up 6 min,  2 users,  load average: 0.18, 0.25, 0.13<br>Tasks: 220 total,   1 running, 219 sleeping,   0 stopped,   0 zombie<br>Cpu(s):  0.3%us,  2.3%sy,  0.0%ni, 97.1%id,  0.2%wa,  0.0%hi,  0.1%si,  0.0%st<br>Mem:   2037260k total,   561888k used,  1475372k free,    22204k buffers<br>Swap:  2097148k total,        0k used,  2097148k free,   214864k cached</p>
+<p>第一行：系统运行时间，用户数，负载均衡情况</p>
+<p>第二行：总任务书，zombie为僵死进程</p>
+<p>第三行：us用户占用，sy系统占用，id剩余可用</p>
+<p>Mem：内存情况</p>
+<p>Swap：内存不够用swap</p>
+<p>在top下，按下u，然后输入用户名，可以看特定用户启用的进程</p>
+<p>2、终止指定的进程</p>
+<p>输入top，然后输入k，再输入要结束的进程ID号</p>
+<p>按下q退出</p>
+<h5 id="监控网络状态【重要】"><a href="#监控网络状态【重要】" class="headerlink" title="监控网络状态【重要】"></a>监控网络状态【重要】</h5><p>netstat查看系统网络情况</p>
+<p>基本语法</p>
+<p>netstat【选项】常写：netstat -anp</p>
+<p>选项说明</p>
+<ul>
+<li>-an：按一定顺序排列输出</li>
+<li>-p：显示哪个进程在调用</li>
+</ul>
+<p>案例</p>
+<p>查看服务名为sshd的服务信息</p>
+<p>netstat -anp | grep sshd</p>
+<h3 id="RPM和YUM"><a href="#RPM和YUM" class="headerlink" title="RPM和YUM"></a>RPM和YUM</h3><h4 id="rpm"><a href="#rpm" class="headerlink" title="rpm"></a>rpm</h4><p>用于互联网下载包的打包和安装工具，红帽发布，类似windows下的setup.exe。</p>
+<h5 id="rpm包简单查询指令"><a href="#rpm包简单查询指令" class="headerlink" title="rpm包简单查询指令"></a>rpm包简单查询指令</h5><p>查询已安装的rpm列表 rpm -qa | grep xx</p>
+<p>查询当前linux下是否安装火狐</p>
+<p>rpm -qa | grep firefox<br>firefox-52.8.0-1.el6.centos.x86_64</p>
+<p>查询结果是软件名，版本，适用于centos6.x的64位系统</p>
+<p>若是i686、i386表示32位系统，noarch表示通用</p>
+<h5 id="rpm包其他指令"><a href="#rpm包其他指令" class="headerlink" title="rpm包其他指令"></a>rpm包其他指令</h5><p>rpm -qa：查询所安装的所有rpm包</p>
+<p>rpm -qa | more：分页查询所安装的所有rpm包</p>
+<p>rpm -qa | grep X：查询是否安装指定的rpm包</p>
+<p>rpm -qi 软件名：查询rpm安装软件包信息   rpm -qi firefox</p>
+<p>rpm -ql 软件包名：查询软件包中的文件<strong>安装路径</strong>【重要】</p>
+<p>rpm -qf 文件全路径名：查询<strong>文件属于哪个软件包</strong></p>
+<h5 id="卸载rpm包"><a href="#卸载rpm包" class="headerlink" title="卸载rpm包"></a>卸载rpm包</h5><p>基本语法</p>
+<p>rpm -e RPM包名</p>
+<p>有时删除会报错，因为可能该包会被其他包依赖，如果要强制删除，<code>rpm -e --modeps</code>，不建议</p>
+<h5 id="安装rpm包"><a href="#安装rpm包" class="headerlink" title="安装rpm包"></a>安装rpm包</h5><p>基本语法</p>
+<p>rpm -ivh RPM包全路径名称</p>
+<p>参数说明</p>
+<ul>
+<li>-i：install，安装</li>
+<li>-v：verbose，提示</li>
+<li>-h：hash，进度条</li>
+</ul>
+<p>案例：卸载并安装firefox</p>
+<p>卸载：rpm -e firefox</p>
+<p>安装：挂载Centos的CD，外部挂载的在/media目录下，然后找到CD下的Packages，找到火狐的rpm</p>
+<p>ls -l | grep firefox</p>
+<p>拷贝其至/opt目录下</p>
+<p>cp firefox-52.8.0-1.el6.centos.x86_64.rpm /opt/</p>
+<p>然后进入/opt目录，使用rpm -ivh安装</p>
+<p>rpm -ivh firefox-52.8.0-1.el6.centos.x86_64.rpm</p>
+<h4 id="yum"><a href="#yum" class="headerlink" title="yum"></a>yum</h4><p>Yum是一个Shell前端软件包管理器，基于RPM包管理，可以自动处理依赖关系，比较方便，用的多。需要联网。</p>
+<p>基本指令</p>
+<ul>
+<li>yum list | grep xx 软件列表</li>
+<li>yum install xxx 下载安装</li>
+</ul>
+<p>案例：</p>
+<p>使用yum安装火狐</p>
+<p>先看火狐在yum上有没有</p>
+<p>yum list | grep firefox</p>
+<p>然后安装firefox</p>
+<p>yum install firefox</p>
+<h1 id="Java相关安装"><a href="#Java相关安装" class="headerlink" title="Java相关安装"></a>Java相关安装</h1><h2 id="安装JDK"><a href="#安装JDK" class="headerlink" title="安装JDK"></a>安装JDK</h2><p>在Oracle官网下载JDK8，然后用XShell5传至linux的/opt目录，使用</p>
+<p>tar -zxvf jdk包名称  进行解压</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">tar -zxvf jdk-8u241-linux-x64.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>然后配置其环境变量</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br></pre></td></tr></table></figure>
+
+<p>在最后加上</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">JAVA_HOME=/opt/jdk1.8.0_241</span><br><span class="line">PATH=/opt/jdk1.8.0_241/bin:$PATH</span><br><span class="line">export JAVA_HOME PATH</span><br></pre></td></tr></table></figure>
+
+<p>注意，PATH后要加上:PATH，不然原来路径会被覆盖</p>
+<p>这时候，在5级别下，注销用户再重新登录即可。</p>
+]]></content>
+  </entry>
+  <entry>
     <title>Java学习笔记</title>
     <url>/2020/01/14/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<blockquote>
@@ -10153,147 +11233,6 @@ getLast();</code></pre><p> <strong>jdk1.6</strong></p>
       </categories>
       <tags>
         <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux使用</title>
-    <url>/2020/01/14/Linux%E4%BD%BF%E7%94%A8/</url>
-    <content><![CDATA[<h2 id="Linux下安装jdk8"><a href="#Linux下安装jdk8" class="headerlink" title="Linux下安装jdk8"></a>Linux下安装jdk8</h2><h3 id="卸载Linux自带OpenJDK"><a href="#卸载Linux自带OpenJDK" class="headerlink" title="卸载Linux自带OpenJDK"></a>卸载Linux自带OpenJDK</h3><p>切换到root权限</p>
-<blockquote>
-<p>su root</p>
-</blockquote>
-<p> 使用java -version看OpenJDK信息，然后查询系统自带java相关文件</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rpm -qa | grep java</span><br></pre></td></tr></table></figure>
-
-<a id="more"></a>
-
-<p>命令说明：</p>
-<p>rpm 　管理套件</p>
-<p>-qa 　使用询问模式，查询所有套件</p>
-<p>grep　　查找文件里符合条件的字符串</p>
-<p>java 　查找包含java字符串的文件</p>
-<p> 除noarch外，删除其他java文件</p>
-<blockquote>
-<p>rpm -e –nodeps java-1.7.0-openjdk-1.7.0.111-2.6.7.8.el7.x86_64</p>
-</blockquote>
-<p>命令介绍</p>
-<p>rpm 　　　管理套件</p>
-<p>-e　　　　　删除指定的套件</p>
-<p>–nodeps　　不验证套件档的相互关联性</p>
-<p> 当输入java -version，没有找到命令，代表删除成功。</p>
-<hr>
-<h3 id="下载JDK"><a href="#下载JDK" class="headerlink" title="下载JDK"></a>下载JDK</h3><p>历史版本下载地址：　　<a href="http://www.oracle.com/technetwork/java/javase/archive-139210.html" target="_blank" rel="noopener">http://www.oracle.com/technetwork/java/javase/archive-139210.html</a></p>
-<p> 通过浏览器下载会默认下载到当前登陆用户的下载目录，下载位置为“当前用户/下载/jdk-8u211-linux-x64.tar.gz”。</p>
-<p> cd 下载，然后使用</p>
-<blockquote>
-<p>ls -al 展示本目录下所有文件</p>
-</blockquote>
-<p> 为了查看当前目录路径，可以使用</p>
-<blockquote>
-<p>pwd 查看当前目录路径</p>
-</blockquote>
-<hr>
-<h3 id="复制JDK"><a href="#复制JDK" class="headerlink" title="复制JDK"></a>复制JDK</h3><h4 id="备份JDK"><a href="#备份JDK" class="headerlink" title="备份JDK"></a>备份JDK</h4><p> 将压缩包复制一份到/usr/local/src/作备份，输入命令</p>
-<blockquote>
-<p>cp jdk-8u211-linux-x64.tar.gz /usr/local/src</p>
-</blockquote>
-<p>命令说明：</p>
-<p>cp　　　　　　　　　　　　　　 复制文件或目录</p>
-<p>jdk-8u211-linux-x64.tar.gz　　　　文件名</p>
-<p>/user/local/src　　　　　　　　　 要复制的目标目录</p>
-<h4 id="创建java文件夹"><a href="#创建java文件夹" class="headerlink" title="创建java文件夹"></a>创建java文件夹</h4><p> 在usr目录下创建一个文件夹，名为java</p>
-<blockquote>
-<p>mkdir java</p>
-</blockquote>
-<p> 然后将文件拷贝至/usr/java</p>
-<blockquote>
-<p>cp jdk-8u211-linux-x64.tar.gz /usr/java</p>
-</blockquote>
-<hr>
-<h3 id="解压缩JDK"><a href="#解压缩JDK" class="headerlink" title="解压缩JDK"></a>解压缩JDK</h3><h4 id="在java目录下解压JDK压缩文件"><a href="#在java目录下解压JDK压缩文件" class="headerlink" title="在java目录下解压JDK压缩文件"></a>在java目录下解压JDK压缩文件</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">tar -zxvf jdk-8u144-linux-x64.tar.gz</span><br></pre></td></tr></table></figure>
-
-<p>命令介绍：</p>
-<p>tar　　　　　　备份文件</p>
-<p>-zxvf　　　　　</p>
-<p>-z　　　　　　 　　　　　　　 通过gzip指令处理备份文件</p>
-<p>-x　　　　　　　　　　　　　　 从备份文件中还原文件</p>
-<p>-v　　　　　　　　　　　　　　 显示指令执行过程</p>
-<p>-f　　　　　　 　　　　　　　　 指定备份文件</p>
-<p>jdk-8u211-linux-x64.tar.gz　　　　文件名</p>
-<h4 id="删除JDK压缩包"><a href="#删除JDK压缩包" class="headerlink" title="删除JDK压缩包"></a>删除JDK压缩包</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rm -f jdk-8u211-linux-x64.tar.gz</span><br></pre></td></tr></table></figure>
-
-<p>命令解释：</p>
-<p>rm　　　　删除文件或目录</p>
-<p>-f　　　　 强制删除文件或目录</p>
-<hr>
-<h3 id="配置JDK环境变量"><a href="#配置JDK环境变量" class="headerlink" title="配置JDK环境变量"></a>配置JDK环境变量</h3><h4 id="编辑全局变量"><a href="#编辑全局变量" class="headerlink" title="编辑全局变量"></a>编辑全局变量</h4><p>命令行键入：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;profile</span><br></pre></td></tr></table></figure>
-
-<p>命令说明：</p>
-<p>vim　　　　　　文本编辑</p>
-<p>/etc/profile　　　全局变量文件</p>
-<p>进入文本编辑状态下，光标走到文件最后一行，键盘按下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">i</span><br></pre></td></tr></table></figure>
-
-<p> 进入插入状态：</p>
-<p>在文本的最后一行粘贴如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">i</span><br></pre></td></tr></table></figure>
-
-<p>注意JAVA_HOME=/usr/java/jdk1.8.0_211 为你自己的目录</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#java environment</span><br><span class="line">export JAVA_HOME&#x3D;&#x2F;usr&#x2F;java&#x2F;jdk1.8.0_211</span><br><span class="line">export CLASSPATH&#x3D;.:$&#123;JAVA_HOME&#125;&#x2F;jre&#x2F;lib&#x2F;rt.jar:$&#123;JAVA_HOME&#125;&#x2F;lib&#x2F;dt.jar:$&#123;JAVA_HOME&#125;&#x2F;lib&#x2F;tools.jar</span><br><span class="line">export PATH&#x3D;$PATH:$&#123;JAVA_HOME&#125;&#x2F;bin</span><br></pre></td></tr></table></figure>
-
-<p>【注】：CentOS6上面的是JAVAHOME，CentOS7是{JAVA_HOME}</p>
-<p> 复制完成后，在键盘敲下</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ESC</span><br><span class="line">shift+q</span><br></pre></td></tr></table></figure>
-
-<p> 进入EX模式，敲下</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">x</span><br></pre></td></tr></table></figure>
-
-<p> 保存并退出。</p>
-<hr>
-<h3 id="检验环境变量是否生效"><a href="#检验环境变量是否生效" class="headerlink" title="检验环境变量是否生效"></a>检验环境变量是否生效</h3><h4 id="让刚刚设置的环境变量生效"><a href="#让刚刚设置的环境变量生效" class="headerlink" title="让刚刚设置的环境变量生效"></a>让刚刚设置的环境变量生效</h4><p>键入：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">source &#x2F;etc&#x2F;profile</span><br></pre></td></tr></table></figure>
-
-<p>source /etc/profile或 . /etc/profile</p>
-<h4 id="检查是否配置成功"><a href="#检查是否配置成功" class="headerlink" title="检查是否配置成功"></a>检查是否配置成功</h4><p>键入：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">java -version</span><br></pre></td></tr></table></figure>
-
-<h2 id="Linux命令"><a href="#Linux命令" class="headerlink" title="Linux命令"></a>Linux命令</h2><h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
-<li>pwd 查看当前目录路径</li>
-<li>ls -al 展示本目录下所有文件</li>
-</ul>
-<h3 id="文件夹"><a href="#文件夹" class="headerlink" title="文件夹"></a>文件夹</h3><ul>
-<li>mkdir dir 创建文件夹</li>
-</ul>
-<h3 id="文件"><a href="#文件" class="headerlink" title="文件"></a>文件</h3><ul>
-<li>cp 复制文件</li>
-</ul>
-<p>cp　　　　　　　　　　　　　　 复制文件或目录</p>
-<p>jdk-8u211-linux-x64.tar.gz　　　　完整文件名</p>
-<p>/user/local/src　　　　　　　　　 要复制的目标目录</p>
-<ul>
-<li>rm 删除文件</li>
-</ul>
-<p>rm　　　　删除文件或目录</p>
-<p>-f　　　　 强制删除文件或目录</p>
-<ul>
-<li>tar 备份，解压缩文件</li>
-</ul>
-<p>tar　　　　　　备份文件</p>
-<p>-zxvf　　　　　</p>
-<p>-z　　　　　　 　　　　　　　 通过gzip指令处理备份文件</p>
-<p>-x　　　　　　　　　　　　　　 从备份文件中还原文件</p>
-<p>-v　　　　　　　　　　　　　　 显示指令执行过程</p>
-<p>-f　　　　　　 　　　　　　　　 指定备份文件</p>
-<p>jdk-8u211-linux-x64.tar.gz　　　　文件名</p>
-<h3 id="全局变量"><a href="#全局变量" class="headerlink" title="全局变量"></a>全局变量</h3><h4 id="编辑全局变量-1"><a href="#编辑全局变量-1" class="headerlink" title="编辑全局变量"></a>编辑全局变量</h4><p>vim /etc/profile</p>
-<p>i 插入</p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
