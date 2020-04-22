@@ -2030,14 +2030,44 @@
 <li><p>进程的切换比线程的切换开销大</p>
 </li>
 </ul>
+<h3 id="如何应对秒杀"><a href="#如何应对秒杀" class="headerlink" title="如何应对秒杀"></a>如何应对秒杀</h3><blockquote>
+<p>参考bilibili视频 <a href="https://www.bilibili.com/video/BV1C441127Ke" target="_blank" rel="noopener">https://www.bilibili.com/video/BV1C441127Ke</a></p>
+</blockquote>
+<img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/%E7%A7%92%E6%9D%80.png" class title="This is an example image">
+
+<ol>
+<li><p>利用CDN实现资源的动静分离</p>
+<p>静态资源直接使用CDN处理，其他资源去请求服务器</p>
+</li>
+<li><p>使用Nginx来实现反向代理与负载均衡</p>
+<p>避免一台服务器压力过大</p>
+</li>
+<li><p>应用程序微服务化</p>
+<p>可能有些程序需要被使用到的频率较高，将不同的程序拆分，形成不同的微服务，让被使用更多的程序分配更多的机器与资源</p>
+</li>
+<li><p>增加缓存，Redis等</p>
+<p>一些读的请求，如果频繁请求数据库，会让数据库压力过大，因此可以让热点数据缓存在Redis中，减轻DB压力</p>
+</li>
+<li><p>增加消息队列</p>
+<p>使用消息队列来实现削峰，避免请求同时打到服务器上，这样先将消息放入消息队列，然后服务器再从中取出进行处理</p>
+</li>
+</ol>
 <h2 id="多线程怎么用"><a href="#多线程怎么用" class="headerlink" title="多线程怎么用"></a>多线程怎么用</h2><h3 id="线程状态"><a href="#线程状态" class="headerlink" title="线程状态"></a>线程状态</h3><ol>
-<li>新建（New）：创建后尚未启动的线程的状态（还未调用start方法）</li>
-<li>就绪（Ready）：等待CPU为其分配时间</li>
-<li>运行（Running）：正在执行</li>
-<li>无限期等待（Waiting）：不会被分配CPU执行时间，需要显式被唤醒。wait方法不指定时间</li>
-<li>限期等待（Timed Waiting）：在一定时间后会由系统自动唤醒（sleep方法）</li>
-<li>阻塞（Blocked）：等待获取排它锁（Synchronized）</li>
-<li>结束（Terminated）：已终止线程的状态，线程已经结束执行（run或main方法结束）</li>
+<li><p>新建（New）：创建后尚未启动的线程的状态（还未调用start方法）</p>
+</li>
+<li><p>就绪（Ready）：等待CPU为其分配时间</p>
+</li>
+<li><p>运行（Running）：正在执行</p>
+<p>其中2与3可统称为Runnable</p>
+</li>
+<li><p>无限期等待（Waiting）：不会被分配CPU执行时间，需要显式被唤醒。wait方法不指定时间</p>
+</li>
+<li><p>限期等待（Timed Waiting）：在一定时间后会由系统自动唤醒（sleep方法）</p>
+</li>
+<li><p>阻塞（Blocked）：等待获取排它锁（Synchronized）</p>
+</li>
+<li><p>结束（Terminated）：已终止线程的状态，线程已经结束执行（run或main方法结束）</p>
+</li>
 </ol>
 <img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81.png" class title="This is an example image">
 
@@ -3348,6 +3378,13 @@
 <p>思路：如果一个数出现3次，那么他的每一位出现的次数都是3的倍数。那么统计所有数字所有位是1的次数，用32的数组来存，如果某一位是3的倍数，说明当前位只出现一次的数是0，不然就是1.</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//一个数出现1次，其他都出现了3次</span></span><br><span class="line">   <span class="comment">//统计所有数的每一位二进制个数，如果当前位可以整除3，说明那个数当前位是0，否则是1</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">singleNumber</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (nums == <span class="keyword">null</span> || nums.length &lt; <span class="number">1</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">       <span class="keyword">int</span>[] bitsMap = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">32</span>];<span class="comment">//存每一位的个数</span></span><br><span class="line">       <span class="keyword">int</span> bit = <span class="number">1</span>;</span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> num : nums) &#123;</span><br><span class="line">           bit = <span class="number">1</span>;</span><br><span class="line">           <span class="comment">//统计当前数每一位</span></span><br><span class="line">           <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">31</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">               <span class="keyword">if</span> ((num &amp; bit) != <span class="number">0</span>)&#123;</span><br><span class="line">                   <span class="comment">//当前位+1</span></span><br><span class="line">                   bitsMap[i]++;</span><br><span class="line">               &#125;</span><br><span class="line">               <span class="comment">//看下一位</span></span><br><span class="line">               bit = bit &lt;&lt; <span class="number">1</span>;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">//看每一位</span></span><br><span class="line">       <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">32</span>; i++) &#123;</span><br><span class="line">           <span class="comment">//将之前结果左移</span></span><br><span class="line">           res = res &lt;&lt; <span class="number">1</span>;</span><br><span class="line">           res += bitsMap[i] % <span class="number">3</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> res;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
+<h3 id="和为s的连续正数序列"><a href="#和为s的连续正数序列" class="headerlink" title="和为s的连续正数序列"></a>和为s的连续正数序列</h3><p>输入一个正整数 target ，输出所有和为 target 的连续正整数序列（至少含有两个数）。</p>
+<p>序列内的数字由小到大排列，不同序列按照首个数字从小到大排列。</p>
+<p>输入：target = 9<br>输出：[[2,3,4],[4,5]]</p>
+<p>思路：类似于双指针判断一个排序数组中是否存在和为s的两个数，同样使用双指针，如果双指针之间的数和等于目标数，加入结果集，右指针右移，sum变化；如果和大于目标，sum减去左边数，左指针右移；如果和小于目标，sum加上右边数，右指针右移。</p>
+<p>核心：指针移动，sum变化。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//核心，动i或者j都要动sum</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> ArrayList&lt;ArrayList&lt;Integer&gt;&gt; findContinuousSequence(<span class="keyword">int</span> target) &#123;</span><br><span class="line">       ArrayList&lt;ArrayList&lt;Integer&gt;&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">       <span class="keyword">if</span>(target &lt; <span class="number">3</span>)</span><br><span class="line">           <span class="keyword">return</span> res;</span><br><span class="line">       <span class="keyword">int</span> i = <span class="number">1</span>, j = <span class="number">2</span>;<span class="comment">//两个指针</span></span><br><span class="line">       <span class="keyword">int</span> sum = i + j;</span><br><span class="line">       ArrayList&lt;Integer&gt; temp = <span class="keyword">null</span>;</span><br><span class="line">       <span class="keyword">while</span> (j &lt;= target / <span class="number">2</span> + <span class="number">1</span>)&#123;</span><br><span class="line">           <span class="keyword">if</span> (sum == target)&#123;</span><br><span class="line">               <span class="comment">//将i,j之间结果添加</span></span><br><span class="line">               temp = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">               <span class="keyword">for</span> (<span class="keyword">int</span> k = i; k &lt;= j; k++) &#123;</span><br><span class="line">                   temp.add(k);</span><br><span class="line">               &#125;</span><br><span class="line">               res.add(temp);</span><br><span class="line">               ++j;</span><br><span class="line">               sum += j;</span><br><span class="line">           &#125;<span class="keyword">else</span> <span class="keyword">if</span> (sum &gt; target)&#123;</span><br><span class="line">               <span class="comment">//太大了，移除左边的数</span></span><br><span class="line">               sum -= i;</span><br><span class="line">               ++i;</span><br><span class="line">           &#125;<span class="keyword">else</span> <span class="keyword">if</span> (sum &lt; target)&#123;</span><br><span class="line">               <span class="comment">//小了，j右移</span></span><br><span class="line">               ++j;</span><br><span class="line">               sum += j;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> res;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h2><h3 id="栈的压入、弹出序列"><a href="#栈的压入、弹出序列" class="headerlink" title="栈的压入、弹出序列"></a>栈的压入、弹出序列</h3><p>输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如序列1、2、3、4、5是某栈的压栈序列，序列4、5、3、2、1是该压栈序列对应的一个弹出序列，但4、3、5、1、2就不可能是该压栈序列的弹出序列。</p>
 <p>思路：准备一个栈，两个指针，i指向数组1，j指向数组2，循环条件为i没有越界或栈不为空（i越界后 ，有可能j还可以往后继续判断），如果栈为空且栈顶元素与j位置不同，若i越界了，返回假，不然将i位置元素压入栈，i后移。如果栈顶元素与j位置相同，弹出栈顶元素，j后移。循环结束后，如果i与j都越界，说明是符合的，不然就返回假。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isPopOrder</span><span class="params">(<span class="keyword">int</span> [] pushA,<span class="keyword">int</span> [] popA)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//base</span></span><br><span class="line">        <span class="keyword">if</span> (pushA == <span class="keyword">null</span> || popA == <span class="keyword">null</span> || pushA.length != popA.length)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="comment">//准备栈</span></span><br><span class="line">        Stack&lt;Integer&gt; stack = <span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (i &lt; pushA.length || !stack.isEmpty())&#123;</span><br><span class="line">            <span class="comment">//如果栈为空或栈顶元素不为popA[j]，将pushA[i]压入栈</span></span><br><span class="line">            <span class="keyword">if</span> (stack.isEmpty() || stack.peek() != popA[j])&#123;</span><br><span class="line">                <span class="keyword">if</span> (i == pushA.length)</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">                stack.push(pushA[i++]);</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                stack.pop();</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (i == pushA.length &amp;&amp; j == i)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
@@ -3411,7 +3448,16 @@
 <p>思路：用一个数组来对应每个字符，记录其出现的顺序，初始默认均为-1，如果第一次进来，赋值为顺序，第二次进来，赋值为-2。遍历数组的时候，找到大于等于0的最小的那个对应的位置，就可以得到对应的字符</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FisrtOneceCharInStream</span> </span>&#123;</span><br><span class="line">    <span class="comment">//字符流中第一个只出现一次的字符</span></span><br><span class="line">    <span class="keyword">int</span>[] arr = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">256</span>];<span class="comment">//表示字符出现的位置</span></span><br><span class="line">    <span class="keyword">int</span> index;<span class="comment">//记录出现的顺序</span></span><br><span class="line">    <span class="comment">//初始化均为-1，表示没有出现过</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FisrtOneceCharInStream</span><span class="params">()</span></span>&#123;</span><br><span class="line">        index = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">            arr[i] = -<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Insert</span><span class="params">(<span class="keyword">char</span> ch)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">//没有出现过，放到对应的位置</span></span><br><span class="line">        <span class="keyword">if</span> (arr[(<span class="keyword">int</span>)ch] == -<span class="number">1</span>)&#123;</span><br><span class="line">            arr[(<span class="keyword">int</span>)ch] = index;<span class="comment">//对应的位置</span></span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">//已经出现过，变成-2</span></span><br><span class="line">            arr[(<span class="keyword">int</span>)ch] = -<span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        ++index;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//return the first appearence once char in current stringstream</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">char</span> <span class="title">FirstAppearingOnce</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;   <span class="keyword">int</span> minFre = Integer.MAX_VALUE;</span><br><span class="line">        <span class="keyword">int</span> index = <span class="number">0</span>;<span class="comment">//对应的字符转成int</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (arr[i]  &gt; -<span class="number">1</span> &amp;&amp; arr[i] &lt; minFre)&#123;</span><br><span class="line">                minFre = arr[i];</span><br><span class="line">                index = i;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (minFre == Integer.MAX_VALUE)</span><br><span class="line">            <span class="keyword">return</span> <span class="string">'#'</span>;</span><br><span class="line">        <span class="keyword">return</span> (<span class="keyword">char</span>)index;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<h3 id="翻转单词顺序"><a href="#翻转单词顺序" class="headerlink" title="翻转单词顺序"></a>翻转单词顺序</h3><p>输入一个英文句子，翻转句子中单词的顺序，但单词内字符的顺序不变。为简单起见，标点符号和普通字母一样处理。例如输入字符串”I am a student. “，则输出”student. a am I”。</p>
+<p>输入: “the sky is blue”<br>输出: “blue is sky the”</p>
+<p>思路：先把字符串整体旋转，然后分别将每个单词再进行旋转，这样就可以得到结果。重点是对每个单次旋转，找到起始点，与空格处，然后旋转之间的字符串，然后起始点移动。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//反转字符串</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> String <span class="title">reverseSentence</span><span class="params">(String str)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (str == <span class="keyword">null</span> || str.length() &lt; <span class="number">2</span>)</span><br><span class="line">           <span class="keyword">return</span> str;</span><br><span class="line">       <span class="keyword">char</span>[] ch = str.toCharArray();</span><br><span class="line">       <span class="comment">//如果全部是空格，返回</span></span><br><span class="line">       <span class="keyword">if</span> (str.replaceAll(<span class="string">" "</span>,<span class="string">""</span>).equals(<span class="string">""</span>))</span><br><span class="line">           <span class="keyword">return</span> str;</span><br><span class="line">       <span class="comment">//先整体翻转</span></span><br><span class="line">       reverseAllStr(ch,<span class="number">0</span>,ch.length-<span class="number">1</span>);</span><br><span class="line">       <span class="comment">//然后按照空格分隔，每个再反转</span></span><br><span class="line">       <span class="comment">//找到非空格的位置</span></span><br><span class="line">       <span class="keyword">int</span> start = <span class="number">0</span>, end = <span class="number">0</span>;</span><br><span class="line">       <span class="keyword">while</span> (start &lt; ch.length)&#123;</span><br><span class="line">           <span class="comment">//找到end位置</span></span><br><span class="line">           <span class="keyword">while</span> (end &lt; ch.length &amp;&amp; ch[end] != <span class="string">' '</span>)&#123;</span><br><span class="line">               ++end;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//交换</span></span><br><span class="line">           reverseAllStr(ch,start,end-<span class="number">1</span>);</span><br><span class="line">           ++end;</span><br><span class="line">           start = end;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> String.valueOf(ch);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">reverseAllStr</span><span class="params">(<span class="keyword">char</span>[] ch, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">       <span class="comment">//从头，末尾，两两交换</span></span><br><span class="line">       <span class="keyword">while</span> (i &lt; j)&#123;</span><br><span class="line">           swap(ch,i++,j--);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">char</span>[] ch, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">char</span> c = ch[i];</span><br><span class="line">       ch[i] = ch[j];</span><br><span class="line">       ch[j] = c;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
+<h3 id="左旋转字符串"><a href="#左旋转字符串" class="headerlink" title="左旋转字符串"></a>左旋转字符串</h3><p>字符串的左旋转操作是把字符串前面的若干个字符转移到字符串的尾部。请定义一个函数实现字符串左旋转操作的功能。比如，输入字符串”abcdefg”和数字2，该函数将返回左旋转两位得到的结果”cdefgab”。</p>
+<p>输入: s = “abcdefg”, k = 2<br>输出: “cdefgab”</p>
+<p>思路：</p>
+<p>与之前旋转数组的思路很类似，可以将前面k个先旋转，剩下的再旋转，然后整体再旋转，旋转三次得到结果。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">leftRotateString</span><span class="params">(String str,<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (str == <span class="keyword">null</span> || str.length() &lt; <span class="number">2</span> || n &lt; <span class="number">0</span>)</span><br><span class="line">           <span class="keyword">return</span> str;</span><br><span class="line">       n %= str.length();</span><br><span class="line">       <span class="keyword">char</span>[] ch = str.toCharArray();</span><br><span class="line">       <span class="comment">//先旋转0-n-1</span></span><br><span class="line">       reverseChar(ch,<span class="number">0</span>,n-<span class="number">1</span>);</span><br><span class="line">       reverseChar(ch,n,ch.length-<span class="number">1</span>);</span><br><span class="line">       reverseChar(ch,<span class="number">0</span>,ch.length-<span class="number">1</span>);</span><br><span class="line">       <span class="keyword">return</span> String.valueOf(ch);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">reverseChar</span><span class="params">(<span class="keyword">char</span>[] ch, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span></span>&#123;</span><br><span class="line">       <span class="keyword">while</span> (i &lt; j)&#123;</span><br><span class="line">           swap(ch,i++,j--);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">char</span>[] ch, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">char</span> c = ch[i];</span><br><span class="line">       ch[i] = ch[j];</span><br><span class="line">       ch[j] = c;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="链表-1"><a href="#链表-1" class="headerlink" title="链表"></a>链表</h2><h3 id="反向打印链表"><a href="#反向打印链表" class="headerlink" title="反向打印链表"></a>反向打印链表</h3><p>输入一个链表的头节点，从尾到头反过来打印出每个节点的值。</p>
 <p>方法1：遍历链表，将值存入栈。遍历栈，弹出值。</p>
@@ -7567,7 +7613,7 @@
 <p>cp 【选项】source dest将源拷贝至dest</p>
 </li>
 <li><p>常用选项</p>
-<p>-r ：递归复制整个文件夹</p>
+<p>-r ：<strong>递归复制</strong>整个文件夹</p>
 <p>cp aaa.txt bb/ 将当前目录下的aaa.txt拷贝至当前目录的bb目录下</p>
 <p>cp -r test bb/ test中有多个文件，将test整个目录拷贝至bb目录下</p>
 <p>\cp -r test bb/  强制覆盖 \cp</p>
@@ -7587,7 +7633,7 @@
 </li>
 </ul>
 <p>rm -rf bb 强制递归删除bb文件夹</p>
-<h4 id="mv指令"><a href="#mv指令" class="headerlink" title="mv指令"></a>mv指令</h4><p>mv<strong>移动文件</strong>与目录或<strong>重命名</strong></p>
+<h4 id="mv指令【重要】"><a href="#mv指令【重要】" class="headerlink" title="mv指令【重要】"></a>mv指令【重要】</h4><p>mv<strong>移动文件</strong>与目录或<strong>重命名</strong></p>
 <ul>
 <li><p>基本语法</p>
 <p>mv oldNameFile newNameFile（重命名）</p>
@@ -8011,7 +8057,7 @@
 <p>chmod 755 abc.txt</p>
 <h5 id="修改文件所有者-chown【重要】"><a href="#修改文件所有者-chown【重要】" class="headerlink" title="修改文件所有者-chown【重要】"></a>修改文件所有者-chown【重要】</h5><p>基本介绍</p>
 <p>chown newowner file 改变文件的所有者</p>
-<p>chown newowner:newgroup file 改变用户的所有者和所有组</p>
+<p><strong>chown newowner:newgroup file 改变用户的所有者和所有组</strong></p>
 <p>-R 如果是目录，则使其下所有子文件或目录<strong>递归</strong>生效</p>
 <p>案例</p>
 <p>1、将/home/abc.txt文件的所有者修改为tom</p>
@@ -8258,7 +8304,32 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ONBOOT&#x3D;yes 启用boot配置</span><br><span class="line">BOOTPROTO&#x3D;static  以静态方式获取ip</span><br><span class="line">IPADDR&#x3D;192.168.65.129 指定ip</span><br><span class="line">GATEWAY&#x3D;192.168.65.2 网关</span><br><span class="line">DNS1&#x3D;192.168.65.2 dns和网关保持一致即可</span><br></pre></td></tr></table></figure>
 
 <p>service network restart 重启网络服务</p>
-<h3 id="进程管理【重点】"><a href="#进程管理【重点】" class="headerlink" title="进程管理【重点】"></a>进程管理【重点】</h3><h4 id="进程基本介绍"><a href="#进程基本介绍" class="headerlink" title="进程基本介绍"></a>进程基本介绍</h4><ol>
+<h3 id="进程管理【重点】"><a href="#进程管理【重点】" class="headerlink" title="进程管理【重点】"></a>进程管理【重点】</h3><blockquote>
+<p>B站视频：<a href="https://www.bilibili.com/video/BV1xJ411p7ot" target="_blank" rel="noopener">https://www.bilibili.com/video/BV1xJ411p7ot</a></p>
+</blockquote>
+<h4 id="进程通信方式"><a href="#进程通信方式" class="headerlink" title="进程通信方式"></a>进程通信方式</h4><h5 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h5><p>如ls -l | grep xx，这就是管道，将前一个进程处理的结果交给后一个进程来处理</p>
+<h5 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h5><p>操作系统将信息放入消息队列中，不同的进程通过消息队列来获取信息</p>
+<h5 id="共享内存"><a href="#共享内存" class="headerlink" title="共享内存"></a>共享内存</h5><p>一般进程有虚拟地址与物理地址，物理地址一般不同，而共享内存是两个进程物理地址相同，这样操作一个内存的数据来通信</p>
+<h5 id="套接字"><a href="#套接字" class="headerlink" title="套接字"></a>套接字</h5><p>socket，一般是不同机器间的进程通信非常常用，如通过3306端口与mysql进程通信，使用套接字。如果是不同机器，使用tcp套接字，本机使用linux套接字</p>
+<h5 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h5><p>semphore，控制一定数量的进程来访问一个数据</p>
+<h5 id="信号"><a href="#信号" class="headerlink" title="信号"></a>信号</h5><p>signal，一个进程向另一个进程发送信号，另一个进程进行处理，在linux指令为kill，因为信号一般都是杀死另一个进程，使用kill -l来看，有64种。</p>
+<p>实例</p>
+<p>1、一个进程被阻塞，使用ctrl+c终止进程，此时就是shell向此进程发送信号SIGINT</p>
+<p>2、进程被阻塞，在另一个进程中，使用kill+进程号杀死进程，此时显示TERMINATED，此时为15号信号SIGTERM</p>
+<p>3、进程被阻塞，在另一个进程中，使用kill+-9+进程号杀死进程，显示KILLED，此时为9号信号SIGKILL。此信号无法被程序处理，可以强制杀死程序进程。</p>
+<p>编写java代码来处理信号</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Signal.handle(<span class="keyword">new</span> Signal(<span class="string">"INT"</span>), <span class="keyword">new</span> SignalHandler() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handle</span><span class="params">(Signal signal)</span> </span>&#123;</span><br><span class="line">                System.out.println(signal.toString()+<span class="string">" cached"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        Signal.handle(<span class="keyword">new</span> Signal(<span class="string">"TERM"</span>), <span class="keyword">new</span> SignalHandler() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handle</span><span class="params">(Signal signal)</span> </span>&#123;</span><br><span class="line">                System.out.println(signal.toString()+<span class="string">" cached"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">            Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">            System.out.println(<span class="number">123</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>来处理SIGINT和SIGTERM信号。在windows下将此文件打包</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">jar -cvf 1.jar .</span><br></pre></td></tr></table></figure>
+
+<p>即将此目录下全部文件打包成1.jar文件，此时需要指定主类，在最后行增加</p>
+<p>Main-Class: com.zc.Main+换行</p>
+<p>然后在linux下运行</p>
+<p>java -jar 1.jar</p>
+<p>这时候在另一个进程中找到其PID号 ps -aux | grep 1.jar（windows下为jps）</p>
+<p>如果使用ctrl+c或者kill 对应PID，都会被捕捉，但是使用kill -9 PID，进程就会被杀死，无法被捕捉。</p>
+<h4 id="进程基本介绍"><a href="#进程基本介绍" class="headerlink" title="进程基本介绍"></a>进程基本介绍</h4><ol>
 <li>linux中每个执行的程序都称为一个进程，每一个进程都分配一个ID号</li>
 <li>每个进程都对应有父进程，父进程可以复制多个子进程</li>
 <li>每个进程以前台与后台方式存在。前台是屏幕上可以看到的</li>
@@ -8373,9 +8444,9 @@
 <p>2、终止指定的进程</p>
 <p>输入top，然后输入k，再输入要结束的进程ID号</p>
 <p>按下q退出</p>
-<h5 id="监控网络状态【重要】"><a href="#监控网络状态【重要】" class="headerlink" title="监控网络状态【重要】"></a>监控网络状态【重要】</h5><p>netstat查看系统网络情况</p>
+<h5 id="监控网络状态【重要】"><a href="#监控网络状态【重要】" class="headerlink" title="监控网络状态【重要】"></a>监控网络状态【重要】</h5><p><strong>netstat</strong>查看系统网络情况</p>
 <p>基本语法</p>
-<p>netstat【选项】常写：netstat -anp</p>
+<p>netstat【选项】常写：<strong>netstat -anp | more</strong></p>
 <p>选项说明</p>
 <ul>
 <li>-an：按一定顺序排列输出</li>
@@ -8439,6 +8510,97 @@
 
 <p>注意，PATH后要加上:PATH，不然原来路径会被覆盖</p>
 <p>这时候，在5级别下，注销用户再重新登录即可。</p>
+<p>测试使用，在其他目录下输入</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">java -version</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装Tomcat"><a href="#安装Tomcat" class="headerlink" title="安装Tomcat"></a>安装Tomcat</h2><p>1、解压缩Tomcat压缩包 tar -zxvf</p>
+<p>2、进入到其bin目录，找到startup.sh</p>
+<p>3、运行 ./startup.sh</p>
+<p>4、在linux本地输入localhost:8080访问</p>
+<p>5、windows下无法访问，让防火墙放行8080端口</p>
+<p>service iptables status 查看防火墙状态，只有22端口</p>
+<p>vim /etc/sysconfig/iptables 编辑</p>
+<p>增加-A INPUT -m state –state NEW -m tcp -p tcp –dport 8080 -j ACCEPT 开放8080端口</p>
+<p>这样外网才可以访问8080端口</p>
+<p>重启防火墙 service iptables restart</p>
+<p>查看重启后的防火墙状态 service iptables status</p>
+<p>这时候可以在windows上通过ip访问到</p>
+<p><code>http://linuxip:8080</code></p>
+<h2 id="安装Eclipse"><a href="#安装Eclipse" class="headerlink" title="安装Eclipse"></a>安装Eclipse</h2><p>1、解压缩eclipse tar -zxvf</p>
+<p>2、启动方式</p>
+<ul>
+<li>创建快捷方式</li>
+<li>进入eclipse目录，输入./eclipse</li>
+</ul>
+<h2 id="安装Mysql"><a href="#安装Mysql" class="headerlink" title="安装Mysql"></a>安装Mysql</h2><p>1、查询本地是否有Mysql</p>
+<p>rpm -qa | grep mysql</p>
+<p>2、删除相关rpm包</p>
+<p>rpm -e –nodeps mysql-libs-5.1.73-8.el6_8.x86_64 强制删除</p>
+<p>3、安装编译代码需要的包</p>
+<p>yum -y install make gcc-c++ cmake bison-devel ncurses-devel</p>
+<p>4、解压mysql tar -zxvf</p>
+<p>5、进入到解压后的目录，用TAB补全</p>
+<p>6、编译安装</p>
+<p>编译</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cmake -DCMAKE_INSTALL_PREFIX&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql -DMYSQL_DATADIR&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql&#x2F;data -DSYSCONFDIR&#x3D;&#x2F;etc -DWITH_MYISAM_STORAGE_ENGINE&#x3D;1 -DWITH_INNOBASE_STORAGE_ENGINE&#x3D;1 -DWITH_MEMORY_STORAGE_ENGINE&#x3D;1 -DWITH_READLINE&#x3D;1 -DMYSQL_UNIX_ADDR&#x3D;&#x2F;var&#x2F;lib&#x2F;mysql&#x2F;mysql.sock -DMYSQL_TCP_PORT&#x3D;3306 -DENABLED_LOCAL_INFILE&#x3D;1 -DWITH_PARTITION_STORAGE_ENGINE&#x3D;1 -DEXTRA_CHARSETS&#x3D;all -DDEFAULT_CHARSET&#x3D;utf8 -DDEFAULT_COLLATION&#x3D;utf8_general_ci</span><br></pre></td></tr></table></figure>
+
+<p>编译并安装</p>
+<p>make &amp;&amp; make install    （&amp;&amp;表示先执行前面的，再执行后面的）</p>
+<p>7、配置mysql</p>
+<ul>
+<li><p>确认用户与组中是否有mysq</p>
+<p>cat /etc/passwd</p>
+<p>cat /etc/group</p>
+</li>
+<li><p>创建mysql组，并增加mysql用户，放入组中</p>
+<p>groupadd mysql</p>
+<p>useradd -g mysql mysql</p>
+</li>
+<li><p>修改/usr/local/mysql权限</p>
+<p>ls -l /usr/local，看其有没有mysql</p>
+<p>drwxr-xr-x. 13 root root 4096 4月  22 13:10 mysql</p>
+</li>
+<li><p>将此目录的用户和组都改成mysql</p>
+<p>chown -R mysql:mysql /usr/local/mysql 递归的修改此目录的所有者与组</p>
+</li>
+<li><p>初始化配置</p>
+<p>需要先进入安装路径/usr/local/mysql</p>
+<p>初始化</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">scripts&#x2F;mysql_install_db --basedir&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql --datadir&#x3D;&#x2F;usr&#x2F;local&#x2F;mysql&#x2F;data --user&#x3D;mysql</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>避免干扰，将/etc/my.cnf改名为my.cnf.bak，避免配置文件冲突</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mv &#x2F;etc&#x2F;my.cnf &#x2F;etc&#x2F;my.cnf.bak</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>8、启动mysql</p>
+<ul>
+<li><p>添加服务，拷贝服务脚本到init.d目录</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cp support-files&#x2F;mysql.server &#x2F;etc&#x2F;init.d&#x2F;mysql</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置自启动（chkconfig 服务名 on）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">chkconfig mysql on</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动服务</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">service mysql start</span><br></pre></td></tr></table></figure>
+
+<p>netstat -anp | more 查看网络状态</p>
+<p>tcp        0      0 :::3306                     :::*                        LISTEN      20144/mysqld</p>
+<p>可以看到3306端口被监听</p>
+</li>
+<li><p>使用mysql</p>
+<p>进入bin目录，./mysql -uroot -p，默认密码为空</p>
+<p>设置密码</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SET</span> <span class="keyword">PASSWORD</span> = <span class="keyword">PASSWORD</span>(<span class="string">'指定密码'</span>);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置路径</p>
+<p>vim /etc/profile，修改PATH</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PATH&#x3D;&#x2F;opt&#x2F;jdk1.8.0_241&#x2F;bin:&#x2F;usr&#x2F;local&#x2F;mysql&#x2F;bin:$PATH</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>刷新环境变量</p>
+<p>source /etc/profile</p>
+</li>
+</ul>
 ]]></content>
   </entry>
   <entry>
