@@ -1520,7 +1520,7 @@ SELECT COUNT(DISTINCT department_id) FROM employees;
 
 {% asset_img 分组查询.png This is an example image %}
 
-​	使用CROUP BY 关键字
+​	使用GROUP BY 关键字
 
 ~~~sql
 SELECT SUM(salary) `总工资`,AVG(salary) `平均工资`,department_id
@@ -4597,6 +4597,12 @@ Transaction Control Language 事务控制语言
 
    持久性指一个事务一旦被提交，它对数据库中数据的改变就是**永久性**的，接下来的其他操作和数据库故障不应该对其有任何影响
 
+#### 有关ACID的理解
+
+> 学习知乎回答 https://www.zhihu.com/question/31346392
+
+AID，是在数据库层面的特征，即依赖于数据库的具体实现，如A依靠数据库的undo log，I依靠MVCC，D依靠redo log，而C一致性，依靠的是应用层，即开发者。一致性的概念是系统从一个正确的状态迁移到另一个正确的状态，而是否正确，指需要满足预定的约束的状态，而这个状态是根据业务场景由开发者设定的。而ACID为通过AID来保障C一致性，AID是手段，C是目的。比如转账系统，一个人有50元，给其他人转100，变成-50，这个事务执行没有破坏数据库层面的约束，但是破坏了应用层的约束。
+
 #### 事务的创建
 
 **隐式事务**：事务没有明显的开启和结束的标记
@@ -4717,7 +4723,21 @@ set names gbk;
 
 当更改事务1的隔离级别为读已提交，更改数据但不提交，更改事务2的隔离级别为读已提交，查看表中数据，无法看到表格修改的内容。因此脏读被避免。但当事务1提交后，事务2再查看表中内容，发现两次看的数据不一样，出现不可重复读。
 
+可重复读下：
+
 当更改事务1和2的隔离级别为可重复读，更改事务1的数据但不提交，事务2查看表中数据，为未修改前的；当事务1提交，事务2查看仍是未修改的。只有事务2提交后，再次查看才是修改后的。解决了脏读和不可重复读。但当事务1要更改所有行数据的名字，还未执行，在此时事务2插入了一条数据并commit了，这样当事务1执行的时候多影响到了事务2插入的这一条数据，有幻读出现。只有执行插入语句的事务提交后，事务1的更改语句才能执行成功。
+
+|      | 事务A                                    | 事务B                                 |
+| ---- | ---------------------------------------- | ------------------------------------- |
+| T1   | SET autocommit=0;                        | SET autocommit=0;                     |
+| T2   | select * from account;3条                |                                       |
+| T3   |                                          | insert into account values();插入一条 |
+| T4   |                                          | commit                                |
+| T5   | update account set balance=100;会影响4条 |                                       |
+
+在可重复读下，执行以上时间点的操作，可以发现，当事务A第一次读取数据，只有3条，当事务B插入一行数据后，事务A再次更新的时候，会影响4条数据，出现了幻读。但是如果此时事务A去读取数据，仍然只有3条。原因是select读是快照读，MVCC解决了快照读的幻读问题。而update为当前读，在当前读下仍然会出现幻读情况。
+
+同时，使用select * from account for update;这种当前读的select也会出现幻读。
 
 当事务1,2的隔离级别修改为串行化后，当事务1，2均开启，事务1要执行update操作，事务2执行插入语句，但无法执行成功，只有事务1提交后，事务2才能执行。一次只能执行一个事务。
 
@@ -5977,6 +5997,194 @@ select
 as growth;
 ~~~
 
+## JDBC
+
+Java DtaBase Connectivity
+
+将Java程序与数据库连接在一起。JDBC统一接口，java程序与JDBC通信，JDBC通过不同驱动连接不同的数据库，相当于在java和数据库之间加了一层。一层不行就加两层。
+
+### Driver Manager
+
+就是一个类库。通过Maneger连接不同的数据库
+
+### JDBC使用
+
+1. 加载对应数据库的驱动
+2. 根据指定的URL建立连接
+3. 通过连接过去语句对象
+4. 在语句对象中写入要执行的语句，获取结果集
+5. 遍历结果集，获取数据
+6. 关闭资源
+
+~~~java
+        //1、加载驱动
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        //2、通过Manager创建连接
+        String url = "jdbc:mysql://localhost/girls?user=root&password=qkxzs&serverTimezone=UTC";
+        Connection conn = DriverManager.getConnection(url);
+        //3、创建语句对象
+        Statement statement = conn.createStatement();
+        //4、用语句对象去执行语句
+        ResultSet resultSet = statement.executeQuery("select * from admin");
+        //5、获取结果集中内容
+        while (resultSet.next()) {
+            System.out.println(resultSet.getInt("id"));
+        }
+        //6、关闭资源
+        resultSet.close();
+        statement.close();
+        conn.close();
+~~~
+
+使用技巧：语句对象中执行的sql语句先在客户端执行，看是否正确；结果集的指针指向第一条记录的上面，因此next后才是第一条语句。
+
+完善的写法如下，在加载的时候，进行try,catch，在创建的时候，进行try，catch，在关闭的时候，进行判断是否为空，然后在finally中关闭。
+
+~~~java
+public static void main(String[] args) {
+        try {
+            //1、加载驱动
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        //2、通过Manager创建连接
+        String url = "jdbc:mysql://localhost/girls?user=root&password=qkxzs&serverTimezone=UTC";
+        Connection conn = null;
+        //3、创建语句对象
+        Statement statement = null;
+        //4、用语句对象去执行语句
+        ResultSet resultSet = null;
+        try {
+            conn = DriverManager.getConnection(url);
+            statement = conn.createStatement();
+            resultSet = statement.executeQuery("select * from admin");
+            //5、获取结果集中内容
+            while (resultSet.next()) {
+                System.out.println(resultSet.getInt("id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            //6、关闭资源
+            try {
+                if (resultSet != null)
+                    resultSet.close();
+                if (statement != null)
+                    statement.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+~~~
+
+如果是传入的参数是不确定的，如sql语句中大于某个字段的值一开始不确定，那么sql语句中用占位符?先表示，然后使用PreparedStatement，将占位符？进行替换，再进行查询。
+
+~~~java
+		//3、创建语句对象
+        PreparedStatement ps = null;
+        //4、用语句对象去执行语句
+        ResultSet resultSet = null;
+        int id = 10;
+        String sql = "select * from admin where id > ?";
+        try {
+            conn = DriverManager.getConnection(url);
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1,id);//替换在第一个问号处
+            resultSet = ps.executeQuery();
+            //5、获取结果集中内容
+            while (resultSet.next()) {
+                System.out.println(resultSet.getInt("id")+" "+resultSet.getString("username"));
+            }
+        }
+~~~
+
+如果是sql语句为insert，update，delete这种更新的语句，则不需要获取结果集，而且执行语句时使用statement.executeUpdate即可。
+
+~~~java
+Statement statement = null;
+        String sql = "insert into admin values(64,'jdbc','0001')";
+        //String sql = "update admin set username='jdbc2' where id = 64";
+		//String sql = "delete from admin where id = 64";
+        try {
+            conn = DriverManager.getConnection(url);
+            statement = conn.createStatement();
+            statement.executeUpdate(sql);//insert update delete
+        }
+~~~
+
+如果是更新的数据不确定，同样使用PreparedStatement即可。
+
+~~~java
+		//3、创建语句对象
+        PreparedStatement ps = null;
+        String sql = "insert into admin values(?,?,?)";
+        try {
+            conn = DriverManager.getConnection(url);
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1,64);
+            ps.setString(2,"jdbc3");
+            ps.setString(3,"0002");
+            ps.executeUpdate();//insert update delete
+        }
+~~~
+
+### 事务
+
+步骤：
+
+1、connection关闭自动提交
+
+2、一组sql语句
+
+3、connection提交
+
+4、在catch中，有异常时回滚
+
+~~~java
+public static void main(String[] args) {
+        try {
+            //1、加载驱动
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        //2、通过Manager创建连接
+        String url = "jdbc:mysql://localhost/test?user=root&password=qkxzs&serverTimezone=UTC";
+        Connection conn = null;
+        //3、创建语句对象
+        Statement statement = null;
+        try {
+            conn = DriverManager.getConnection(url);
+            statement = conn.createStatement();
+            conn.setAutoCommit(false);//关闭自动提交
+            statement.executeUpdate("update account set balance= 50 where id = 1");
+            statement.executeUpdate("update account set balance= 150 where id = 2");
+            conn.commit();//手动提交
+        } catch (SQLException e) {
+            e.printStackTrace();
+            try {
+                conn.rollback();//有异常时回滚
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        } finally {
+            //6、关闭资源
+            try {
+                if (statement != null)
+                    statement.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+~~~
+
 ## 快捷键
 
 ### MySQL客户端
@@ -6742,8 +6950,19 @@ mysql提供的用来分析当前会话中语句执行的**资源消耗**情况�
 - 对数据操作粒度分类
   - 表锁（MyISAM）
   - 行锁（InnoDB）
+  - 页锁
 
 ### 三种锁
+
+表级锁，行级锁与页锁
+
+- 表级锁：开销小，加锁快；不出现死锁；锁定粒度大，发生锁冲突概率最高，并发度最低
+- 行级锁：开销大，加锁慢；会出现死锁；锁定粒度最小，发生锁冲突概率最低，并发度最高
+- 页面锁（cap锁，间隙锁）：开销和加锁时间介于表锁与行锁之间；会出现死锁；锁定粒度介于表锁与行锁之间，并发度一般
+
+仅从锁的角度，表级锁更适合查询为主的业务，只有少量按照索引条件更新数据的应用
+
+行级锁适合大量按照索引条件并发更新少量不同数据，同时有并发查询的应用
 
 #### 表锁（偏读）
 
@@ -6857,9 +7076,13 @@ varchar类型数据一定要加单引号！！！
 
 ##### 间隙锁危害
 
+innodb使用间隙锁条件为在可重复读下，检索条件要有索引。
+
 表中的id为1,3,4，如果行锁的条件为where id>1 and id<5，则应该锁的数据是id为3,4的数据，如果此时事务2要插入id=2的数据，按理不应该被锁住，但是会被锁
 
 当用**范围条件**而不是相等条件检索数据，并请求共享或排他锁时，InnoDB会给符合条件的已有数据记录的索引项加锁；对于**键值在条件范围内但并不存在的记录**，叫做“间隙（GAP）”，InnoDB会对这个间隙加锁，锁机制就是间隙锁（Next-Key锁）。
+
+间隙锁的范围是当前查询的条件向左找最靠近检索条件的值，向右找最靠近检索条件的值。不在此范围的数据不会被锁定。
 
 危害
 

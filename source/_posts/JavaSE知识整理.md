@@ -3,6 +3,7 @@ title: JavaSE知识整理
 date: 2020-03-03 22:00:20
 tags: JavaSE
 categories: JavaSE
+
 ---
 
 # Java基础
@@ -524,7 +525,7 @@ new 类/接口{
 - 方法可以改变一个对象参数的状态（存储在堆内存中）
 - 方法不能让对象参数的引用
 
-### 常见类
+### String
 
 #### String的equals、==与intern
 
@@ -616,9 +617,19 @@ hello指向的是常量池中的徐爱那个，而“hel”+“lo”也指向常
 - StringBuffer是线程安全的，而StringBuilder不是，StringBuffer在StringBuilder方法上加入了synchronized修饰，因此StringBuffer性能更低。多线程时使用StringBuffer，单线程下使用StringBuilder。
 - 若String类型的字符串，在编译时就可以确定为字符串常量，在编译完成后，字符串会自动拼接为一个常量，此时String性能会更好
 
+### Object
+
+#### 其他类如何默认继承Object
+
+> 引用自掘金博客 https://juejin.im/post/5ca1e8ade51d454e6a300048
+
+首先Object的类是所有类的父类，因为所有类中有包含有Object类中的方法，但是我们在编程的时候并没有写过extends Object，那么Java语言是如何确定当前类的父类是继承自Object类中的呢？有两种可能的原因，一种是在编译期间确定的，如果当前类没有显式继承自一个类，则编译时认为其继承自Object，另一种是由JVM处理的。如果是在编译期间确定的，那么其class文件中应该写明了当前类继承自Object，根据引用博客的实验，在JDK6时，得到的反编译结果是当前类的class文件中指出了当前类是继承自Object。但在JDK7及之后，在反编译的结果中是没有extends Object的。
+
+这样得到的一个推测的结果是：在JDK6及之前，是在编译期间确定的；在JDK7及之后，是由JVM虚拟机来处理的。
+
 ## 集合
 
-Java中的内存泄漏多与集合容器相关。当集合中持有生命周期较短的对象，当对象作用已经结束，需要被销毁时，因为有长生命周期的集合持有，如果不进行手动销毁，会存在内存泄漏。
+Java中的内存泄漏多与集合容器相关。当集合中持有生命周期较短的对象，当对象作用已经结束，需要被销毁时，因为有长生命周期的集合持有，如果不进行手动销毁，会存在内存泄漏。如在坦克的项目中，如果子弹集合中，子弹生命周期结束，没有手动将此子弹移出集合，就会造成内存泄漏。
 
 ### List与Set
 
@@ -934,88 +945,873 @@ ConcurrentHashMap的put方法
 - ConcurrentHashMap线程安全，CAS+synchronized，数组+链表+红黑树
 - HashMap的key、value均可为null，而其他两个类不支持
 
-## 设计模式
+### 其他数据结构
 
-### 创建型模式
+#### 跳表
 
-#### 单例模式
+为了实现数据的排序，在单线程下可以使用TreeSet与TreeMap，但这两种结构不是并发安全的，为了在多线程下实现数据的有序存放，可以使用ConcurrentSkipListSet与ConcurrentSkipListMap，跳表的本质是在普通的链表上加上了多层类似索引的结构，这样加快查找效率，以空间换时间，查找的时候不用顺序遍历链表，而是可以跳过某些数据，因此叫做跳表。相比于红黑树，实现结构更加简单。
 
-单例模式的需求为一个类只允许产生一个对象，实现的方式有饿汉式，懒汉式与嵌套类式。
+而哪些数据可以被当做索引，是根据概率来决定的。
 
-饿汉式
+使用场景：加速链表的查询效率。Redis中有使用。
+
+#### 阻塞队列
+
+阻塞队列是支持阻塞的获取元素与阻塞的放入元素的队列，主要是应用于生产者与消费者模式，当队列满了以后，生产者放入元素被阻塞；当队列空了以后，消费者取出元素被阻塞。解决的问题是生产者与消费者能力不匹配的问题。
+
+BlockingQueue中常用的方法有如下
+
+{% asset_img 阻塞队列方法.png This is an example image %}
+
+常用的阻塞队列有
+
+- ArrayBlockingQueue
+
+  有界的阻塞队列，需要传入默认大小，锁没有分离（生产消费使用一个锁）
+
+- ListBlockingQueue
+
+  有界的阻塞队列，可以不指定大小（最好指定），默认Integer.MAX_VALUE，锁分离（生产消费使用不同锁），应用于固定大小的线程池
+
+- PriorityBlockingQueue
+
+  有优先级的无界队列
+
+- DelayQueue
+
+  使用优先级队列实现的无界阻塞队列，放入队列元素要实现Delayed接口，重写getDelay(TimeUnit unit)与compareTo(Delayed o) 方法，实现的功能是在某个元素过期后，才能被获取到，getDelay方法用于获取剩余过期时间，compareTo方法用于堆的排序。常用于<span style="color:red;">缓存系统的设计</span>（一旦元素可以被取出，表示缓存到期），<span style="color:red;">订单到期</span>，<span style="color:red;">限时支付等</span>。
+
+- SynchronousQueue
+
+  不存储元素的队列，一个生产必须要一个消费。
+
+- LinkedTranferQueue
+
+  链表结构组成的无界阻塞队列
+
+- LinkedBlockingDequeue：双向阻塞队列，用于forkJoin框架，方便一个线程从其他任务队列中拿取任务
+
+实现原理：为了实现阻塞与继续生产或消费，需要在满足一定条件时将线程唤醒，即<span style="color:red;">等待通知范式</span>，使用<span style="color:red;">一个锁+2个监视器</span>。当有生产时，同时消费的监视器；当有消费时，同时生产的监视器。
+
+## 网络
+
+框架：最早是BIO，后来有NIO，再后来有AIO，但这些API都不好用，于是Netty基于NIO进行了封装。
+
+### BIO
+
+Blocking IO(Input-Output)
+
+IO速度相比CPU速度非常慢
+
+半双工，读的时候不能同时写。
+
+阻塞IO，有个client连接，服务端就新建一个线程进行连接。
+
+{% asset_img BIO.png This is an example image %}
+
+服务端：服务端等待客户端建立连接，通过accept方法获取Socket，此方法会阻塞直到客户端连接，服务端获取到socket后，新建一个线程处理socket的数据读写。socket的读与写不是双向的，单独拿出socket的InputStream来读，拿出OutputStream来写。
+
+客户端：建立一个Socket，向输出流写信息，从服务端读信息，关闭socket连接。
+
+Blocking在于：建立连接阻塞，读写阻塞
+
+- Server端accpet方法阻塞，没有客户端连接就wait
+- 在处理socket流的读与写方法也是阻塞的
+
+需要是多线程，因为accept为阻塞的，一个连接一个线程，只有一个线程其他客户端会被阻塞，一次只能处理一个客户端。可以使用线程池。
+
+BIO效率低，并发量不好。BIO很少用，代码简单，适合建立连接少的情况。
+
+### NIO
+
+Non-Blocking IO 
+
+{% asset_img NIO.png This is an example image %}
+
+上面为NIO的**单线程模型**，用一个线程处理客户端的连接，selector轮询客户端是否有连接与读写，门面模式？selector负责client的连接与读写。并不是只能一个连接，而是selector一次处理一次请求。
+
+NIO服务端对socket封装为ServerSocketChannel，此通道为**双向**，可同时读写，设置非阻塞，打开并注册selector，此时关心的只是建立连接，selector进行select，此**方法**也是**阻塞**，获取到key并进行处理。
+
+为了处理客户端的连接，需要将selector注册到客户端的channel中，因此selector处理的是服务端的channel+客户端的channel，不同的channel上的时间在一个set中，selector从set中获取事件并处理，每次处理事件后要将其移除。
 
 ~~~java
-public class Singleton1{
-	private static Singleton1 instance = new Singleton1();
-    private singleton1(){}
-    public static Singleton1 getInstance(){
-        return instance;
-    }
-}
-~~~
-
-基本思路为直接创建好一个私有的静态的对象，私有构造函数，创建一个public的静态方法去返回此对象（静态方法只能访问静态成员）。这种方法的优点是线程安全，缺点为如果不用到getInstance()方法，仍然会创建一个对象，增加开销。
-
-懒汉式
-
-~~~java
-public class Singleton2{
-	private static volatile Singleton1 instance = null;
-    private singleton1(){}
-    public static Singleton2 getInstance(){
-        if(instance == null){
-            synchronized(Singleton2.class){
-                if(instance == null){
-                    instance = new Singleton2;
-                }
+		ServerSocketChannel ssc = ServerSocketChannel.open();//服务端的socket
+        ssc.socket().bind(new InetSocketAddress("127.0.0.1",8888));//绑定地址
+        ssc.configureBlocking(false);//设置非阻塞
+        System.out.println("server started, listening on :" + ssc.getLocalAddress());
+        //要有selector
+        Selector seletor = Selector.open();
+        ssc.register(seletor, SelectionKey.OP_ACCEPT);//将selector注册
+        //轮训
+        while (true){
+            seletor.select();//看是否有连接，阻塞
+            Set<SelectionKey> keys = seletor.selectedKeys();//获取所有的keys
+            //迭代keys
+            Iterator<SelectionKey> it = keys.iterator();
+            while (it.hasNext()){
+                SelectionKey key = it.next();
+                //获取后移除，不移除会重复处理
+                it.remove();
+                handle(key);
             }
         }
-        return s;
-    }
-}
 ~~~
 
-基本思路也为创建一个私有静态对象，但一开始不初始，私有构造函数，创建public的静态方法返回此对象，需要加上双重验证，加synchronized是为了保证线程安全，外面加上一层判断是为了提高效率，其中因为new这个语句不是原子性的，为了避免语句重排，出现s没有被初始化就返回的情况，需要让instance被volatile修饰，利用内存屏障保证不重排语句。优点是节约了资源，缺点是写法比较复杂，写错了容易线程不安全。
+此时Selector负责客户端连接与读写，干的太负责，于是有了reactor模式
 
-嵌套内部类
+{% asset_img NIO2.png This is an example image %}
+
+NIO的多线程模型
+
+Observer模式，响应式编程。selector只负责与客户端建立连接，然后又客户端要进行读写后，selector交给线程池进行处理。selector+worker。
+
+如果客户端消息来不及处理，可以放入消息队列。NIO的ByteBuffer比较难用，读与写只用一个指针，较少直接用NIO，多用Netty。
+
+NIO相比BIO，不用一个客户端连接建立一个线程，客户端连接只需要一个线程来管理。但NIO需要一直轮询。
+
+### AIO
+
+Asynchronous-IO
+
+客户端要建立连接时，操作系统通知selector，selector连接通道，再交给工人去执行读写操作。
+
+{% asset_img AIO.png This is an example image %}
+
+AIO的accpet不是阻塞的，当执行accpet后会**继续往下**，因此要在accept后设置循环等待避免main方法结束。当有客户端连接，交给CompletionHandler来处理，本质是模板方法模式，只重写关心的方法。方法写好了，当有客户端连接时自动调用completed方法执行。
+
+总的来说，当操作系统发现有客户端连接请求，调用写好的建立连接的方法，建立连接的方法再调用写的方法，使用观察者模式来实现异步操作。
+
+现在读也可以是非阻塞的，读了就执行其他，当读完后再执行一个CompletionHandler。
+
+AIO与NIO在Linux下都是基于epoll实现的，epoll也是轮询，因此底层实现一样，**AIO多了层封装**，在Linux下使用AIO效率并一定高，Netty对NIO进行封装，使得API更像AIO，更好用。Windows下的AIO单独实现，使用Completion Port，但大多数Server都是基于Linux实现的，因此Netty还是基于NIO封装。
+
+### Netty
+
+实现对NIO，BIO的封装，封装成AIO的样子。建立两个group，一个负责建立连接，一个负责读写，将这两个group交给Server启动的封装类，指定连接后者两个group的类型，对每个客户端连接增加监听器，进行处理，一旦通道被初始化，在此通道添加对此通道的监听器，这样将连接与业务处理代码解耦。对于读写的处理过程，重写channelRead方法等。对于异常处理，将相应的通道关闭。
+
+#### 客户端连接
+
+客户端的写法
 
 ~~~java
-public class Singleton3{
-    private singleton1(){}
-	private static class Holder{
-        private static instance = new Singleton3();
+public class Client {
+    public static void main(String[] args) {
+        //事件处理线程池，可处理连接或读写事件
+        EventLoopGroup group = new NioEventLoopGroup(1);//1个线程
+        //辅助启动类
+        Bootstrap b = new Bootstrap();//启动
+        try {
+            //连接server
+            b.group(group)//传入group
+                    //指定channel类型为nio
+                    .channel(NioSocketChannel.class)//指定channel类型
+                    //当channel有事件，指定处理的handler
+                    .handler(new ClientChannelInitializer())
+                    .connect("localhost",8888)//连接远程，异步方法，无法知道是否成功
+                    .sync();//必须等其结束，不让继续进行
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            group.shutdownGracefully();//正常结束
+        }
     }
-    public static Singleton3 getInstance(){
-        return Holder.instance;
+}
+class ClientChannelInitializer extends ChannelInitializer<SocketChannel>{
+    @Override
+    protected void initChannel(SocketChannel ch) throws Exception {
+        System.out.println(ch);
     }
 }
 ~~~
 
-在饿汉式基础上将对象构造放进内部类中，这样不调用内部类的时候不新建对象。
+1、定义事件处理的线程池
 
-基本思路为私有构造方法，定义一个私有的静态类，避免其他类访问，直接类名调用，此类中持有外部类的私有静态实例，外部类提供方法，返回内部类中的对象。这样静态类只在被调用时加载一次，因此只有一个对象。优点是不使用getInstance方法不实例化，节约资源。缺点是第一次加载比较慢。
+2、定义辅助启动类
 
-枚举类
+3、链式编程
+
+- 将辅助类中传入线程池
+- 指定channel的类型为bio还是nio
+- 增加连接后的处理handler
+- 进行连接，返回的是ChannelFuture，为了知道是否连接成功
+  - 再加入sync方法
+  - 或自定义监听器
+
+Netty中方法均是异步的。
+
+connet为异步，返回ChannelFuture，使用sync才知道是否有成功执行，如果不用sync的写法，需要在Future中增加监听器。因为ChannelFuture得到的是异步的结果，当其中有结果后，会调用监听器中的方法。
 
 ~~~java
-public enum Singleton4 {
-    INSTANCE;
-}
-//调用时
-Singleton4 s = Singleton4.INSTANCE;
+			//连接server
+            ChannelFuture f = b.group(group)//传入group
+                    //指定channel类型为nio
+                    .channel(NioSocketChannel.class)//指定channel类型
+                    //当channel有事件，指定处理的handler
+                    .handler(new ClientChannelInitializer())
+                    .connect("localhost", 8888);//连接远程，异步方法，无法知道是否成功
+            f.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if (!future.isSuccess()){
+                        System.out.println("not connected!");
+                    }else {
+                        System.out.println("connected!");
+                    }
+                }
+            });
+            f.sync();
 ~~~
 
-写法简单，调用方便。
+因为Future异步，加入监听器后也会继续往下 ，为了阻塞住它，加上sync，在结束后才继续进行，加sync是为了防止客户端还没有建立好连接则main线程直接结束。
 
-JDK中用到的单例模式为：Runtime类，使用getRuntime()，使用的饿汉式。
+其中打印的顺序是，channel初始化的时候，客户端打印SocketChannel，服务端连接上客户端后，服务端打印信息，然后客户端的监听器打印。
+
+#### 服务端连接
+
+对于服务端的写法
+
+1、指定负责连接与读写的线程池
+
+2、服务端的启动类
+
+3、链式编程
+
+- 启动类绑定两个线程池
+- 指定channel类型为NIO
+- 为客户端的通道增加监听器
+- 绑定监听端口
+- 等待future返回
+
+4、让服务器等待被关闭
+
+- 获取到future对应的服务端的channel，再调用closeFuture，不调用close就被阻塞，调用sync等待此future结束
 
 ~~~java
-public class Runtime {
-    private static Runtime currentRuntime = new Runtime();
-    private Runtime() {}
-    public static Runtime getRuntime() {
-        return currentRuntime;
+public class Server {
+    public static void main(String[] args) throws IOException {
+        EventLoopGroup bossGroup = new NioEventLoopGroup(1);//负责连接
+        EventLoopGroup workerGroup = new NioEventLoopGroup(2);//负责读写
+        try {
+            ServerBootstrap b = new ServerBootstrap();
+            ChannelFuture f = b.group(bossGroup, workerGroup)//指定线程池类型，一个连接，一个读写
+                    .channel(NioServerSocketChannel.class)//指定channel类型
+                    //加在客户端上
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception {
+                            System.out.println(ch);//打印客户端端口
+                        }
+                    })
+                    .bind(8888)//监听端口
+                    .sync();//等待future执行完毕
+            System.out.println("server started!");
+            //等着服务器关闭
+            f.channel().closeFuture().sync();//阻塞，拿到server的channel，没有调用close，closeFuture会被一直阻塞
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            //关闭
+            workerGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully();
+        }
     }
 }
 ~~~
 
+很多情况下都使用到了sync的写法，因为Netty中方法为异步，为了知道执行结果必须加入sync，只有有返回值后才继续进行。
+
+#### 客户端与服务端读写数据
+
+客户端如果需要向服务端写数据，需要在其被初始化完成后，调用的initChannel方法中，在此channel的责任链上加上一个监听器，继承自`ChannelInboundHandlerAdapter`，就是Channel的Handler，其中Adapter表示实现了其骨架，只需要重写部分方法即可。当此channel被激活后，就可以写数据，Netty写数据通过Bytebuf，此为直接内存，为操作系统管理，读写更高效，将要写的消息转为字节再写入。其中需要释放Bytebuf的内存，当使用writeAndFlush后，自动释放 。为了读取服务端数据，重写channelRead方法。
+
+其中ChannelHandlerContext是通道上下文信息，聚合了Channel。
+
+~~~java
+class ClientChannelInitializer extends ChannelInitializer<SocketChannel>{
+    @Override
+    protected void initChannel(SocketChannel ch) throws Exception {
+        ch.pipeline().addLast(new ClientHandler());
+    }
+}
+class ClientHandler extends ChannelInboundHandlerAdapter {
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        //channel第一次连上可用，写出一个字符串
+        //写数据依靠ByteBuf，堆外内存Direct Memory
+        //需要释放buf
+        ByteBuf buf = Unpooled.copiedBuffer("hello".getBytes());
+        ctx.writeAndFlush(buf);//自动释放
+    }
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        //数据存在msg中
+        ByteBuf buf = null;
+        try {
+            buf = (ByteBuf)msg;
+            byte[] bytes = new byte[buf.readableBytes()];
+            buf.getBytes(buf.readerIndex(),bytes);//读到字节数组中
+            System.out.println(new String(bytes));
+        }finally {
+            //手动释放内存
+            if (buf != null) ReferenceCountUtil.release(buf);
+        }
+    }
+}
+~~~
+
+在服务端中，也是类似，当channel初始化后，加上一个服务端channel的监听器
+
+将对应客户端的流的责任链上加上一个监听器
+
+~~~java
+ChannelFuture f = b.group(bossGroup, workerGroup)//指定线程池类型，一个连接，一个读写
+                    .channel(NioServerSocketChannel.class)//指定channel类型
+                    //加在客户端上，每个客户端通道初始化完成后调用
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        //相当于客户端进来了
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception {
+                            //负责客户端连接后的事宜
+                            //责任链模式
+                            ChannelPipeline pl = ch.pipeline();//在每个责任链上加入一个handler
+                            pl.addLast(new ServerChildHandler());
+                        }
+                    })
+                    .bind(8888)//监听端口
+                    .sync();//等待future执行完毕
+~~~
+
+然后读的handler如下，使用的是channelRead，在有数据读入的时候被调用，将 msg转为Bytebuf，然后获取此Bytebuf中可读数据长度，构建字节数组，通过buf的得到字节方法，指定可读的初始位置与要存入的位置，将数据读取到数组中，转为String即可输出。因为此buf需要被手动释放，因此在finally中释放。
+
+~~~java
+class ServerChildHandler extends ChannelInboundHandlerAdapter{
+    //接收数据
+    //当此管道有数据读入，将数据保存到这里
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        //数据存在msg中
+        ByteBuf buf = null;
+        try {
+            buf = (ByteBuf)msg;
+            byte[] bytes = new byte[buf.readableBytes()];
+            buf.getBytes(buf.readerIndex(),bytes);//读到字节数组中
+            System.out.println(new String(bytes));
+//            System.out.println(buf);
+//            System.out.println(buf.refCnt());
+        }finally {
+            //手动释放内存
+            if (buf != null) ReferenceCountUtil.release(buf);
+//            System.out.println(buf.refCnt());
+        }
+
+    }
+}
+~~~
+
+但是当服务端读到数据后，立刻向客户端写数据，此时就不用自己关闭了，再次关闭会出错。通过ctx来写。
+
+~~~java
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        //数据存在msg中
+        ByteBuf buf = null;
+        buf = (ByteBuf)msg;
+        byte[] bytes = new byte[buf.readableBytes()];
+        buf.getBytes(buf.readerIndex(),bytes);//读到字节数组中
+        System.out.println(new String(bytes));
+        //写回数据
+        ctx.writeAndFlush(buf);//不能再自己释放
+    }
+~~~
+
+遇到了服务端写数据，服务端出错的异常，后来检查发现是因为客户端建立连接后，异步方法继续向下走，导致main方法结束，客户端关闭了，因此异步的方法一定要注意加sync来手动阻塞。
+
+~~~java
+    f.sync();
+    //客户端中也要加上sync，避免客户端自己关闭
+    f.channel().closeFuture().sync();
+~~~
+
+#### 服务器分发数据
+
+服务端为了向客户端分发数据，需要有channelGroup，传入相应的处理线程。然后在客户端通道被激活时，将其加入到通道组中，在写数据的时候，写到通道组中。
+
+服务端属性：通道组
+
+~~~java
+public static ChannelGroup clients = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+~~~
+
+客户端通道激活时
+
+~~~java
+ 	@Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        //通道可用时，将其放入通道
+        Server.clients.add(ctx.channel());
+    }
+~~~
+
+在写数据的时候
+
+~~~java
+	//写到每一个通道组中
+    Server.clients.writeAndFlush(buf);//不能再自己释放
+~~~
+
+这样就将一个客户端写入的数据分发到了所有的客户端。这种方法核心为通道组。
+
+#### 客户端与服务端图形化界面
+
+客户端：
+
+新建客户端窗口类，可以输入字符串，显示在窗口上。
+
+新建客户端类，将之前写在main中的连接服务器的方法封装在connect方法中，在其main方法中，新建一个客户端对象，调用其connect方法就可以与服务端建立连接。客户端窗口类持有一个客户端对象，在图形化界面初始化后，新建一个客户端对象，调用其connect方法即可连接服务器。
+
+> 设计思路：将客户端与图形化界面解耦合，单一职责原则。
+
+为了之后方便去给服务端写数据，客户端对象持有一个Channel对象，在成功连接服务器后，初始化channel
+
+channel为客户端与服务端之间的通道，pipeline为此通道上的责任链
+
+客户端类提供send(String msg)方法，当调用时，使用持有的channel写信息。
+
+在客户端界面类，当界面初始化后，调用自身的连接至服务器方法，新建一个客户端类，并调用其connect方法，然后在文本框中增加监听器，当按下回车时，读取到文本框中的信息，并调用客户端的send方法。
+
+~~~java
+public class ClientFrame extends Frame {
+    TextArea ta = new TextArea();//多行
+    TextField tf = new TextField();//单行
+    Client c = null;
+    public ClientFrame(){
+        this.setSize(600,400);
+        this.setLocation(100,20);
+        this.add(ta,BorderLayout.CENTER);
+        this.add(tf,BorderLayout.SOUTH);
+        tf.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //把字符串发送到服务器
+                ta.setText(ta.getText()+tf.getText());
+                c.send(tf.getText());
+                //写发送消息的逻辑
+                tf.setText("");
+            }
+        });
+        this.setVisible(true);
+        connectToServer();
+    }
+    public void connectToServer(){
+        //初始化client,调用connect
+        c = new Client();
+        c.connect();
+    }
+    public static void main(String[] args) {
+        ClientFrame cf = new ClientFrame();
+    }
+}
+~~~
+
+对于客户端类
+
+~~~java
+public class Client {
+    private Channel channel = null;
+    public void connect(){
+        EventLoopGroup group = new NioEventLoopGroup(1);
+        Bootstrap b = new Bootstrap();
+        try {
+            ChannelFuture f = b.group(group)
+                    .channel(NioSocketChannel.class)
+                    .handler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception {
+                            ch.pipeline().addLast(new ClientHandler());
+                        }
+                    })
+                    .connect("localhost", 8888)
+                    .addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            if (future.isSuccess()){
+                                System.out.println("connected");
+                                channel = future.channel();//初始化
+                            }else {
+                                System.out.println("not connected");
+                            }
+                        }
+                    })
+                    .sync();
+            f.channel().closeFuture().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            group.shutdownGracefully();
+        }
+    }
+    public void send(String msg){
+        //调用时，将msg通过channel写出去
+        ByteBuf buf = Unpooled.copiedBuffer(msg.getBytes());
+        channel.writeAndFlush(buf);
+    }
+}
+class ClientHandler extends ChannelInboundHandlerAdapter {
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    }
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        //数据存在msg中
+        ByteBuf buf = null;
+        try {
+            buf = (ByteBuf)msg;
+            byte[] bytes = new byte[buf.readableBytes()];
+            buf.getBytes(buf.readerIndex(),bytes);//读到字节数组中
+            System.out.println(new String(bytes));
+        }finally {
+            //手动释放内存
+            if (buf != null) ReferenceCountUtil.release(buf);
+        }
+    }
+}
+~~~
+
+核心为：调用客户端类，建立与服务端的连接，为了在另一个类中实现写消息，让客户端传给服务端，那么客户端中需要提供此方法，而写消息要通过channel，因此客户端需要有个channel的属性，在第一次初始化后初始channel，在发送消息的方法中，直接在channel中写入信息即可，重点为持有channel。
+
+现在需要将服务端发送来的信息显示在客户端界面类中，那么接收消息是在客户端类中，那么客户端必须要跟客户端界面类耦合才能将信息显示在客户端界面类中，一种做法是客户端类中持有客户端界面类的引用，另一种做法是将客户端界面类做成单例。对于更新方法，拿到一个字符串后，加入换行符显示在界面上。
+
+~~~java
+	//客户端界面类
+	public static final ClientFrame INSTANCE = new ClientFrame();
+    public void updateText(String msgAccepted){
+        ta.setText(ta.getText()+System.getProperty("line.separator")+msgAccepted);
+    }
+    public static void main(String[] args) {
+        ClientFrame cf = ClientFrame.INSTANCE;
+        cf.setVisible(true);
+        cf.connectToServer();
+    }
+~~~
+
+在客户端，因为客户端对象是单例的，直接通过类名就可以获取，不需要传入对象
+
+~~~java
+	@Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        //数据存在msg中
+        ByteBuf buf = null;
+        try {
+            buf = (ByteBuf)msg;
+            byte[] bytes = new byte[buf.readableBytes()];
+            buf.getBytes(buf.readerIndex(),bytes);//读到字节数组中
+            //写在clientFrame中
+            String msgAccepted = new String(bytes);
+            ClientFrame.INSTANCE.updateText(msgAccepted);
+        }finally {
+            //手动释放内存
+            if (buf != null) ReferenceCountUtil.release(buf);
+        }
+    }
+~~~
+
+因为服务端是将所有客户端的channel都写入了信息，有信息的分发，客户端接收到信息后显示在窗口上，而多个客户端界面是运行在各自的JVM上，因此单个JVM上的客户端界面是单例，但不同的JVM上客户端界面是不同的，这样可以实现不同客户端之间的聊天。
+
+但当关闭一个客户端后，服务端会报错，因为没有将此客户端从服务端的ChannelGroup中删除
+
+~~~java
+	@Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        //从clients删除
+        Server.clients.remove(ctx.channel());
+        ctx.close();//关闭此流
+    }
+~~~
+
+接下来客户端需要优雅的关闭，给客户端界面类添加窗口监听器，当关闭窗口时，调用客户端的关闭方法，再推出页面。客户端向服务端发送一个`_bye_`字符串，服务端接收消息进行判断，如果客户端发送的是bye，将此channel从组中移除，关闭此channel，如果不是，分发给channel组。
+
+客户端界面
+
+~~~java
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                c.closeConnect();
+                System.exit(0);
+            }
+        });
+~~~
+
+客户端类
+
+~~~java
+    public void closeConnect(){
+        this.send("_bye_");
+    }
+~~~
+
+服务端类
+
+~~~java
+	@Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        //数据存在msg中
+        ByteBuf buf = null;
+        try {
+            buf = (ByteBuf)msg;
+            byte[] bytes = new byte[buf.readableBytes()];
+            buf.getBytes(buf.readerIndex(),bytes);//读到字节数组中
+            String s = new String(bytes);
+            if ("_bye_".equals(s)){
+                System.out.println("客户端要退出");
+                Server.clients.remove(ctx.channel());
+                ctx.close();
+            }else {
+                //写到每一个通道组中
+                Server.clients.writeAndFlush(buf);//不能再自己释放
+            }
+        }finally {
+            //手动释放内存
+//            if (buf != null) ReferenceCountUtil.release(buf);
+//            System.out.println(buf.refCnt());
+        }
+    }
+~~~
+
+增加服务端的窗口，同样将服务器类的信息封装到serverConnect方法，同时当有信息的时候直接写入到服务器窗口类即可。其中要注意的是，因为服务器类会阻塞，因此为了避免UI线程被阻塞，起服务器的线程最好放在main线程中。同样为了方便服务器类与服务器窗口类通信，将服务器窗口类做成单例。
+
+这时候完成了客户端与服务端字符串的通信。
+
+#### Netty Codec
+
+1、定义TankMsg x,y
+
+2、TankMsgEncoder负责编码，继承自MessageToByteEncoder`<TankMsg>`
+
+- 负责将TankMsg转为字节
+
+3、TankMsgDecoder负责解码
+
+- 将字节转为坦克消息类
+
+4、在客户端加上编码的Handler
+
+- 写消息的时候，直接写TankMsg即可
+
+5、在服务端加上解码的Handler
+
+- 读消息的时候，读出来的就是TankMsg
+
+定义自己要处理的消息类
+
+~~~java
+public class TankMsg {
+    public int x, y;
+    public TankMsg(int x, int y){
+        this.x = x;
+        this.y = y;
+    }
+    @Override
+    public String toString() {
+        return "TankMsg{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
+}
+~~~
+
+然后定义此类的加码类，将其转为字节，继承MessageToByteEncoder，指定要加码的类型
+
+~~~java
+//将TankMsg转换为字节
+public class TankMsgEncoder extends MessageToByteEncoder<TankMsg> {
+    @Override
+    protected void encode(ChannelHandlerContext ctx, TankMsg msg, ByteBuf buf) throws Exception {
+        buf.writeInt(msg.x);
+        buf.writeInt(msg.y);
+    }
+}
+~~~
+
+此加码类也是一个Handler，在客户端将其加入到pipeLine责任链上，先加解码，再加InBound
+
+~~~java
+class ClientChannelInitializer extends ChannelInitializer<SocketChannel>{
+    @Override
+    protected void initChannel(SocketChannel ch) throws Exception {
+        ch.pipeline()
+                .addLast(new TankMsgEncoder())
+                .addLast(new ClientHandler());
+    }
+}
+~~~
+
+然后在初始化的Handler中，写消息的时候直接写TankMsg即可，因为责任链上加了加码的责任链，因此在Channel中传输的时候自己被转为字节
+
+~~~java
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ctx.writeAndFlush(new TankMsg(5,8));//自动由handler转为二进制
+    }
+~~~
+
+为了解码，需要定义解码类，将字节转为自定义的消息，为了解决TCP的拆包与黏包的问题，即将一个消息分成多个包，在字节数不够的时候直接返回，按照编码的顺序进行解码，并加入到out这个集合中。
+
+~~~java
+public class TankMsgDecoder extends ByteToMessageDecoder {
+    @Override
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+        //没有读取完，返回，TCP拆包与黏包问题
+        //字节数不够，就等着
+        if (in.readableBytes()<8)return;
+        //in.markReaderIndex();
+        int x = in.readInt();
+        int y = in.readInt();
+        //将解析出来的消息放在List中
+        out.add(new TankMsg(x,y));
+    }
+}
+~~~
+
+为了在服务端读取此消息，需要将此Handle加入到服务端的pipeLine上，先加解码的责任，这样在读取的时候，直接读取到的就是对应的TankMsg类
+
+~~~java
+class ServerChannelInitializer extends ChannelInitializer<SocketChannel>{
+    @Override
+    protected void initChannel(SocketChannel ch) throws Exception {
+        //在每个责任链上加入一个handler
+        ch.pipeline()
+                .addLast(new TankMsgDecoder())
+                .addLast(new ServerChildHandler());
+    }
+}
+~~~
+
+在读取的时候，直接将msg转为TankMsg读取
+
+~~~java
+	@Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        //数据存在msg中
+        System.out.println("channelRead ");
+        try {
+            TankMsg tm = (TankMsg)msg;
+            System.out.println(tm);
+        }finally {
+            //手动释放内存
+            ReferenceCountUtil.release(msg);
+        }
+    }
+~~~
+
+#### Codec单元测试
+
+采用Junit单元测试的好处是，不用一个个去比对结果，避免人眼观察出错。复用测试，不用重新写测试。
+
+在写自己定义的二进制加码解码时，先用Junit测试通过后，再组装。
+
+EmbeddedChannel只用于单元测试上。
+
+~~~java
+public class TankMsgEncoderTest {
+    @Test
+    public void testTankMsgEncoder(){
+        //往外写的测试
+        TankMsg msg = new TankMsg(10,10);
+        //使用Embedded嵌入的Channel，不是连接到网上
+        //加入自己的Encoder
+        EmbeddedChannel ch = new EmbeddedChannel(new TankMsgEncoder());
+        //往外写消息
+        ch.writeOutbound(msg);
+        //将输出的消息读出来
+        ByteBuf buf = (ByteBuf) ch.readOutbound();
+        int x = buf.readInt();
+        int y = buf.readInt();
+        Assert.assertTrue(x == 10 && y == 10);
+        buf.release();
+    }
+    @Test
+    public void testTankMsgEncoder2(){
+        //往里写的测试，先经过Decoder，再经过Encoder
+        ByteBuf buf = Unpooled.buffer();
+        TankMsg msg = new TankMsg(10,10);
+        buf.writeInt(msg.x);
+        buf.writeInt(msg.y);
+        //加两个
+        //写的是ByteBuf，先经过Decoder被转为msg，不符合Encoder的要求
+        EmbeddedChannel ch = new EmbeddedChannel(new TankMsgEncoder(),new TankMsgDecoder());
+        ch.writeInbound(buf.duplicate());
+        TankMsg tm = (TankMsg)ch.readInbound();
+        Assert.assertTrue(tm.x == 10 && tm.y == 10);
+    }
+}
+~~~
+
+### 同步异步阻塞非阻塞
+
+同步异步关注的是**消息通信机制**
+
+- 同步：烧水时，自己开开关，自己关。消息回来仍需要自己处理
+- 异步：烧水时，自己打开，水开了后调用写好的代码去关。消息回来后其他人去处理。
+
+阻塞非阻塞关注的是**等待消息时的状态**
+
+- 阻塞：等烧水时，不做别的，盯着水
+- 非阻塞：等烧水时，干点其他事
+
+同步阻塞：自己开火后，等水开，水不开不做别的，自己关火。
+
+同步非阻塞：自己开火，等水时去看电视，做点别的，自己关火。
+
+异步阻塞：自己开火，自己盯着水看，水开后铃铛响，让其他工具关火。很少发生。
+
+异步非阻塞：自己开火，做好火开的处理，自己去做别的事，让其他工具关火。
+
+程序相当于人，操作系统相当于水。对accept于读写的处理要分开说明。
+
+### select，poll与epoll
+
+每个网络连接以文件描述符Fd的方式存在于内核中。
+
+在单线程处理网络连接时，可以用如下这种简单的方式进行处理
+
+~~~java
+while(1){
+	for(fd1 ~ fdn){
+		if(fd有数据)
+			读fd，处理
+	}
+}
+~~~
+
+#### select
+
+而select，判断fd中有数据，从用户态拷贝rset(一个bitmap，存了fds信息)至内核态来判断，如果没有数据，select会阻塞，当有数据的时候，内核将rset对应的fd置位（表示有数据），select返回，程序继续运行，遍历全部fd（可能多个fd中有数据），判断哪个fd中有数据，将对应数据读取并处理。
+
+select缺点
+
+- bitmap默认大小为1024，大小有限
+- 内核修改rset，FD_SET不可重用，需要重新创建bitmap
+- 从用户态拷贝至内核态存在一定开销
+- select后判断哪个fd中有数据，需要有O(n)的复杂度
+
+#### poll
+
+{% asset_img poll.png This is an example image %}
+
+poll原理与select相似，poll的改进围绕传入的结构体，poll没有用bitmap，而是pollfd，其中fd为传入的fd，events在意的事件（读还是写），revents是对events的回馈。poll函数仍为阻塞，内核置位的时候，置的是revents字段，不像select修改bitmap会导致bitmap不可重用，poll返回。判断如果revents被置位，需要读取，将revents重置。
+
+poll解决了select大小默认1024的问题，传入的结构体可以重用。但poll仍然存在select中剩下两个缺点
+
+- 从用户态拷贝至内核态存在一定开销
+- poll后判断哪个fd中有数据，需要有O(n)的复杂度
+
+#### epoll
+
+{% asset_img epoll.png This is an example image %}
+
+epoll的epoll_event中有fd跟event两个字段，epfd暂且理解为容器，其中有5个epoll_event，既有fd，又有event。epfd是直接内存，省去了拷贝的过程，内核判断是否有数据到来，在没有数据的时候，也会阻塞，在有数据的时候，select与poll是置位+函数返回，在epoll中通过重排来置位，将有数据的fd放到最前面，然后返回fd触发事件的个数，这样只需要遍历触发时间个数的数据就可以处理完毕，时间复杂度从O(n)变为O(1)。
+
+因此epoll解决了从用户态拷贝数据到内核态的过程，且轮询时间复杂度从O(n)减少至O(1)。

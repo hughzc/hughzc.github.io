@@ -92,6 +92,14 @@ git push
 
 ​	加粗前：字体；加粗后**字体**
 
+### 字体颜色
+
+<span style="color:red;">更改字体颜色</span>
+
+~~~
+<span style="color:red;">更改字体颜色</span>
+~~~
+
 ### 斜体
 
 ```

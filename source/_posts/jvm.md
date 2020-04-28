@@ -306,7 +306,9 @@ Java7之前为**永久代**，Java8后为**元空间**。
 
 #### 堆new对象流程
 
-新建对象在Eden区，当一直new对象，**Eden区达到阈值**，进行**MinorGC**=轻GC，Eden区基本清空，第一次幸存后的对象移动到**幸存者0区**，也叫S0=from区。当S0满了再进行垃圾回收，从S0到S1=to区，S0与S1进行一次交换（**from和to区，名称不是固定的，每次GC后会交换，谁空谁是to**）。**养老区满了**，开启Major GC（Full GC），Major GC多次，老年代空间执行了Major GC后仍无法新建对象，报OOM异常。
+初始会尝试在**栈**中分配，如果栈中分配不下，若是**大对象**，直接分配在老年代，否则分配在年轻代。当新建对象在Eden区时，会优先往Thread Local Allocation Buffer，即每个线程私有的一块区域中分配，这样避免因多个线程分配同一块内存空间造成的线程同步问题，只有私有区域分配了才分配到Eden区中其他区域。
+
+新建对象在Eden区，当一直new对象，**Eden区达到阈值**，进行**MinorGC**=轻GC，Eden区基本清空，第一次幸存后的对象移动到**幸存者0区**，也叫S0=from区。当S0满了再进行垃圾回收，从S0到S1=to区，S0与S1进行一次交换（**from和to区，名称不是固定的，每次GC后会交换，谁空谁是to**）。**养老区满了**，开启Major GC（Full GC，年轻代与老年代一起回收，一般伴随一次Minor GC），Major GC多次，老年代空间执行了Major GC后仍无法新建对象，报OOM异常。
 
 如果出现java.lang.OutOfMemoryError:Java heap space异常，说明Java虚拟机堆内存不够，原因有
 
@@ -679,7 +681,7 @@ PerNew + SerialOld组合，很少使用
 
 #### Paraller Scavenge(-XX:+UseParallelGC，复制算法)
 
-ParellerOld + Pareller Scanvenge，1.8默认
+ParellerOld + Pareller Scanvenge，**1.8默认**，**几个G内存**使用
 
 前面两个更关注系统的停顿时间，此收集器更关注系统的吞吐量（执行用户线程时间/CPU总执行时间），适合后台运算不需要太多交互的情况
 
@@ -714,15 +716,17 @@ Concurrent Mark Sweep收集器，适用于程序对停顿比较敏感的情况�
 {% asset_img cms.png This is an example image %}
 
 - **初始标记**：标记处GC Roots直接关联到的对象，速度较快，**需要停顿**
-- 并发标记：进行GC Roots Tracing，标记出全部的垃圾对象，与应用线程一起
+- **并发标记**：进行GC Roots Tracing，标记出全部的垃圾对象，与应用线程一起
 - 并发预清理：查找执行并发标记阶段从年轻代晋升至老年代对象，减少重新标记工作
-- **重新标记**：修正并发标记期间对象变化情况，**需要停顿**，较慢
-- 并发清除：标记清除算法清除标记
+- **重新标记**：修正并发标记期间对象变化情况，**需要停顿**，比初始标记时间要长
+- **并发清除**：标记清除算法清除标记
 - 并发重置：重置CMS收集器的数据结构
 
-问题是不压缩存活对象，有碎片化问题。当碎片达到一定程度，CMS老年代分配对象分配不下时，使用SerialOld进行老年代回收。问题较多，没有一个版本默认，需要手工指定。
+为了看哪些错标，使用三色标记算法。
 
+问题是不压缩存活对象，有碎片化问题。当碎片达到一定程度，CMS老年代分配对象分配不下时，使用**Serial Old**进行老年代回收，这样当卡顿的时候，卡顿时间较长。问题较多，没有一个版本默认，需要手工指定。
 
+CMS默认进入老年代年龄为6
 
 #### 堆内存垃圾收集G1（-XX:+UseG1GC，复制+标记整理算法）
 
@@ -733,13 +737,40 @@ Concurrent Mark Sweep收集器，适用于程序对停顿比较敏感的情况�
 - 空间整合：基于标记整理，解决了碎片化问题
 - 可预测的停顿：让使用者指定停顿时间
 
-将整个Java堆内存划分为多个region，年轻代与老年代不再物理隔离。
+将整个Java堆内存划分为多个**region**，年轻代与老年代不再物理隔离。逻辑分代，物理不分代。
+
+### 查看垃圾回收命令
+
+java -XX:+PrintCommandLineFlags -version
+
+-XX:InitialHeapSize=32596160 -XX:MaxHeapSize=521538560 -XX:+PrintCommandLineFlags -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseParallelGC
+
+使用压缩指针，原8字节压缩至4字节，使用ParallelGC代表使用的是PS+PO的组合。
+
+常见组合如下
+
+> 马士兵老师笔记
+>
+> * XX:+UseSerialGC = Serial New (DefNew) + Serial Old
+>   * 小型程序。默认情况下不会是这种选项，HotSpot会根据计算及配置和JDK版本自动选择收集器
+> * -XX:+UseParNewGC = ParNew + SerialOld
+>   * 这个组合已经很少用（在某些版本中已经废弃）
+> * -XX:+UseConc<font color=red>(urrent)</font>MarkSweepGC = ParNew + CMS + Serial Old
+> * -XX:+UseParallelGC = Parallel Scavenge + Parallel Old (1.8默认) 【PS + SerialOld】
+> * -XX:+UseParallelOldGC = Parallel Scavenge + Parallel Old
+> * -XX:+UseG1GC = G1
 
 ## 常用软件
 
-### VisualVM
+### VisualVM与jmap
 
 在IDEA的插件中安装VisualVM，在VisualVM中依照官网给的插件网址更新插件下载url，安装Visual GC插件。
+
+一般通过**jmap**先将堆的信息dump成文件，然后再在VisualVM上查看
+
+jmap -dump:file=文件名 进程ID
+
+jmap -heap pid，查看堆的情况
 
 可以看到具体的GC情况。
 
@@ -776,6 +807,23 @@ java_pid12332.hprof
 {% asset_img 值oom.png This is an example image %}
 
 可以看到具体的出问题的变量值，这样便可以找到相应的位置，去进行修改。
+
+### arthas
+
+> `Arthas` 是Alibaba开源的Java诊断工具，深受开发者喜爱。在线排查问题，无需重启；动态跟踪Java代码；实时监控JVM状态。
+
+简单来说是个排查Java代码问题的工具。
+
+[使用文档](https://alibaba.github.io/arthas/quick-start.html)
+
+arthas启动
+
+~~~
+curl -O https://alibaba.github.io/arthas/arthas-boot.jar
+java -jar arthas-boot.jar
+~~~
+
+然后选择要监控的进程ID即可
 
 ## 常见问题
 
@@ -888,12 +936,18 @@ Phantom虚幻的，使用get()方法得不到。
 
 1. 新建大对象（需要大量连续内存空间的对象，如很长的字符串或数组）直接进入老年代
 
+   需要参数-XX:PretenureSizeThreshold控制，**默认是0**，即如果不修改的话**不管多大都在Eden区创建**，若Eden区放不下再在老年代创建
+
 2. 长期存活对象进入老年代（默认对象年龄为15进入,如静态常量）
 
 3. survivor区空间不足（相同年龄的所有对象大小总和大于Survivor空间**一半**)
 
    这个比例可以通过-XX:TargetSurvivorRatio指定
-   
+
    这一步称为对象动态年龄判断，规则是希望可能长期存活的对象今早进入老年代。此机制一般在minor gc后触发。
-   
+
    一些朝生夕死对象，因为survivor区域设置不足，而直接放入老年代，而频繁进行full gc，这种情况可以调大年轻代空间，改变年轻代与老年代比例。-XX:NewRatio，调小。
+
+### CPU飙高怎么办
+
+使用jps查看相应的进程，然后用jstack查看此进程下的全部线程，查看哪个线程占用的CPU最高。
