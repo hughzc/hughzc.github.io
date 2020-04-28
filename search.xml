@@ -3,7 +3,19 @@
   <entry>
     <title>设计模式</title>
     <url>/2020/04/11/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<h1 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h1><p>封装变化，需要知道每种模式的典型用法与类图</p>
+    <content><![CDATA[<h1 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h1><p>设计模式是对一些常见问题解决方案的总结与归纳，设计模式需要满足6大原则，分别是：</p>
+<ul>
+<li>单一职责原则</li>
+<li>接口隔离原则</li>
+<li>依赖倒转原则</li>
+<li>里氏替换原则</li>
+<li>开放封闭原则</li>
+<li>迪米特法则</li>
+<li>合成复用原则</li>
+</ul>
+<a id="more"></a>
+
+<p>其中其他原则都是为了开放封闭原则。</p>
 <h2 id="创建型模式"><a href="#创建型模式" class="headerlink" title="创建型模式"></a>创建型模式</h2><h3 id="单例模式Singleton"><a href="#单例模式Singleton" class="headerlink" title="单例模式Singleton"></a>单例模式Singleton</h3><p>应用于各种Mgr与Factory</p>
 <p>单例模式的需求为一个类只允许产生一个对象，实现的方式有饿汉式，懒汉式与嵌套类式。</p>
 <p>饿汉式</p>
@@ -303,6 +315,7 @@
 </ul>
 <h3 id="模板方法Template-Method"><a href="#模板方法Template-Method" class="headerlink" title="模板方法Template Method"></a>模板方法Template Method</h3><p>模板方法，钩子函数</p>
 <p>相当于定好了模板，具体的实现自己来写。</p>
+<p>优点是子类不用改变父类中的逻辑框架，但是通过重写部分方法可以实现自己的功能。<span style="color:red;">父类重框架，子类重功能</span>。</p>
 <p>重写一个方法，系统自动调用，如awt中的paint。在父类中有个方法，调用了method1与method2，子类去继承父类的时候，只需要重写method1与2，在父类中被自动调用。</p>
 <p>如下，父类中m方法调用了op1与op2，但是是抽象的，子类中继承父类重写此方法</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">F</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">m</span><span class="params">()</span></span>&#123;</span><br><span class="line">        op1();</span><br><span class="line">        op2();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">op1</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">op2</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span> <span class="keyword">extends</span> <span class="title">F</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">op1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"op1"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">op2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"op2"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -1821,7 +1834,7 @@
 <p>有界的阻塞队列，需要传入默认大小，锁没有分离（生产消费使用一个锁）</p>
 </li>
 <li><p>ListBlockingQueue</p>
-<p>无界的阻塞队列，可以不指定大小（最好指定），默认Integer.MAX_VALUE，锁分离（生产消费使用不同锁），应用于固定大小的线程池</p>
+<p>有界的阻塞队列，可以不指定大小（最好指定），默认Integer.MAX_VALUE，锁分离（生产消费使用不同锁），应用于固定大小的线程池</p>
 </li>
 <li><p>PriorityBlockingQueue</p>
 <p>有优先级的无界队列</p>
@@ -1830,8 +1843,15 @@
 <p>使用优先级队列实现的无界阻塞队列，放入队列元素要实现Delayed接口，重写getDelay(TimeUnit unit)与compareTo(Delayed o) 方法，实现的功能是在某个元素过期后，才能被获取到，getDelay方法用于获取剩余过期时间，compareTo方法用于堆的排序。常用于<span style="color:red;">缓存系统的设计</span>（一旦元素可以被取出，表示缓存到期），<span style="color:red;">订单到期</span>，<span style="color:red;">限时支付等</span>。</p>
 </li>
 <li><p>SynchronousQueue</p>
+<p>不存储元素的队列，一个生产必须要一个消费。</p>
+</li>
+<li><p>LinkedTranferQueue</p>
+<p>链表结构组成的无界阻塞队列</p>
+</li>
+<li><p>LinkedBlockingDequeue：双向阻塞队列，用于forkJoin框架，方便一个线程从其他任务队列中拿取任务</p>
 </li>
 </ul>
+<p>实现原理：为了实现阻塞与继续生产或消费，需要在满足一定条件时将线程唤醒，即<span style="color:red;">等待通知范式</span>，使用<span style="color:red;">一个锁+2个监视器</span>。当有生产时，同时消费的监视器；当有消费时，同时生产的监视器。</p>
 <h2 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h2><p>框架：最早是BIO，后来有NIO，再后来有AIO，但这些API都不好用，于是Netty基于NIO进行了封装。</p>
 <h3 id="BIO"><a href="#BIO" class="headerlink" title="BIO"></a>BIO</h3><p>Blocking IO(Input-Output)</p>
 <p>IO速度相比CPU速度非常慢</p>
@@ -2500,6 +2520,39 @@
 <li>ReentrantLock可以设置锁的等待时间，避免死锁</li>
 <li>底层机制：sync操作对象头中Mark Word，lock调用Unsafe类中方法</li>
 </ol>
+<h3 id="AQS"><a href="#AQS" class="headerlink" title="AQS"></a>AQS</h3><p>AbstractQueuedSynchronizer，队列同步器，是JUC下许多同步类的核心。为了理解其工作原理，需要先大致了解下LockSupport与CLH队列锁。</p>
+<h4 id="LockSupport工具类"><a href="#LockSupport工具类" class="headerlink" title="LockSupport工具类"></a>LockSupport工具类</h4><p>提供park方法来阻塞一个线程，提供unpark方法来唤醒一个线程</p>
+<h4 id="CLH队列锁"><a href="#CLH队列锁" class="headerlink" title="CLH队列锁"></a>CLH队列锁</h4><p>有2个关键属性，一个是myPred，指向前一个节点，一个是locked，如果是true表示当前线程要获取锁，如果为false表示释放了锁。当一个线程要获取锁的时候，加入到队列尾部，当前线程的myPred指向前一个线程的locked，当前线程循环检测前一个线程的状态，如果为true表示锁没有被释放，如果为false，表示锁被释放了，这时候去获取锁，当用完后，释放锁，将locked改为false。</p>
+<h4 id="AQS原理"><a href="#AQS原理" class="headerlink" title="AQS原理"></a>AQS原理</h4><p>AQS面向锁的开发者，在自定义锁的实现类的时候，一般使用一个静态内部类来继承AQS，对外只暴露一些必要的使用方法。AQS本质使用的是<span style="color:red;">模板方法</span>模式，AQS中的acquire与release方法，其内部用到的一些方法需要子类去实现，这样子类只需要实现必要的方法，其他由AQS内的方法来调用。AQS中凡是抛出了特定异常的方法，都需要自己去实现。</p>
+<p>AQS中获取锁的核心方法acquire如下</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">acquire</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp;</span><br><span class="line">        acquireQueued(addWaiter(Node.EXCLUSIVE), arg))</span><br><span class="line">        selfInterrupt();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>AQS核心是volatile int state（表示锁的状态）与同步队列（思想与CLH队列类似）。</p>
+<p>AQS提供CAS方法来获取与更改锁的状态。</p>
+<p>而等待同步线程队列是<span style="color:red;">双向链表</span>，包含头尾结点，对于每个结点，属性包括有</p>
+<ul>
+<li>当前等待线程</li>
+<li>当前线程获取锁模式（独占or共享）</li>
+<li>当前线程等待状态<ul>
+<li>CANCELLED：获取锁状态取消</li>
+<li>SIGNAL：等待锁释放</li>
+<li>CONDITION：等待某条件被满足</li>
+<li>PROPAGATE：传播，当处于共享模式，将当前状态传播给其他线程</li>
+</ul>
+</li>
+<li>前驱与后序结点</li>
+<li>等待Condition的Node结点</li>
+</ul>
+<p>当一个线程要加入等待队列的尾节点时，使用<strong>CAS</strong>操作添加到队列尾部，如果没有成功，自旋重新读取尾节点进行加入。头结点释放锁后，将head下一个变为头结点下一个。</p>
+<h4 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h4><p>独占非公平锁</p>
+<p>一个线程尝试使用CAS操作改变state的数值，如果成功从0改到1，持有锁。如果没有成功，采用CAS操作将当前线程封装成结点加入等待队列，若CAS操作没有成功，则进行自旋直到加到队列尾部。</p>
+<p>若队列中上一个结点是头结点，再次CAS尝试获取锁，若获取成功，将当前结点设置为头结点。若失败后需要被阻塞，则使用LockSupport将当前线程阻塞住。当拿到锁的线程释放锁后，将后面结点的线程唤醒。即在release方法中，当释放锁后，唤醒头结点后面的线程。被唤醒的线程会继续自旋使用CAS操作来获取锁。</p>
+<p>共享非公平锁</p>
+<p>在获取锁的时候，在一个线程获取锁后，只要返回的数字大于0，就一直向后传播，唤醒后面的线程。</p>
+<p>可重入</p>
+<p>如果获取锁的线程再次请求锁，将state的值加一即可；释放一次锁，将 state值减一。</p>
+<p>公平与非公平</p>
+<p>非公平锁：如果此时锁状态为0，非等待队列中的线程到来后，可以直接获取锁并执行，可能会造成线程饥饿问题。公平锁：若可以获取锁，将当前线程切换到等待队列头的线程，这样保证按照请求锁的顺序来执行。但公平锁涉及线程的切换，开销较大，一般使用非公平锁。</p>
 <h3 id="JMM内存可见性"><a href="#JMM内存可见性" class="headerlink" title="JMM内存可见性"></a>JMM内存可见性</h3><p>Java内存模型（Java Memory Model，简称JMM）是抽象概念，描述一组规范，围绕原子性、有序性和可见性展开。通过此规范定义了程序中各个变量（包括实例字段，静态字段和构成数组对象的元素）的访问方式。</p>
 <p><strong>原子性</strong></p>
 <p>原子性指一个操作不可中断，即使是多个线程一起执行的时候，一个操作一旦开始就不会被其他线程干扰。</p>
@@ -2805,7 +2858,7 @@
 <ul>
 <li>直接提交的队列：SynchronousQueue<strong>没有容量</strong>，是<strong>无缓冲等待队列</strong>，是一个不存储元素的<strong>阻塞</strong>队列，一个插入操作要等待一个删除操作。提交的任务不会被真实保存，总是将新任务给线程执行，若没有空闲的线程，尝试创建新的线程。一般要求maximumPoolSizes设置很大，避免线程拒绝执行操作。</li>
 <li>有界的任务队列：ArrayBlockingQueue，构造函数必须传入其最大容量，当有新任务执行，线程数小于核心线程数，优先创建线程，若大于，将新任务加进等待队列。若队列满了，无法加入，在总线程数不大于最大线程数时，创建新线程执行任务；否则执行拒绝策略。因此有界队列仅在任务队列装满时才可能将线程数扩充到核心线程数之上。</li>
-<li>无界的任务队列：LinkedBlockingQueue，当有新任务执行，线程数小于设定核心线程数，生成新线程执行任务，当线程数达到核心线程数后，线程不会增加，若有任务没有被消费，放进队列等待，队列可以一直增长直到耗尽系统资源。每个线程完全独立于其他线程。生产者和消费者使用<strong>独立的锁</strong>来控制数据的同步，即在高并发的情况下可以并行操作队列中的数据。</li>
+<li>有界的任务队列：LinkedBlockingQueue，不传参数默认为Integer.MAX_VALUE，当有新任务执行，线程数小于设定核心线程数，生成新线程执行任务，当线程数达到核心线程数后，线程不会增加，若有任务没有被消费，放进队列等待，队列可以一直增长直到耗尽系统资源。每个线程完全独立于其他线程。生产者和消费者使用<strong>独立的锁</strong>来控制数据的同步，即在高并发的情况下可以并行操作队列中的数据。</li>
 <li>优先任务队列：PriorityBlockingQueue，可控制任务先后执行顺序，特殊的无界队列，ArrayBlockingQueue与LinkedBlockingQueue按照先进先出顺序执行，而此队列确保高优先级的任务先执行。</li>
 </ul>
 </li>
@@ -11531,6 +11584,9 @@ getLast();</code></pre><p> <strong>jdk1.6</strong></p>
 <h3 id="字体加粗"><a href="#字体加粗" class="headerlink" title="字体加粗"></a>字体加粗</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">快捷键：Ctrl+b</span><br><span class="line">示 例：**加粗内容**</span><br></pre></td></tr></table></figure>
 
 <p>​    加粗前：字体；加粗后<strong>字体</strong></p>
+<h3 id="字体颜色"><a href="#字体颜色" class="headerlink" title="字体颜色"></a>字体颜色</h3><p><span style="color:red;">更改字体颜色</span></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;span style&#x3D;&quot;color:red;&quot;&gt;更改字体颜色&lt;&#x2F;span&gt;</span><br></pre></td></tr></table></figure>
+
 <h3 id="斜体"><a href="#斜体" class="headerlink" title="斜体"></a>斜体</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">快捷键：ctrl+i</span><br><span class="line">示 例：*斜体*</span><br></pre></td></tr></table></figure>
 
 <p>​    斜体前：斜体；斜体后<em>斜体</em></p>
