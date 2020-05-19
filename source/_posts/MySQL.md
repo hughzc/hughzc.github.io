@@ -6020,7 +6020,7 @@ Java DtaBase Connectivity
         //1、加载驱动
         Class.forName("com.mysql.cj.jdbc.Driver");
         //2、通过Manager创建连接
-        String url = "jdbc:mysql://localhost/girls?user=root&password=qkxzs&serverTimezone=UTC";
+        String url = "jdbc:mysql://localhost/girls?user=root&password=密码&serverTimezone=UTC";
         Connection conn = DriverManager.getConnection(url);
         //3、创建语句对象
         Statement statement = conn.createStatement();

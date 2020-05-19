@@ -165,6 +165,8 @@ sun.misc.Launcher$AppClassLoader@dad5dc
 2. JDK1.2前重写loadClass()方法，之后不建议覆盖loadClass()方法，而是把自定义类的加载逻辑写在findClass()方法中
 3. 若没有太复杂的需求，可以直接继承URLClassLoader类，避免自己编写findClass()方法及其获取字节码流的方式，使自定义类加载器编写更加简洁
 
+应用场景（TO DO）
+
 ### 执行引擎
 
 - 执行方法区
