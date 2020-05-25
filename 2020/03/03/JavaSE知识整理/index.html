@@ -269,14 +269,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span></span>
+              <span>37k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 ≈</span>
-              <span>NaN:aN</span>
+              <span>34 分钟</span>
             </span>
 
         </div>
@@ -798,7 +798,7 @@
 <p>如果想在多线程下使用ArrayList，可以使用Collections.synchronizedList(list)方法</p>
 <h4 id="List遍历时删除问题"><a href="#List遍历时删除问题" class="headerlink" title="List遍历时删除问题"></a>List遍历时删除问题</h4><p>如果直接for循环遍历List，再进行remove操作，会报ConcurrentModificationException，因为使用了foreach语句时，会自动生成一个Iterator来遍历list，但同时该list又在被iterator.remove()方法修改，不允许在其他地方进行删除，因此这样会出问题。</p>
 <p>解决办法1：使用迭代器来获取List中全部元素，再调用iterator的remove方法</p>
-<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Iterator<Integer> it = list.iterator();</span><br><span class="line"><span class="keyword">while</span>(it.hasNext()){</span><br><span class="line">   *<span class="comment">// do something*</span></span><br><span class="line">   it.remove();</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Iterator<integer> it = list.iterator();</integer></span><br><span class="line"><span class="keyword">while</span>(it.hasNext()){</span><br><span class="line">   *<span class="comment">// do something*</span></span><br><span class="line">   it.remove();</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
 <p>解决办法2：利用下标来获取元素，再使用删除</p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i < list.size(); i++) {</span><br><span class="line">          list.remove(list.get(i));</span><br><span class="line">      }</span><br></pre></td></tr></tbody></table></figure>
@@ -808,7 +808,7 @@
 <p>Java8以前：数组+链表</p>
 <img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E9%93%BE%E8%A1%A8hash.png" class title="This is an example image">
 
-<p>操作为非同步，效率较高。<strong>数组默认16</strong>，存储链表头节点，数组位置的获得方式是hash(key.hashCode())%len，计算键的哈希值再算出%数组长度的值。实际中通过位运算来实现。其中数组的类型为Entry<K,V>，当发生哈希冲突时，则将数组中的Entry设置为新值的next，新值放在数组中，旧值在新值的链表上。</p>
+<p>操作为非同步，效率较高。<strong>数组默认16</strong>，存储链表头节点，数组位置的获得方式是hash(key.hashCode())%len，计算键的哈希值再算出%数组长度的值。实际中通过位运算来实现。其中数组的类型为Entry<k,v>，当发生哈希冲突时，则将数组中的Entry设置为新值的next，新值放在数组中，旧值在新值的链表上。</k,v></p>
 <p>最坏的情况下，链表会集中在一个数组，这样查找的时间复杂度从O(1)变为O(n)。</p>
 <p>Java8及以后：链表+数组+红黑树</p>
 <img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/%E7%BA%A2%E9%BB%91%E6%A0%91hash.png" class title="This is an example image">
@@ -1002,7 +1002,7 @@
 <p>上面为NIO的<strong>单线程模型</strong>，用一个线程处理客户端的连接，selector轮询客户端是否有连接与读写，门面模式？selector负责client的连接与读写。并不是只能一个连接，而是selector一次处理一次请求。</p>
 <p>NIO服务端对socket封装为ServerSocketChannel，此通道为<strong>双向</strong>，可同时读写，设置非阻塞，打开并注册selector，此时关心的只是建立连接，selector进行select，此<strong>方法</strong>也是<strong>阻塞</strong>，获取到key并进行处理。</p>
 <p>为了处理客户端的连接，需要将selector注册到客户端的channel中，因此selector处理的是服务端的channel+客户端的channel，不同的channel上的时间在一个set中，selector从set中获取事件并处理，每次处理事件后要将其移除。</p>
-<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">ServerSocketChannel ssc = ServerSocketChannel.open();<span class="comment">//服务端的socket</span></span><br><span class="line">      ssc.socket().bind(<span class="keyword">new</span> InetSocketAddress(<span class="string">"127.0.0.1"</span>,<span class="number">8888</span>));<span class="comment">//绑定地址</span></span><br><span class="line">      ssc.configureBlocking(<span class="keyword">false</span>);<span class="comment">//设置非阻塞</span></span><br><span class="line">      System.out.println(<span class="string">"server started, listening on :"</span> + ssc.getLocalAddress());</span><br><span class="line">      <span class="comment">//要有selector</span></span><br><span class="line">      Selector seletor = Selector.open();</span><br><span class="line">      ssc.register(seletor, SelectionKey.OP_ACCEPT);<span class="comment">//将selector注册</span></span><br><span class="line">      <span class="comment">//轮训</span></span><br><span class="line">      <span class="keyword">while</span> (<span class="keyword">true</span>){</span><br><span class="line">          seletor.select();<span class="comment">//看是否有连接，阻塞</span></span><br><span class="line">          Set<SelectionKey> keys = seletor.selectedKeys();<span class="comment">//获取所有的keys</span></span><br><span class="line">          <span class="comment">//迭代keys</span></span><br><span class="line">          Iterator<SelectionKey> it = keys.iterator();</span><br><span class="line">          <span class="keyword">while</span> (it.hasNext()){</span><br><span class="line">              SelectionKey key = it.next();</span><br><span class="line">              <span class="comment">//获取后移除，不移除会重复处理</span></span><br><span class="line">              it.remove();</span><br><span class="line">              handle(key);</span><br><span class="line">          }</span><br><span class="line">      }</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">ServerSocketChannel ssc = ServerSocketChannel.open();<span class="comment">//服务端的socket</span></span><br><span class="line">      ssc.socket().bind(<span class="keyword">new</span> InetSocketAddress(<span class="string">"127.0.0.1"</span>,<span class="number">8888</span>));<span class="comment">//绑定地址</span></span><br><span class="line">      ssc.configureBlocking(<span class="keyword">false</span>);<span class="comment">//设置非阻塞</span></span><br><span class="line">      System.out.println(<span class="string">"server started, listening on :"</span> + ssc.getLocalAddress());</span><br><span class="line">      <span class="comment">//要有selector</span></span><br><span class="line">      Selector seletor = Selector.open();</span><br><span class="line">      ssc.register(seletor, SelectionKey.OP_ACCEPT);<span class="comment">//将selector注册</span></span><br><span class="line">      <span class="comment">//轮训</span></span><br><span class="line">      <span class="keyword">while</span> (<span class="keyword">true</span>){</span><br><span class="line">          seletor.select();<span class="comment">//看是否有连接，阻塞</span></span><br><span class="line">          Set<selectionkey> keys = seletor.selectedKeys();<span class="comment">//获取所有的keys</span></selectionkey></span><br><span class="line">          <span class="comment">//迭代keys</span></span><br><span class="line">          Iterator<selectionkey> it = keys.iterator();</selectionkey></span><br><span class="line">          <span class="keyword">while</span> (it.hasNext()){</span><br><span class="line">              SelectionKey key = it.next();</span><br><span class="line">              <span class="comment">//获取后移除，不移除会重复处理</span></span><br><span class="line">              it.remove();</span><br><span class="line">              handle(key);</span><br><span class="line">          }</span><br><span class="line">      }</span><br></pre></td></tr></tbody></table></figure>
 
 <p>此时Selector负责客户端连接与读写，干的太负责，于是有了reactor模式</p>
 <img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/NIO2.png" class title="This is an example image">
@@ -1127,7 +1127,7 @@
 <p>增加服务端的窗口，同样将服务器类的信息封装到serverConnect方法，同时当有信息的时候直接写入到服务器窗口类即可。其中要注意的是，因为服务器类会阻塞，因此为了避免UI线程被阻塞，起服务器的线程最好放在main线程中。同样为了方便服务器类与服务器窗口类通信，将服务器窗口类做成单例。</p>
 <p>这时候完成了客户端与服务端字符串的通信。</p>
 <h4 id="Netty-Codec"><a href="#Netty-Codec" class="headerlink" title="Netty Codec"></a>Netty Codec</h4><p>1、定义TankMsg x,y</p>
-<p>2、TankMsgEncoder负责编码，继承自MessageToByteEncoder<code><TankMsg></code></p>
+<p>2、TankMsgEncoder负责编码，继承自MessageToByteEncoder<code><tankmsg></tankmsg></code></p>
 <ul>
 <li>负责将TankMsg转为字节</li>
 </ul>
@@ -1156,7 +1156,7 @@
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelActive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>{</span><br><span class="line">    ctx.writeAndFlush(<span class="keyword">new</span> TankMsg(<span class="number">5</span>,<span class="number">8</span>));<span class="comment">//自动由handler转为二进制</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
 <p>为了解码，需要定义解码类，将字节转为自定义的消息，为了解决TCP的拆包与黏包的问题，即将一个消息分成多个包，在字节数不够的时候直接返回，按照编码的顺序进行解码，并加入到out这个集合中。</p>
-<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TankMsgDecoder</span> <span class="keyword">extends</span> <span class="title">ByteToMessageDecoder</span> </span>{</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">decode</span><span class="params">(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)</span> <span class="keyword">throws</span> Exception </span>{</span><br><span class="line">        <span class="comment">//没有读取完，返回，TCP拆包与黏包问题</span></span><br><span class="line">        <span class="comment">//字节数不够，就等着</span></span><br><span class="line">        <span class="keyword">if</span> (in.readableBytes()<<span class="number">8</span>)<span class="keyword">return</span>;</span><br><span class="line">        <span class="comment">//in.markReaderIndex();</span></span><br><span class="line">        <span class="keyword">int</span> x = in.readInt();</span><br><span class="line">        <span class="keyword">int</span> y = in.readInt();</span><br><span class="line">        <span class="comment">//将解析出来的消息放在List中</span></span><br><span class="line">        out.add(<span class="keyword">new</span> TankMsg(x,y));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TankMsgDecoder</span> <span class="keyword">extends</span> <span class="title">ByteToMessageDecoder</span> </span>{</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">decode</span><span class="params">(ChannelHandlerContext ctx, ByteBuf in, List<object> out) <span class="keyword">throws</span> Exception {<br><span class="line">        <span class="comment">//没有读取完，返回，TCP拆包与黏包问题</span></span><br><span class="line">        <span class="comment">//字节数不够，就等着</span></span><br><span class="line">        <span class="keyword">if</span> (in.readableBytes()<<span class="number">8</span>)<span class="keyword">return</span>;</span><br><span class="line">        <span class="comment">//in.markReaderIndex();</span></span><br><span class="line">        <span class="keyword">int</span> x = in.readInt();</span><br><span class="line">        <span class="keyword">int</span> y = in.readInt();</span><br><span class="line">        <span class="comment">//将解析出来的消息放在List中</span></span><br><span class="line">        out.add(<span class="keyword">new</span> TankMsg(x,y));</span><br><span class="line">    }</span><br><span class="line">}</span><br></object></span></span></span></pre></td></tr></tbody></table></figure>
 
 <p>为了在服务端读取此消息，需要将此Handle加入到服务端的pipeLine上，先加解码的责任，这样在读取的时候，直接读取到的就是对应的TankMsg类</p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ServerChannelInitializer</span> <span class="keyword">extends</span> <span class="title">ChannelInitializer</span><<span class="title">SocketChannel</span>></span>{</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initChannel</span><span class="params">(SocketChannel ch)</span> <span class="keyword">throws</span> Exception </span>{</span><br><span class="line">        <span class="comment">//在每个责任链上加入一个handler</span></span><br><span class="line">        ch.pipeline()</span><br><span class="line">                .addLast(<span class="keyword">new</span> TankMsgDecoder())</span><br><span class="line">                .addLast(<span class="keyword">new</span> ServerChildHandler());</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
@@ -1209,7 +1209,7 @@
 
 <p>epoll的epoll_event中有fd跟event两个字段，epfd暂且理解为容器，其中有5个epoll_event，既有fd，又有event。epfd是直接内存，省去了拷贝的过程，内核判断是否有数据到来，在没有数据的时候，也会阻塞，在有数据的时候，select与poll是置位+函数返回，在epoll中通过重排来置位，将有数据的fd放到最前面，然后返回fd触发事件的个数，这样只需要遍历触发时间个数的数据就可以处理完毕，时间复杂度从O(n)变为O(1)。</p>
 <p>因此epoll解决了从用户态拷贝数据到内核态的过程，且轮询时间复杂度从O(n)减少至O(1)。</p>
-
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"react":{"opacity":1},"log":false});</script>
     </div>
 
     
@@ -1370,12 +1370,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="站点总字数">NaNm</span>
+    <span title="站点总字数">478k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">NaN:aN</span>
+    <span title="站点阅读时长">7:14</span>
 </div>
 
 <!--
@@ -1392,7 +1392,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共221.9k字</span>
+  <span class="post-count">博客全站共123.8k字</span>
 </div>
         
 <div class="busuanzi-count">

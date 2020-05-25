@@ -296,14 +296,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span></span>
+              <span>90k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 ≈</span>
-              <span>NaN:aN</span>
+              <span>1:22</span>
             </span>
 
         </div>
@@ -1049,7 +1049,7 @@
 <figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">LENGTH</span>(last_name) <span class="string">`长度`</span></span><br><span class="line"><span class="keyword">FROM</span> employees</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="keyword">LEFT</span>(last_name,<span class="number">1</span>) <span class="keyword">ASC</span>;</span><br></pre></td></tr></tbody></table></figure>
 
 <p>4、做一个查询，产生下面的效果</p>
-<p><last_name> earns < salary> monthly but wants <salary*3> Dream Salary</last_name></p>
+<p><last_name> earns < salary> monthly but wants <salary*3> Dream Salary</salary*3></last_name></p>
 <p>King earns 24000 monthly but wants 72000</p>
 <figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">CONCAT</span>(last_name,<span class="string">' earns '</span>,salary,<span class="string">' monthly but wants '</span>,salary*<span class="number">3</span>) <span class="string">`Dream Salary`</span></span><br><span class="line"><span class="keyword">FROM</span> employees;</span><br></pre></td></tr></tbody></table></figure>
 
@@ -1647,8 +1647,8 @@
 <p>步骤1：查询job_id为‘IT_PROG’部门任一工资</p>
 <figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span> salary</span><br><span class="line"><span class="keyword">FROM</span> employees</span><br><span class="line"><span class="keyword">WHERE</span> job_id=<span class="string">'IT_PROG'</span></span><br></pre></td></tr></tbody></table></figure>
 
-<p>步骤2：查询员工号、姓名、job_id 以及salary，salary<any（步骤1结果），job_id不为IT</p>
-<figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> employee_id,last_name,job_id,salary</span><br><span class="line"><span class="keyword">FROM</span> employees</span><br><span class="line"><span class="keyword">WHERE</span> salary<<span class="keyword">ANY</span>(</span><br><span class="line">	<span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span> salary</span><br><span class="line">	<span class="keyword">FROM</span> employees</span><br><span class="line">	<span class="keyword">WHERE</span> job_id=<span class="string">'IT_PROG'</span></span><br><span class="line">) <span class="keyword">AND</span> job_id <> <span class="string">'IT_PROG'</span>;</span><br></pre></td></tr></tbody></table></figure>
+<p>步骤2：查询员工号、姓名、job_id 以及salary，salary<any（步骤1结果），job_id不为it< p>
+</any（步骤1结果），job_id不为it<></p><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> employee_id,last_name,job_id,salary</span><br><span class="line"><span class="keyword">FROM</span> employees</span><br><span class="line"><span class="keyword">WHERE</span> salary<<span class="keyword">ANY</span>(</span><br><span class="line">	<span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span> salary</span><br><span class="line">	<span class="keyword">FROM</span> employees</span><br><span class="line">	<span class="keyword">WHERE</span> job_id=<span class="string">'IT_PROG'</span></span><br><span class="line">) <span class="keyword">AND</span> job_id <> <span class="string">'IT_PROG'</span>;</span><br></pre></td></tr></tbody></table></figure>
 
 <p>或者小于其中任意工资，就是小于其最大工资</p>
 <figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> employee_id,last_name,job_id,salary</span><br><span class="line"><span class="keyword">FROM</span> employees</span><br><span class="line"><span class="keyword">WHERE</span> salary<(</span><br><span class="line">	<span class="keyword">SELECT</span> <span class="keyword">MAX</span>(salary)</span><br><span class="line">	<span class="keyword">FROM</span> employees</span><br><span class="line">	<span class="keyword">WHERE</span> job_id=<span class="string">'IT_PROG'</span></span><br><span class="line">) <span class="keyword">AND</span> job_id <> <span class="string">'IT_PROG'</span>;</span><br></pre></td></tr></tbody></table></figure>
@@ -4049,7 +4049,7 @@
 <p>stop slave</p>
 </li>
 </ul>
-
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"react":{"opacity":1},"log":false});</script>
     </div>
 
     
@@ -4210,12 +4210,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="站点总字数">NaNm</span>
+    <span title="站点总字数">478k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">NaN:aN</span>
+    <span title="站点阅读时长">7:14</span>
 </div>
 
 <!--
@@ -4232,7 +4232,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共221.9k字</span>
+  <span class="post-count">博客全站共123.8k字</span>
 </div>
         
 <div class="busuanzi-count">

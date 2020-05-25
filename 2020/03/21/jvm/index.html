@@ -274,14 +274,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span></span>
+              <span>16k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 ≈</span>
-              <span>NaN:aN</span>
+              <span>15 分钟</span>
             </span>
 
         </div>
@@ -368,10 +368,10 @@
 <p>常量池中的符号引用转为直接引用有类装载时候的静态解析和方法入栈时候的动态链接</p>
 </li>
 <li><p>初始化：对静态变量和静态代码块执行初始化过程</p>
-<p>执行类构造器方法<code><clinit></code>()的过程，此方法不需要定义，是javac编译器自动收集类中的所有类变量的赋值动作和静态代码块中的语句合并而来。</p>
+<p>执行类构造器方法<code><clinit></clinit></code>()的过程，此方法不需要定义，是javac编译器自动收集类中的所有类变量的赋值动作和静态代码块中的语句合并而来。</p>
 <p>构造器方法中的指令按语句在源文件中出现的顺序执行</p>
-<p>若该类有父类，JVM会保证子类的<code><clinit></code>()执行前，父类的<code><clinit></code>()已经执行完毕</p>
-<p>虚拟机需要保证一个类的<code><clinit></code>()方法在多线程下被<strong>同步加锁</strong></p>
+<p>若该类有父类，JVM会保证子类的<code><clinit></clinit></code>()执行前，父类的<code><clinit></clinit></code>()已经执行完毕</p>
+<p>虚拟机需要保证一个类的<code><clinit></clinit></code>()方法在多线程下被<strong>同步加锁</strong></p>
 </li>
 </ol>
 <p>其中验证、准备、解析属于链接阶段。</p>
@@ -847,11 +847,11 @@
 <p>将经常用到的内容放在缓存中，提高效率，但如果空间不足，GC时可以将此软引用指向的对象进行回收，节省空间。兼顾时间与空间的效率。</p>
 </li>
 </ul>
-<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SoftReference<byte[]> m =  new SoftReference<>(new byte[1024*1024*10]);</span><br><span class="line">m.get();</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SoftReference<byte[]> m =  new SoftReference<>(new byte[1024*1024*10]);</byte[]></span><br><span class="line">m.get();</span><br></pre></td></tr></tbody></table></figure>
 
 <p>m与SoftRefence（sr）对象强引用，sr与定义的字符数组虚引用，通过m.get()方法可以获得其引用。</p>
 <p>下面看其被GC情况。</p>
-<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="string">"java"</span>;</span><br><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>){</span><br><span class="line">    SoftReference<String> str2 = <span class="keyword">new</span> SoftReference<String>(str + <span class="keyword">new</span> Random().nextInt(<span class="number">88888888</span>) + <span class="keyword">new</span> Random().nextInt(<span class="number">999999999</span>));</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="string">"java"</span>;</span><br><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>){</span><br><span class="line">    SoftReference<string> str2 = <span class="keyword">new</span> SoftReference<string>(str + <span class="keyword">new</span> Random().nextInt(<span class="number">88888888</span>) + <span class="keyword">new</span> Random().nextInt(<span class="number">999999999</span>));</string></string></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
 <p>日志</p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[GC (Allocation Failure) [DefNew: <span class="number">2752</span>K-><span class="number">0</span>K(<span class="number">3072</span>K), <span class="number">0.0002984</span> secs] <span class="number">3327</span>K-><span class="number">575</span>K(<span class="number">9920</span>K), <span class="number">0.0003464</span> secs] [Times: user=<span class="number">0.00</span> sys=<span class="number">0.00</span>, real=<span class="number">0.00</span> secs]</span><br></pre></td></tr></tbody></table></figure>
@@ -864,7 +864,7 @@
 <li>被回收的概率也不大，因为GC线程优先级较低</li>
 <li>适用于偶尔被使用且不影响垃圾回收的对象</li>
 </ul>
-<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">WeakRference<M> m =  <span class="keyword">new</span> WeakReference<>(<span class="keyword">new</span> M());</span><br><span class="line">m.get();</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">WeakRference<m> m =  <span class="keyword">new</span> WeakReference<>(<span class="keyword">new</span> M());</m></span><br><span class="line">m.get();</span><br></pre></td></tr></tbody></table></figure>
 
 <p>使用m.get()方法可以得到其引用。</p>
 <p>在ThreadLocal中的Entry里，key对ThreadLocal对象为弱引用，可以防止内存泄漏。</p>
@@ -875,7 +875,7 @@
 <li>跟踪对象被垃圾收集器回收的活动，起哨兵作用</li>
 <li>必须和引用队列ReferenceQueue联合使用</li>
 </ul>
-<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="string">"java"</span>;</span><br><span class="line">ReferenceQueue<String> queue = <span class="keyword">new</span> ReferenceQueue<>();</span><br><span class="line">PhantomReference<String> pr = <span class="keyword">new</span> PhantomReference<>(str,queue);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="string">"java"</span>;</span><br><span class="line">ReferenceQueue<string> queue = <span class="keyword">new</span> ReferenceQueue<>();</string></span><br><span class="line">PhantomReference<string> pr = <span class="keyword">new</span> PhantomReference<>(str,queue);</string></span><br></pre></td></tr></tbody></table></figure>
 
 <p>通过判断队列中是否加入了虚引用来了解被引用的对象是否被GC。</p>
 <p>作用是<strong>管理堆外内存</strong>，在传统的网络通信中，网卡数据写给OS，OS写入Buffer中，再复制给JVM，JVM要向网络传输数据，先 复制到OS的Buffer中，再写给网卡。这个Buffer复制到JVM的过程是不必要的，在NIO中，提供了直接内存管理或堆外内存管理。利用JVM管理操作系统中的堆外内存，不用再次拷贝，称为zerocopy，提高效率。有对象DirectByteBuffer来指向堆外内存，为了方便回收堆外内存的垃圾回收，给DirectByteBuffer加上虚引用，配合队列使用，当队列中有内容，说明DirectByteBuffer有对象被回收，需要相应清理堆外内存。</p>
@@ -893,7 +893,7 @@
 </li>
 </ol>
 <h3 id="CPU飙高怎么办"><a href="#CPU飙高怎么办" class="headerlink" title="CPU飙高怎么办"></a>CPU飙高怎么办</h3><p>使用jps查看相应的进程，然后用jstack查看此进程下的全部线程，查看哪个线程占用的CPU最高。</p>
-
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"react":{"opacity":1},"log":false});</script>
     </div>
 
     
@@ -1054,12 +1054,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="站点总字数">NaNm</span>
+    <span title="站点总字数">478k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">NaN:aN</span>
+    <span title="站点阅读时长">7:14</span>
 </div>
 
 <!--
@@ -1076,7 +1076,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共221.9k字</span>
+  <span class="post-count">博客全站共123.8k字</span>
 </div>
         
 <div class="busuanzi-count">
