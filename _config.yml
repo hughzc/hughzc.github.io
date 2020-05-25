@@ -108,3 +108,41 @@ deploy:
   type: git
   repo: git@github.com:hughzc/hughzc.github.io.git
   branch : master
+
+#看板娘功能
+live2d:
+  enable: true					# 开启Live2D
+  scriptFrom: local 					   # 插件来源
+  pluginRootPath: live2dw/ 				# 插件根目录(相对路径)
+  pluginJsPath: lib/ 					  # 脚本文件路径(相对于插件根目录路径)
+  pluginModelPath: assets/ 				# 模型文件路径(相对于插件根目录)
+  tagMode: false 						  # 是否标签模式
+  debug: false 							# 是否开启调试模式
+  model:
+    use: live2d-widget-model-wanko 		# 选择模型
+  display:
+    position: left						# 模型在页面上的位置
+    width: 150 							# 模型宽度
+    height: 300 		 				  # 模型高度
+  mobile:
+    show: false 							# 是否在手机端显示
+  react:
+    opacity: 1 							# 设置模型透明度
+    
+#字数统计
+symbols_count_time:
+  symbols: true
+  time: true
+  total_symbols: true
+  total_time: true
+  exclude_codeblock: false
+  awl: 4
+  wpm: 275
+  suffix: "mins."
+
+#懒加载
+lazyload:
+  enable: true
+  onlypost: false #是否只在文章中开启懒加载
+  # className: #可选 e.g. .J-lazyload-img
+  # loadingImg: #可选 eg. ./images/loading.png 作为图片未加载时的替代图片  
