@@ -1,7 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-
-<head>
+<!DOCTYPE html><html lang="zh-CN"><head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
@@ -168,9 +165,7 @@
     <i class="fa fa-search"></i>
   </span>
   <div class="search-input-container">
-    <input autocomplete="off" autocorrect="off" autocapitalize="none"
-           placeholder="搜索..." spellcheck="false"
-           type="text" id="search-input">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none" placeholder="搜索..." spellcheck="false" type="text" id="search-input">
   </div>
   <span class="popup-btn-close">
     <i class="fa fa-times-circle"></i>
@@ -263,7 +258,7 @@
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                <span class="post-meta-item-text">阅读时长 ≈</span>
               <span>NaN:aN</span>
             </span>
 
@@ -289,7 +284,7 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/04/11/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/#more" rel="contents">
-                阅读全文 &raquo;
+                阅读全文 »
               </a>
             </div>
           <!--/noindex-->
@@ -369,7 +364,7 @@
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                <span class="post-meta-item-text">阅读时长 ≈</span>
               <span>NaN:aN</span>
             </span>
 
@@ -394,7 +389,7 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/21/jvm/#more" rel="contents">
-                阅读全文 &raquo;
+                阅读全文 »
               </a>
             </div>
           <!--/noindex-->
@@ -468,7 +463,7 @@
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                <span class="post-meta-item-text">阅读时长 ≈</span>
               <span>NaN:aN</span>
             </span>
 
@@ -488,7 +483,7 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/#more" rel="contents">
-                阅读全文 &raquo;
+                阅读全文 »
               </a>
             </div>
           <!--/noindex-->
@@ -568,7 +563,7 @@
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                <span class="post-meta-item-text">阅读时长 ≈</span>
               <span>NaN:aN</span>
             </span>
 
@@ -589,7 +584,7 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/#more" rel="contents">
-                阅读全文 &raquo;
+                阅读全文 »
               </a>
             </div>
           <!--/noindex-->
@@ -669,7 +664,7 @@
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                <span class="post-meta-item-text">阅读时长 ≈</span>
               <span>NaN:aN</span>
             </span>
 
@@ -687,7 +682,7 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/#more" rel="contents">
-                阅读全文 &raquo;
+                阅读全文 »
               </a>
             </div>
           <!--/noindex-->
@@ -767,7 +762,7 @@
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                <span class="post-meta-item-text">阅读时长 ≈</span>
               <span>NaN:aN</span>
             </span>
 
@@ -784,14 +779,14 @@
 <p>较好的做法是将要用到的类都封装好，不要放在Main类中，主类只需要持有要用到的类的对象，然后调用即可。</p>
 <p>StringBuilder类的append方法，res.append(str1).append(str2)比res.append(str1+str2)效率高。</p>
 <p>其中牛客网要求格式化输出数据，可以用DecimalFormat类，进行一位小数的输出。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DecimalFormat df = <span class="keyword">new</span> DecimalFormat(<span class="string">"0.00000"</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DecimalFormat df = <span class="keyword">new</span> DecimalFormat(<span class="string">"0.00000"</span>);</span><br></pre></td></tr></tbody></table></figure>
 
 <p>或者使用String的format方法，支持float与double</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String result = String.format(<span class="string">"%.1f"</span>,data);</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String result = String.format(<span class="string">"%.1f"</span>,data);</span><br></pre></td></tr></tbody></table></figure>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/02/25/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/#more" rel="contents">
-                阅读全文 &raquo;
+                阅读全文 »
               </a>
             </div>
           <!--/noindex-->
@@ -871,7 +866,7 @@
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                <span class="post-meta-item-text">阅读时长 ≈</span>
               <span>NaN:aN</span>
             </span>
 
@@ -898,7 +893,7 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/02/09/MySQL/#more" rel="contents">
-                阅读全文 &raquo;
+                阅读全文 »
               </a>
             </div>
           <!--/noindex-->
@@ -967,7 +962,7 @@
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                <span class="post-meta-item-text">阅读时长 ≈</span>
               <span>NaN:aN</span>
             </span>
 
@@ -984,7 +979,7 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/01/29/Linux%E4%BD%BF%E7%94%A8/#more" rel="contents">
-                阅读全文 &raquo;
+                阅读全文 »
               </a>
             </div>
           <!--/noindex-->
@@ -1064,7 +1059,7 @@
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                <span class="post-meta-item-text">阅读时长 ≈</span>
               <span>NaN:aN</span>
             </span>
 
@@ -1081,11 +1076,11 @@
 <p>黑马程序员视频学习笔记</p>
 </blockquote>
 <h1 id="视频笔记"><a href="#视频笔记" class="headerlink" title="视频笔记"></a>视频笔记</h1><h2 id="面对对象"><a href="#面对对象" class="headerlink" title="面对对象"></a>面对对象</h2><h3 id="零碎"><a href="#零碎" class="headerlink" title="零碎"></a>零碎</h3><p>javac先编译，生成class文件然后java运行类，一个类中运行需要有一个主函数</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">pulic <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">pulic <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>{}</span><br></pre></td></tr></tbody></table></figure>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/01/14/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#more" rel="contents">
-                阅读全文 &raquo;
+                阅读全文 »
               </a>
             </div>
           <!--/noindex-->
@@ -1154,7 +1149,7 @@
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                <span class="post-meta-item-text">阅读时长 ≈</span>
               <span>NaN:aN</span>
             </span>
 
@@ -1172,14 +1167,14 @@
 <li>偏好设置 </li>
 </ol>
 <h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><h3 id="部署步骤"><a href="#部署步骤" class="headerlink" title="部署步骤"></a>部署步骤</h3><p>​    博客部署至远端</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo deploy -g</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo deploy -g</span><br></pre></td></tr></tbody></table></figure>
 
 <p>​    将hexo文件夹源代码（写作所在文件夹）push至github仓库</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m “message”</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m “message”</span><br><span class="line">git push</span><br></pre></td></tr></tbody></table></figure>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/12/29/markdown%E4%BD%BF%E7%94%A8/#more" rel="contents">
-                阅读全文 &raquo;
+                阅读全文 »
               </a>
             </div>
           <!--/noindex-->
@@ -1257,8 +1252,7 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="未名Hugh"
-      src="/images/avatar.jpg">
+    <img class="site-author-image" itemprop="image" alt="未名Hugh" src="/images/avatar.jpg">
   <p class="site-author-name" itemprop="name">未名Hugh</p>
   <div class="site-description" itemprop="description">技术博客，Java，并发编程，算法</div>
 </div>
@@ -1304,7 +1298,7 @@
 <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <div class="copyright">
   
-  &copy; 2019 – 
+  © 2019 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
@@ -1356,7 +1350,7 @@
 
   
   
-  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
   <script src="/lib/anime.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
@@ -1400,8 +1394,8 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"react":{"opacity":1},"log":false});</script></body>
-</html>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"react":{"opacity":1},"log":false});</script>
 
-<!-- 页面点击小红心 -->
-<script type="text/javascript" src="/js/clicklove.js"></script>
+
+
+<script type="text/javascript" src="/js/clicklove.js"></script><script type="text/javascript" charset="utf-8" src="/js/lazyload-plugin/lazyload.intersectionObserver.min.js"></script></body></html><!-- 页面点击小红心 -->
