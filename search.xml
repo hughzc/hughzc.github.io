@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>注解</title>
+    <url>/2020/06/05/%E6%B3%A8%E8%A7%A3/</url>
+    <content><![CDATA[<html><head></head><body></body></html>]]></content>
+      <categories>
+        <category>注解</category>
+      </categories>
+      <tags>
+        <tag>JavaSe</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>设计模式</title>
     <url>/2020/04/11/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[<html><head></head><body><h1 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h1><p>设计模式是对一些常见问题解决方案的总结与归纳，设计模式需要满足6大原则，分别是：</p>
@@ -2358,6 +2369,11 @@
 <h4 id="identity-hashcode"><a href="#identity-hashcode" class="headerlink" title="identity hashcode"></a>identity hashcode</h4><p>有关identity hashcode的问题，可以看到，只有在无锁状态下才有hashcode，如果一个对象计算了identity hashcode，则对象<strong>无法进入偏向</strong>状态。</p>
 <p>若是轻量级锁，在线程的栈帧中保存了无锁状态下的Markword，即Lock Record记录。</p>
 <p>若是重量级锁，在ObjectMonitor中有相应的成员变量。</p>
+<p>hashcode为32位，但identity hashcode只用31位存储，无符号位，因此<strong>默认对象的hashcode均大于0</strong></p>
+<p>hashCode方法返回值不是地址，因为对象地址在32位jvm或64位jvm开启指针压缩下，地址为4字节，因为没必要用31位存储（使用的是当前线程有关的随机数+三个确定值，通过<strong>随机数算法计算得到的随机数</strong>）</p>
+<blockquote>
+<p>具体计算方法：<a href="https://www.jianshu.com/p/be943b4958f4" target="_blank" rel="noopener">https://www.jianshu.com/p/be943b4958f4</a></p>
+</blockquote>
 <h4 id="Monitor"><a href="#Monitor" class="headerlink" title="Monitor"></a>Monitor</h4><p>对于重量级锁，锁标志位是10，指针指向的是monitor对象的起始地址，<strong>每个对象都有Monitor与之关联</strong>，monitor被线程持有后就处于锁定状态。在Java虚拟机中，monitor是由ObjectMonitor实现。monitor底层由C++实现，里面有两个队列，WaitSet（等待池）和EntryList（锁池），而owner指向持有ObjectMonitor对象的线程。</p>
 <p>具体过程为：当有多个线程同步访问同步代码时，进入锁池集合，当线程获取到锁对象的monitor以后，进入_Owner 区域并将owner变量设置为当前线程，Monitor中的计数器count+1，如果当前线程调用了wait()方法，会释放当前的Monitor，将owner变量设置为null，count减一，该线程进入等待池来等待被唤醒。若当前变量执行完毕，也会释放Monitor锁，并将对应的变量值复位。</p>
 <img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/monitor.png" class title="This is an example image">
@@ -11647,6 +11663,9 @@ getLast();</code></pre><p> <strong>jdk1.6</strong></p>
 <p>​    加粗前：字体；加粗后<strong>字体</strong></p>
 <h3 id="字体颜色"><a href="#字体颜色" class="headerlink" title="字体颜色"></a>字体颜色</h3><p><span style="color:red;">更改字体颜色</span></p>
 <figure class="highlight plain"><table><tbody><tr><td class="code"><pre><span class="line"><span style="color:red;">更改字体颜色</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="字体背景"><a href="#字体背景" class="headerlink" title="字体背景"></a>字体背景</h3><p>==改变字体背景==</p>
+<figure class="highlight plain"><table><tbody><tr><td class="code"><pre><span class="line">==改变字体背景==</span><br></pre></td></tr></tbody></table></figure>
 
 <h3 id="斜体"><a href="#斜体" class="headerlink" title="斜体"></a>斜体</h3><figure class="highlight plain"><table><tbody><tr><td class="code"><pre><span class="line">快捷键：ctrl+i</span><br><span class="line">示 例：*斜体*</span><br></pre></td></tr></tbody></table></figure>
 
