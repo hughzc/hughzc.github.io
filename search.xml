@@ -4,6 +4,8 @@
     <title>数据库ACID介绍及实现</title>
     <url>/2020/06/10/%E6%95%B0%E6%8D%AE%E5%BA%93ACID%E4%BB%8B%E7%BB%8D%E5%8F%8A%E5%AE%9E%E7%8E%B0/</url>
     <content><![CDATA[<html><head></head><body><p>Innodb作为现版本Mysql中默认的存储引擎，其事务相关知识是非常重要的，也是面试高频点，因此这篇将介绍下事务的ACID属性，具体实现方式及对ACID的理解</p>
+<a id="more"></a>
+
 <h3 id="面试题"><a href="#面试题" class="headerlink" title="面试题"></a>面试题</h3><p>先抛出一点常见的面试题，如果这些面试题有不太熟悉的，可以看下下文中相关部分，带着问题去阅读</p>
 <ol>
 <li>数据库的事务是什么，有哪些属性</li>
@@ -270,17 +272,6 @@
         <tag>ACID</tag>
         <tag>Mysql</tag>
         <tag>MVCC</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>注解</title>
-    <url>/2020/06/05/%E6%B3%A8%E8%A7%A3/</url>
-    <content><![CDATA[<html><head></head><body></body></html>]]></content>
-      <categories>
-        <category>注解</category>
-      </categories>
-      <tags>
-        <tag>JavaSe</tag>
       </tags>
   </entry>
   <entry>
