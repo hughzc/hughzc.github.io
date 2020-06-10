@@ -19,7 +19,7 @@
   var CONFIG = {
     hostname: new URL('https://hughzc.github.io').hostname,
     root: '/',
-    scheme: 'Pisces',
+    scheme: 'Muse',
     version: '7.6.0',
     exturl: false,
     sidebar: {"position":"left","width":320,"display":"post","padding":18,"offset":12,"onmobile":false},
@@ -1171,7 +1171,7 @@
 <p>而计算F(i)，是左边的数构建树的种类与右边的数构建树的种类的乘积。即F(i)=G(i-1)xG(ni)。这样，得到G(n)的表达式为G(n)=sum(G(i-1)xG(n-i))，i=1,2,…,n。其中G(0)=1,G(1)=1.</p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//dp解法</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">numTrees</span><span class="params">(<span class="keyword">int</span> n)</span> </span>{</span><br><span class="line">    <span class="keyword">int</span>[] G = <span class="keyword">new</span> <span class="keyword">int</span>[n+<span class="number">1</span>];</span><br><span class="line">    G[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line">    G[<span class="number">1</span>] = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">2</span>; i <= n; i++) {</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j <= i; j++) {</span><br><span class="line">            G[i] += G[j-<span class="number">1</span>] * G[i - j];</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> G[n];</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"react":{"opacity":1},"log":false});</script>
+
     </div>
 
     
@@ -1194,10 +1194,11 @@
 
 
       <footer class="post-footer">
+          
           <div class="post-tags">
-              <a href="/tags/%E5%B7%A6%E7%A5%9E%E7%AE%97%E6%B3%95/" rel="tag"># 左神算法</a>
-              <a href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag"># 剑指offer</a>
-              <a href="/tags/leetcode/" rel="tag"># leetcode</a>
+              <a href="/tags/%E5%B7%A6%E7%A5%9E%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 左神算法</a>
+              <a href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag"><i class="fa fa-tag"></i> 剑指offer</a>
+              <a href="/tags/leetcode/" rel="tag"><i class="fa fa-tag"></i> leetcode</a>
           </div>
 
         
@@ -1305,6 +1306,11 @@
       </div>
   </nav>
 </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:chengznk@qq.com" title="E-Mail → mailto:chengznk@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
 
 
 
@@ -1346,7 +1352,7 @@
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
   </div>
   <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.6.0
+  <div class="theme-info">主题 – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.6.0
   </div>
 -->
 <div class="powered-by">
@@ -1386,7 +1392,7 @@
 <script src="/js/motion.js"></script>
 
 
-<script src="/js/schemes/pisces.js"></script>
+<script src="/js/schemes/muse.js"></script>
 
 
 <script src="/js/next-boot.js"></script>
@@ -1420,7 +1426,7 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"react":{"opacity":1},"log":false});</script>
+
 
 
 
