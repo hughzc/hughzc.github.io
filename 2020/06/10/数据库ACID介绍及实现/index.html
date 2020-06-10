@@ -44,29 +44,34 @@
   };
 </script>
 
-  <meta name="description" content="技术博客，Java，并发编程，算法">
-<meta property="og:type" content="website">
-<meta property="og:title" content="未名的奇妙旅程">
-<meta property="og:url" content="https://hughzc.github.io/index.html">
+  <meta name="description" content="Innodb作为现版本Mysql中默认的存储引擎，其事务相关知识是非常重要的，也是面试高频点，因此这篇将介绍下事务的ACID属性，具体实现方式及对ACID的理解 面试题先抛出一点常见的面试题，如果这些面试题有不太熟悉的，可以看下下文中相关部分，带着问题去阅读  数据库的事务是什么，有哪些属性 Mysql隔离级别 ACID中为什么要强调一致性 Mysql怎么解决不可重复读的问题 Mysql在可重复读">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据库ACID介绍及实现">
+<meta property="og:url" content="https://hughzc.github.io/2020/06/10/%E6%95%B0%E6%8D%AE%E5%BA%93ACID%E4%BB%8B%E7%BB%8D%E5%8F%8A%E5%AE%9E%E7%8E%B0/index.html">
 <meta property="og:site_name" content="未名的奇妙旅程">
-<meta property="og:description" content="技术博客，Java，并发编程，算法">
+<meta property="og:description" content="Innodb作为现版本Mysql中默认的存储引擎，其事务相关知识是非常重要的，也是面试高频点，因此这篇将介绍下事务的ACID属性，具体实现方式及对ACID的理解 面试题先抛出一点常见的面试题，如果这些面试题有不太熟悉的，可以看下下文中相关部分，带着问题去阅读  数据库的事务是什么，有哪些属性 Mysql隔离级别 ACID中为什么要强调一致性 Mysql怎么解决不可重复读的问题 Mysql在可重复读">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-06-10T02:39:38.000Z">
+<meta property="article:modified_time" content="2020-06-10T07:19:00.001Z">
 <meta property="article:author" content="未名Hugh">
+<meta property="article:tag" content="ACID">
+<meta property="article:tag" content="Mysql">
+<meta property="article:tag" content="MVCC">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://hughzc.github.io/">
+<link rel="canonical" href="https://hughzc.github.io/2020/06/10/%E6%95%B0%E6%8D%AE%E5%BA%93ACID%E4%BB%8B%E7%BB%8D%E5%8F%8A%E5%AE%9E%E7%8E%B0/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: true,
-    isPost: false
+    isHome: false,
+    isPost: true
   };
 </script>
 
-  <title>未名的奇妙旅程</title>
+  <title>数据库ACID介绍及实现 | 未名的奇妙旅程</title>
   
 
 
@@ -196,10 +201,10 @@
             
 
   <div class="posts-expand">
-        
+      
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/06/10/%E6%95%B0%E6%8D%AE%E5%BA%93ACID%E4%BB%8B%E7%BB%8D%E5%8F%8A%E5%AE%9E%E7%8E%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -213,8 +218,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/10/%E6%95%B0%E6%8D%AE%E5%BA%93ACID%E4%BB%8B%E7%BB%8D%E5%8F%8A%E5%AE%9E%E7%8E%B0/" class="post-title-link" itemprop="url">数据库ACID介绍及实现</a>
+          数据库ACID介绍及实现
         </h1>
 
         <div class="post-meta">
@@ -264,7 +268,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>Innodb作为现版本Mysql中默认的存储引擎，其事务相关知识是非常重要的，也是面试高频点，因此这篇将介绍下事务的ACID属性，具体实现方式及对ACID的理解</p>
+        <p>Innodb作为现版本Mysql中默认的存储引擎，其事务相关知识是非常重要的，也是面试高频点，因此这篇将介绍下事务的ACID属性，具体实现方式及对ACID的理解</p>
 <h3 id="面试题"><a href="#面试题" class="headerlink" title="面试题"></a>面试题</h3><p>先抛出一点常见的面试题，如果这些面试题有不太熟悉的，可以看下下文中相关部分，带着问题去阅读</p>
 <ol>
 <li>数据库的事务是什么，有哪些属性</li>
@@ -524,911 +528,53 @@
 <p>如何理解数据库事务中的一致性的概念？：<a href="https://www.zhihu.com/question/31346392" target="_blank" rel="noopener">https://www.zhihu.com/question/31346392</a></p>
 </blockquote>
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"react":{"opacity":1},"log":false});</script>
-      
     </div>
 
     
     
     
+        <div class="reward-container">
+  <div>怕什么真理无穷，进一寸有一寸的欢喜</div>
+  <button disable="enable" onclick="var qr = document.getElementById("qr"); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat.jpg" alt="未名Hugh 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/tags/ACID/" rel="tag"># ACID</a>
+              <a href="/tags/Mysql/" rel="tag"># Mysql</a>
+              <a href="/tags/MVCC/" rel="tag"># MVCC</a>
+          </div>
 
         
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/06/05/%E6%B3%A8%E8%A7%A3/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/05/%E6%B3%A8%E8%A7%A3/" class="post-title-link" itemprop="url">注解</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-06-05 09:47:13 / 修改时间：09:47:47" itemprop="dateCreated datePublished" datetime="2020-06-05T09:47:13+08:00">2020-06-05</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B3%A8%E8%A7%A3/" itemprop="url" rel="index">
-                    <span itemprop="name">注解</span>
-                  </a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 ≈</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"react":{"opacity":1},"log":false});</script>
-      
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/05/%E6%B3%A8%E8%A7%A3/" rel="prev" title="注解">
+      <i class="fa fa-chevron-left"></i> 注解
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/04/11/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/11/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">设计模式</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-11 12:14:40" itemprop="dateCreated datePublished" datetime="2020-04-11T12:14:40+08:00">2020-04-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-28 12:12:35" itemprop="dateModified" datetime="2020-04-28T12:12:35+08:00">2020-04-28</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index">
-                    <span itemprop="name">设计模式</span>
-                  </a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>25k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 ≈</span>
-              <span>22 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h1><p>设计模式是对一些常见问题解决方案的总结与归纳，设计模式需要满足6大原则，分别是：</p>
-<ul>
-<li>单一职责原则</li>
-<li>接口隔离原则</li>
-<li>依赖倒转原则</li>
-<li>里氏替换原则</li>
-<li>开放封闭原则</li>
-<li>迪米特法则</li>
-<li>合成复用原则</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/11/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/#more" rel="contents">
-                阅读全文 »
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/03/21/jvm/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/21/jvm/" class="post-title-link" itemprop="url">jvm</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-03-21 11:41:02" itemprop="dateCreated datePublished" datetime="2020-03-21T11:41:02+08:00">2020-03-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-30 09:25:31" itemprop="dateModified" datetime="2020-04-30T09:25:31+08:00">2020-04-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/jvm/" itemprop="url" rel="index">
-                    <span itemprop="name">jvm</span>
-                  </a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>16k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 ≈</span>
-              <span>15 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="JVM"><a href="#JVM" class="headerlink" title="JVM"></a>JVM</h1><h2 id="JVM介绍"><a href="#JVM介绍" class="headerlink" title="JVM介绍"></a>JVM介绍</h2><p>Java Virtual Machine，JVM运行在操作系统上，与硬件没有直接的交互。</p>
-<h3 id="JVM体系结构概览"><a href="#JVM体系结构概览" class="headerlink" title="JVM体系结构概览"></a>JVM体系结构概览</h3><img src="/2020/03/21/jvm/jvm%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84.png" class title="This is an example image">
-
-<p>JVM包括2个子系统和2个组件，2个子系统为类加载器和执行引擎，2个组件是运行时数据区和本地接口。</p>
-<p>整个流程为，编译期将Java代码转为字节码，类加载器将字节码加载进运行数据区中的方法区中，执行引擎来进行解析为系统指令，交由CPU执行，需要调用其他语言的本地接口来实现功能。</p>
-<p>亮色：所有线程共享，存在垃圾回收；</p>
-<p>灰色：线程私有，不存在垃圾回收。</p>
-<p>分为3层来学习。</p>
-<p>先是类装载器与执行引擎。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/03/21/jvm/#more" rel="contents">
-                阅读全文 »
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/" class="post-title-link" itemprop="url">哈夫曼树</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-03-06 17:16:14 / 修改时间：22:18:18" itemprop="dateCreated datePublished" datetime="2020-03-06T17:16:14+08:00">2020-03-06</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/" itemprop="url" rel="index">
-                    <span itemprop="name">哈夫曼树</span>
-                  </a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>12k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 ≈</span>
-              <span>11 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>写这篇博客源自于之前做了一道哈夫曼编码的题，但是当时哈夫曼树的知识已经遗忘了，因此没有做出来。后来在学习左神的算法的时候，复习到了切金条的问题，其中用到了哈夫曼树，因此趁此机会在网上学习了哈夫曼树的相关知识并自己动手用Java实现了相关操作，记录在博客中，方便日后查阅。</p>
-<blockquote>
-<p>参考博客：<code>https://www.cnblogs.com/kubixuesheng/p/4397798.html</code></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/03/06/%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/#more" rel="contents">
-                阅读全文 »
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/" class="post-title-link" itemprop="url">JavaSE知识整理</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-03-03 22:00:20" itemprop="dateCreated datePublished" datetime="2020-03-03T22:00:20+08:00">2020-03-03</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-05-01 16:53:33" itemprop="dateModified" datetime="2020-05-01T16:53:33+08:00">2020-05-01</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JavaSE/" itemprop="url" rel="index">
-                    <span itemprop="name">JavaSE</span>
-                  </a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>37k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 ≈</span>
-              <span>34 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Java基础"><a href="#Java基础" class="headerlink" title="Java基础"></a>Java基础</h1><p>根据网上博客和黑马的一些资料，整理了下面的JavaSE的知识点</p>
-<blockquote>
-<p><a href="https://blog.csdn.net/ThinkWon/article/details/104390612" target="_blank" rel="noopener">https://blog.csdn.net/ThinkWon/article/details/104390612</a></p>
-<p>《黑马程序员Java学习》</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/#more" rel="contents">
-                阅读全文 »
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">并发与锁总结</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-27 11:24:31" itemprop="dateCreated datePublished" datetime="2020-02-27T11:24:31+08:00">2020-02-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-09 08:07:51" itemprop="dateModified" datetime="2020-06-09T08:07:51+08:00">2020-06-09</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B9%B6%E5%8F%91/" itemprop="url" rel="index">
-                    <span itemprop="name">并发</span>
-                  </a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>48k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 ≈</span>
-              <span>43 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>要学习一个知识点，可以采取的思路是了解为什么要用它，怎么用它，有什么缺点，如何去改进。</p>
-<p>对于并发 ，也将从这四个方面进行介绍。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/#more" rel="contents">
-                阅读全文 »
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/02/25/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/25/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">算法笔记</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-25 09:51:49" itemprop="dateCreated datePublished" datetime="2020-02-25T09:51:49+08:00">2020-02-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-05-25 19:45:47" itemprop="dateModified" datetime="2020-05-25T19:45:47+08:00">2020-05-25</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>118k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 ≈</span>
-              <span>1:47</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="OJ处理技巧"><a href="#OJ处理技巧" class="headerlink" title="OJ处理技巧"></a>OJ处理技巧</h1><p>类名为public class Main</p>
-<p>较好的做法是将要用到的类都封装好，不要放在Main类中，主类只需要持有要用到的类的对象，然后调用即可。</p>
-<p>StringBuilder类的append方法，res.append(str1).append(str2)比res.append(str1+str2)效率高。</p>
-<p>其中牛客网要求格式化输出数据，可以用DecimalFormat类，进行一位小数的输出。</p>
-<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DecimalFormat df = <span class="keyword">new</span> DecimalFormat(<span class="string">"0.00000"</span>);</span><br></pre></td></tr></tbody></table></figure>
-
-<p>或者使用String的format方法，支持float与double</p>
-<figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String result = String.format(<span class="string">"%.1f"</span>,data);</span><br></pre></td></tr></tbody></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/02/25/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/#more" rel="contents">
-                阅读全文 »
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/02/09/MySQL/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/09/MySQL/" class="post-title-link" itemprop="url">MySQL</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-09 10:37:14" itemprop="dateCreated datePublished" datetime="2020-02-09T10:37:14+08:00">2020-02-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-05 08:32:10" itemprop="dateModified" datetime="2020-06-05T08:32:10+08:00">2020-06-05</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/MySQL/" itemprop="url" rel="index">
-                    <span itemprop="name">MySQL</span>
-                  </a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>90k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 ≈</span>
-              <span>1:22</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>尚硅谷MySQL课程笔记</p>
-</blockquote>
-<h1 id="数据库操作基础"><a href="#数据库操作基础" class="headerlink" title="数据库操作基础"></a>数据库操作基础</h1><h2 id="数据库概述"><a href="#数据库概述" class="headerlink" title="数据库概述"></a>数据库概述</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
-<li><strong>可将数据持久化到硬盘</strong></li>
-<li><strong>可存储大量数据</strong></li>
-<li><strong>方便检索</strong></li>
-<li>保证数据的一致性，完整性</li>
-<li>安全，可共享</li>
-<li>通过组合分析，可以产生新数据</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/02/09/MySQL/#more" rel="contents">
-                阅读全文 »
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://hughzc.github.io/2020/01/29/Linux%E4%BD%BF%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="未名Hugh">
-      <meta itemprop="description" content="技术博客，Java，并发编程，算法">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="未名的奇妙旅程">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/01/29/Linux%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">Linux使用</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-01-29 09:49:34" itemprop="dateCreated datePublished" datetime="2020-01-29T09:49:34+08:00">2020-01-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-05-04 15:37:41" itemprop="dateModified" datetime="2020-05-04T15:37:41+08:00">2020-05-04</time>
-              </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>19k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 ≈</span>
-              <span>17 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Linux基础"><a href="#Linux基础" class="headerlink" title="Linux基础"></a>Linux基础</h1><h2 id="Linux介绍"><a href="#Linux介绍" class="headerlink" title="Linux介绍"></a>Linux介绍</h2><p>Linux操作系统，免费，开源，安全，高效，稳定，处理高并发性能好，企业级开发用的多。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/01/29/Linux%E4%BD%BF%E7%94%A8/#more" rel="contents">
-                阅读全文 »
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
   </article>
   
   
   
 
   </div>
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
-  </nav>
-
 
 
           </div>
@@ -1479,6 +625,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#面试题"><span class="nav-number">1.</span> <span class="nav-text">面试题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#事务介绍"><span class="nav-number">2.</span> <span class="nav-text">事务介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ACID含义"><span class="nav-number">3.</span> <span class="nav-text">ACID含义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#并发事务问题"><span class="nav-number">4.</span> <span class="nav-text">并发事务问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#解决并发事务问题"><span class="nav-number">4.1.</span> <span class="nav-text">解决并发事务问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事务演示"><span class="nav-number">4.2.</span> <span class="nav-text">事务演示</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据库表设置"><span class="nav-number">4.3.</span> <span class="nav-text">数据库表设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#演示脏读"><span class="nav-number">4.4.</span> <span class="nav-text">演示脏读</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#演示不可重复读"><span class="nav-number">4.5.</span> <span class="nav-text">演示不可重复读</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#演示幻读"><span class="nav-number">4.6.</span> <span class="nav-text">演示幻读</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ACID实现"><span class="nav-number">5.</span> <span class="nav-text">ACID实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#原子性（A）的实现"><span class="nav-number">5.1.</span> <span class="nav-text">原子性（A）的实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#持久性（D）的实现"><span class="nav-number">5.2.</span> <span class="nav-text">持久性（D）的实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#隔离性（I）的实现"><span class="nav-number">5.3.</span> <span class="nav-text">隔离性（I）的实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一致性（C）的实现"><span class="nav-number">5.4.</span> <span class="nav-text">一致性（C）的实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#有关一致性的理解"><span class="nav-number">5.5.</span> <span class="nav-text">有关一致性的理解</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
