@@ -196,6 +196,40 @@
 <h4 id="演示幻读"><a href="#演示幻读" class="headerlink" title="演示幻读"></a>演示幻读</h4><p>设置隔离级别为可重复读</p>
 <figure class="highlight sql"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> repeatable <span class="keyword">read</span>;</span><br></pre></td></tr></tbody></table></figure>
 
+<table>
+<thead>
+<tr>
+<th></th>
+<th>事务A</th>
+<th>事务B</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>T1</td>
+<td>SET autocommit=0;</td>
+<td>SET autocommit=0;</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>select * from account;</td>
+<td></td>
+</tr>
+<tr>
+<td>T3</td>
+<td></td>
+<td>insert into account values(2,’王五’,50);</td>
+</tr>
+<tr>
+<td>T4</td>
+<td></td>
+<td>commit</td>
+</tr>
+<tr>
+<td>T5</td>
+<td>update account set balance=10;</td>
+<td></td>
+</tr>
+</tbody></table>
 <p>当事务A在T2读取数据，<strong>只有1条</strong>，当事务B在T3插入一行数据后，事务A在T5更新的时候，会<strong>影响2条数据</strong>，出现了幻读。但是如果此时事务A去读取数据，仍然只有1条。<strong>原因是select读是快照读，MVCC解决了快照读的幻读问题。而update为当前读，在当前读下仍然会出现幻读情况。</strong></p>
 <p>同时，使用select * from account for update;这种当前读的select也会出现幻读。</p>
 <h3 id="ACID实现"><a href="#ACID实现" class="headerlink" title="ACID实现"></a>ACID实现</h3><p>介绍完ACID后，下面介绍ACID是如何被实现的</p>
