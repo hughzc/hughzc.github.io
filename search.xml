@@ -2125,7 +2125,7 @@
 <p>此外，计算map的大小时，有size()和mappingCount()方法，从源码可以看出，size()返回的为int类型，有大小限制，而mappingCount()方法返回long类型，JDK更推荐使用mappingCount()方法。</p>
 <figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">mappingCount</span><span class="params">()</span> </span>{</span><br><span class="line">    <span class="keyword">long</span> n = sumCount();</span><br><span class="line">    <span class="keyword">return</span> (n < <span class="number">0L</span>) ? <span class="number">0L</span> : n; <span class="comment">// ignore transient negative values</span></span><br><span class="line">}</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span> </span>{</span><br><span class="line">    <span class="keyword">long</span> n = sumCount();</span><br><span class="line">    <span class="keyword">return</span> ((n < <span class="number">0L</span>) ? <span class="number">0</span> :</span><br><span class="line">            (n > (<span class="keyword">long</span>)Integer.MAX_VALUE) ? Integer.MAX_VALUE :</span><br><span class="line">            (<span class="keyword">int</span>)n);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
-<h4 id="三者的比较"><a href="#三者的比较" class="headerlink" title="三者的比较"></a>三者的比较</h4><ul>
+<h4 id="ConcurrentHashMap不允许存null原因"><a href="#ConcurrentHashMap不允许存null原因" class="headerlink" title="ConcurrentHashMap不允许存null原因"></a>ConcurrentHashMap不允许存null原因</h4><h4 id="三者的比较"><a href="#三者的比较" class="headerlink" title="三者的比较"></a>三者的比较</h4><ul>
 <li>HashMap线程不安全，数组+链表+红黑树</li>
 <li>HashTable线程安全，锁住整个对象，数组+链表</li>
 <li>ConcurrentHashMap线程安全，CAS+synchronized，数组+链表+红黑树</li>
@@ -4138,7 +4138,36 @@
 </ol>
 <p>注意空字符串可被认为是有效字符串。</p>
 <p>思路：先将左右括号的对应关系放入一个map中，然后如果是左括号，放入栈中；如果是右括号，若栈为空，则返回假，若不为空，弹出一个元素，如果在map中弹出元素对应的括号与当前括号不同，则返回假。遍历完字符串后，若栈不为空，返回假，否则返回真。</p>
-<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValid</span><span class="params">(String s)</span> </span>{</span><br><span class="line">        <span class="comment">//准备一个栈和一个哈希表</span></span><br><span class="line">        HashMap<Character,Character> map = <span class="keyword">new</span> HashMap<>();</span><br><span class="line">        map.put(<span class="string">'('</span>,<span class="string">')'</span>);</span><br><span class="line">        map.put(<span class="string">'['</span>,<span class="string">']'</span>);</span><br><span class="line">        map.put(<span class="string">'{'</span>,<span class="string">'}'</span>);</span><br><span class="line">        Stack<Character> stack = <span class="keyword">new</span> Stack<>();</span><br><span class="line">        <span class="keyword">for</span>(Character c : s.toCharArray()){</span><br><span class="line">            <span class="comment">//如果是左括号，压入栈</span></span><br><span class="line">            <span class="keyword">if</span>(map.containsKey(c)){</span><br><span class="line">                stack.push(c);</span><br><span class="line">            }<span class="keyword">else</span>{</span><br><span class="line">                <span class="comment">//不存在，先判断栈是否为空</span></span><br><span class="line">                <span class="keyword">if</span>(stack.isEmpty())</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">                <span class="comment">//如果不符合，直接返回</span></span><br><span class="line">                <span class="keyword">if</span>(map.get(stack.pop()) != c)</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> stack.isEmpty() ? <span class="keyword">true</span> : <span class="keyword">false</span>;</span><br><span class="line">    }</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValid</span><span class="params">(String s)</span> </span>{</span><br><span class="line">        <span class="comment">//准备一个栈和一个哈希表</span></span><br><span class="line">        HashMap<Character,Character> map = <span class="keyword">new</span> HashMap<>();</span><br><span class="line">        map.put(<span class="string">'('</span>,<span class="string">')'</span>);</span><br><span class="line">        map.put(<span class="string">'['</span>,<span class="string">']'</span>);</span><br><span class="line">        map.put(<span class="string">'{'</span>,<span class="string">'}'</span>);</span><br><span class="line">        Stack<Character> stack = <span class="keyword">new</span> Stack<>();</span><br><span class="line">        <span class="keyword">for</span>(Character c : s.toCharArray()){</span><br><span class="line">            <span class="comment">//如果是左括号，压入栈</span></span><br><span class="line">            <span class="keyword">if</span>(map.containsKey(c)){</span><br><span class="line">                stack.push(c);</span><br><span class="line">            }<span class="keyword">else</span>{</span><br><span class="line">                <span class="comment">//不存在，先判断栈是否为空</span></span><br><span class="line">                <span class="keyword">if</span>(stack.isEmpty())</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">                <span class="comment">//如果不符合，直接返回</span></span><br><span class="line">                <span class="keyword">if</span>(map.get(stack.pop()) != c)</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> stack.isEmpty();</span><br><span class="line">    }</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="最长有效括号"><a href="#最长有效括号" class="headerlink" title="最长有效括号"></a>最长有效括号</h3><p>给定一个只包含 ‘(‘ 和 ‘)’ 的字符串，找出最长的包含有效括号的子串的长度。</p>
+<p>输入: “(()”<br>输出: 2<br>解释: 最长有效括号子串为 “()”</p>
+<p>题目理解：最长有效括号表示，在这个范围内，所有括号都是有效的。</p>
+<p>方法一：暴力解法</p>
+<p>比较容易想到暴力解法，从最有可能的长度（偶数长度）开始判断，如果此长度有括号全部有效就返回。然后有效长度-2，再进行判断。</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 暴力方法，有效括号一定是偶数，从最大的偶数开始往下判断</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">longestValidParentheses1</span><span class="params">(String s)</span> </span>{</span><br><span class="line">    <span class="keyword">if</span>(s == <span class="keyword">null</span> || s.length() < <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> n = s.length() % <span class="number">2</span> == <span class="number">0</span> ? s.length() : s.length()-<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = n; i > <span class="number">0</span>; i-=<span class="number">2</span>) {</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j + i - <span class="number">1</span> < s.length(); j++) {</span><br><span class="line">            <span class="comment">// 判断当前的子串是否满足</span></span><br><span class="line">            <span class="keyword">if</span> (isValid(s.substring(j,j+i))){</span><br><span class="line">                <span class="keyword">return</span> i;</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">isValid</span><span class="params">(String str)</span> </span>{</span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">        Character c = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i < str.length(); i++) {</span><br><span class="line">            c = str.charAt(i);</span><br><span class="line">            <span class="keyword">if</span> (c == <span class="string">'('</span>){</span><br><span class="line">                ++res;</span><br><span class="line">            }<span class="keyword">else</span> {</span><br><span class="line">                <span class="keyword">if</span> (res == <span class="number">0</span>){</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">                }</span><br><span class="line">                --res;</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> res == <span class="number">0</span>;</span><br><span class="line">    }</span><br></pre></td></tr></tbody></table></figure>
+
+<p>方法二：dp解法</p>
+<p>需要明确dp数组的含义：dp[i]代表以i结尾的字符串最大有效括号长度</p>
+<p>然后需要写状态转移方程，对于第i个字符，如果是(，则肯定不为有效，最大有效括号长度为0；如果是)，则找到上一个左括号位置，dp[i-1]代表了上一串有效括号长度，i-dp[i-1]-1是第i个元素左括号应该出现的位置，如果此位置是左括号，说明这些位置的括号是有效的，这里的有效括号长度为2+dp[i-1]。然后需要判断之前相邻位置有没有有效括号，即加上dp[i-dp[i-1]-2]的长度（需要范围此位置是否越界）。</p>
+<p>因此总的状态转移方程是</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line">dp[i] = dp[i-dp[i-<span class="number">1</span>]-<span class="number">2</span>] + dp[i-<span class="number">1</span>] + <span class="number">2</span>;</span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// dp解法</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">longestValidParentheses2</span><span class="params">(String s)</span> </span>{</span><br><span class="line">    <span class="comment">// dp[i]的含义是以i结尾的最大有效括号长度</span></span><br><span class="line">    <span class="keyword">if</span> (s == <span class="keyword">null</span> || s.length() < <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[s.length()];</span><br><span class="line">    <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i < s.length(); i++) {</span><br><span class="line">        <span class="keyword">if</span> (s.charAt(i) == <span class="string">')'</span>){</span><br><span class="line">            <span class="keyword">int</span> len = dp[i-<span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span> (i - len - <span class="number">1</span> >= <span class="number">0</span> && s.charAt(i - len - <span class="number">1</span>) == <span class="string">'('</span>){</span><br><span class="line">                dp[i] = <span class="number">2</span> + dp[i-<span class="number">1</span>] + ((i-len-<span class="number">2</span>) >= <span class="number">0</span> ? dp[i-len-<span class="number">2</span>] : <span class="number">0</span>);</span><br><span class="line">            }</span><br><span class="line">            res = Math.max(res,dp[i]);</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>方法三：栈</p>
+<p>栈顶元素的含义是：上一次没有匹配到的右括号的下标，为了初始的判断，需要将-1入栈，表示下标的边界。</p>
+<p>具体的判断逻辑是</p>
+<ul>
+<li>如果是左括号，将左括号下标入栈</li>
+<li>如果是右括号，将栈顶元素弹栈<ul>
+<li>若栈为空，表示没有匹配的左括号，将当前右括号下标入栈</li>
+<li>若栈不为空，表示有匹配的左括号，当前长度为右括号下标减去栈顶下标，更新最大长度</li>
+</ul>
+</li>
+</ul>
+<p>此方法的精髓在于，使用了一个边界值来判断是否有匹配括号，及存下了失效的括号位置，如果没有此标志位，则无法获取是哪个括号开始的位置失效了，失去了连续性的判断</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 栈的解法</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">longestValidParentheses3</span><span class="params">(String s)</span> </span>{</span><br><span class="line">    <span class="comment">// 栈底维护上一次有效的括号位置</span></span><br><span class="line">    <span class="keyword">if</span> (s == <span class="keyword">null</span> || s.length() < <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    Stack<Integer> stack = <span class="keyword">new</span> Stack<>();</span><br><span class="line">    stack.push(-<span class="number">1</span>);</span><br><span class="line">    Character c = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i < s.length(); i++) {</span><br><span class="line">        c = s.charAt(i);</span><br><span class="line">        <span class="keyword">if</span> (c == <span class="string">'('</span>){</span><br><span class="line">            stack.push(i);</span><br><span class="line">        }<span class="keyword">else</span> {</span><br><span class="line">            stack.pop();</span><br><span class="line">            <span class="keyword">if</span> (stack.isEmpty()){</span><br><span class="line">                stack.push(i);</span><br><span class="line">            }<span class="keyword">else</span> {</span><br><span class="line">                res = Math.max(res,i-stack.peek());</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
 <h2 id="字符串-1"><a href="#字符串-1" class="headerlink" title="字符串"></a>字符串</h2><h3 id="最长回文子串"><a href="#最长回文子串" class="headerlink" title="最长回文子串"></a>最长回文子串</h3><p>给定一个字符串 <code>s</code>，找到 <code>s</code> 中最长的回文子串。你可以假设 <code>s</code> 的最大长度为 1000。</p>
 <p>字符串这种要输出最大长度的子串的，可以用<strong>子串长度</strong>及<strong>开始位置</strong>来确定其子串。</p>
@@ -9124,6 +9153,42 @@
 <p>source /etc/profile</p>
 </li>
 </ul>
+<h2 id="安装zk"><a href="#安装zk" class="headerlink" title="安装zk"></a>安装zk</h2><p>1、找到镜像网站的压缩包地址</p>
+<p><a href="http://mirror.bit.edu.cn/apache/zookeeper/" target="_blank" rel="noopener">http://mirror.bit.edu.cn/apache/zookeeper/</a></p>
+<p>然后选择对应版本，复制下载地址</p>
+<p>使用wget 下载地址来下载压缩包，如</p>
+<figure class="highlight plain"><table><tbody><tr><td class="code"><pre><span class="line">wget http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz</span><br></pre></td></tr></tbody></table></figure>
+
+<p>2、tar -zxvf解压</p>
+<ul>
+<li><p>更改注册文件名称为zoo.cfg</p>
+<figure class="highlight plain"><table><tbody><tr><td class="code"><pre><span class="line">mv zoo_sample.cfg  zoo.cfg</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>熟悉配置文件</p>
+<ul>
+<li>tickTime：心跳时间，2000ms，最小的session超时时间为2倍心跳时间</li>
+<li>initLimit：LF初始通信时限，集群中的follower跟随服务器（F）与leader领导者服务器（L）之间初始连接时能容忍的最多心跳数（tickTime数量），用它来限定集群中Zookeeper服务器连接到Leader的时限 </li>
+<li>syncLimit：LF同步通信时限，集群中Leader与Follower之间最大响应时间单位。若响应超过syncLimit*tickTime，Leader认为Follower挂了，从服务器列表删除Follower</li>
+<li>dataDir：数据目录</li>
+<li>clientPort：2181</li>
+</ul>
+<figure class="highlight plain"><table><tbody><tr><td class="code"><pre><span class="line"># The number of milliseconds of each tick</span><br><span class="line">tickTime=2000</span><br><span class="line"># The number of ticks that the initial </span><br><span class="line"># synchronization phase can take</span><br><span class="line">initLimit=10</span><br><span class="line"># The number of ticks that can pass between </span><br><span class="line"># sending a request and getting an acknowledgement</span><br><span class="line">syncLimit=5</span><br><span class="line"># the directory where the snapshot is stored.</span><br><span class="line"># do not use /tmp for storage, /tmp here is just </span><br><span class="line"># example sakes.</span><br><span class="line">dataDir=/opt/zookeeper-3.4.14/zkData</span><br><span class="line"># the port at which the clients will connect</span><br><span class="line">clientPort=2181</span><br></pre></td></tr></tbody></table></figure>
+
+<p>tips：这个dir需要自己创建</p>
+<figure class="highlight plain"><table><tbody><tr><td class="code"><pre><span class="line">mkdir /opt/zookeeper-3.4.14/zkData</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>启动服务</p>
+<p>进入bin目录</p>
+<figure class="highlight plain"><table><tbody><tr><td class="code"><pre><span class="line">./zkServer.sh start</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>查看启动情况</p>
+<figure class="highlight plain"><table><tbody><tr><td class="code"><pre><span class="line">ps -ef | grep zookeeper</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>启动客户端</p>
+<figure class="highlight plain"><table><tbody><tr><td class="code"><pre><span class="line">./zkCli.sh</span><br></pre></td></tr></tbody></table></figure>
+
+</li>
+</ul>
 </body></html>]]></content>
   </entry>
   <entry>
@@ -11690,6 +11755,40 @@ getLast();</code></pre><p> <strong>jdk1.6</strong></p>
 
 <p><strong>主板</strong></p>
 <figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Mainboard</span> </span>{</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>{</span><br><span class="line">		System.out.println(<span class="string">"main borad run..."</span>);</span><br><span class="line">	}</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">usePCI</span><span class="params">(PCI p)</span> </span>{<span class="comment">//PCI p = new SoundCard();</span></span><br><span class="line">		<span class="keyword">if</span> (p ! = <span class="keyword">null</span>) {</span><br><span class="line">			p.open();</span><br><span class="line">			p.close();</span><br><span class="line">		}</span><br><span class="line">	}</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="反射操作注解"><a href="#反射操作注解" class="headerlink" title="反射操作注解"></a>反射操作注解</h4><p>ORM：Object relationship Mapping，对象关系映射</p>
+<p>让Java实体类与数据库表结构对应起来</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span></span>{</span><br><span class="line">	<span class="keyword">int</span> id;</span><br><span class="line">	String name;</span><br><span class="line">	<span class="keyword">int</span> age;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>age</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>001</td>
+<td>hugh</td>
+<td>20</td>
+</tr>
+<tr>
+<td>002</td>
+<td>wang</td>
+<td>30</td>
+</tr>
+</tbody></table>
+<p>要求使用注解和反射完成类和表的结构对应关系</p>
+<p>核心思路，自定义注解，要求传入列名，类型，长度，然后在POJO类及其字段上加上注解，这样<strong>通过反射获取到POJO类的Class对象，然后可以获取类上的注解，再获取属性然后获取属性上的注解</strong></p>
+<p>类名注解与属性注解如下</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//类名的注解</span></span><br><span class="line"><span class="meta">@Target</span>(ElementType.TYPE)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@interface</span> TableHugh{</span><br><span class="line">    <span class="function">String <span class="title">value</span><span class="params">()</span></span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//属性的注解</span></span><br><span class="line"><span class="meta">@Target</span>(ElementType.FIELD)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@interface</span> FieldHugh{</span><br><span class="line">    <span class="function">String <span class="title">columnName</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">String <span class="title">type</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">length</span><span class="params">()</span></span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>实体类如下</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">@TableHugh</span>(<span class="string">"db_stu"</span>)</span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student2</span></span>{</span><br><span class="line">    <span class="meta">@FieldHugh</span>(columnName = <span class="string">"db_id"</span>,type = <span class="string">"int"</span>,length = <span class="number">10</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line">    <span class="meta">@FieldHugh</span>(columnName = <span class="string">"db_name"</span>,type = <span class="string">"varchar"</span>,length = <span class="number">3</span>)</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="meta">@FieldHugh</span>(columnName = <span class="string">"db_age"</span>,type = <span class="string">"int"</span>,length = <span class="number">10</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>获取注解及值如下</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException, NoSuchFieldException </span>{</span><br><span class="line">    Class<?> c1 = Class.forName(<span class="string">"com.zc.guice.reflection.Student2"</span>);</span><br><span class="line">    <span class="comment">// 通过反射获取注解</span></span><br><span class="line">    Annotation[] annotations = c1.getAnnotations();</span><br><span class="line">    <span class="keyword">for</span> (Annotation annotation : annotations) {</span><br><span class="line">        System.out.println(annotation);</span><br><span class="line">    }</span><br><span class="line">    <span class="comment">// 获取注解的value值</span></span><br><span class="line">    TableHugh tableHugh = c1.getAnnotation(TableHugh<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">    String value = tableHugh.value();</span><br><span class="line">    System.out.println(value);</span><br><span class="line">    <span class="comment">// 获取类指定的注解</span></span><br><span class="line">    Field f = c1.getDeclaredField(<span class="string">"name"</span>);</span><br><span class="line">    FieldHugh annotation = f.getAnnotation(FieldHugh<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">    System.out.println(annotation.columnName());</span><br><span class="line">    System.out.println(annotation.type());</span><br><span class="line">    System.out.println(annotation.length());</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
 <h3 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h3><h4 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h4><p>正确表达的字符串。</p>
 <p>正则表达式用于操作字符串数据。</p>

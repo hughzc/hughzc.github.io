@@ -2,6 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://hughzc.github.io/2020/01/29/Linux%E4%BD%BF%E7%94%A8/</loc>
+    
+    <lastmod>2020-07-04T08:17:58.506Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://hughzc.github.io/2020/02/25/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/</loc>
+    
+    <lastmod>2020-07-04T03:41:52.260Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://hughzc.github.io/2020/01/14/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</loc>
+    
+    <lastmod>2020-06-19T02:16:26.508Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/</loc>
+    
+    <lastmod>2020-06-18T05:15:03.514Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://hughzc.github.io/2020/06/10/%E6%95%B0%E6%8D%AE%E5%BA%93ACID%E4%BB%8B%E7%BB%8D%E5%8F%8A%E5%AE%9E%E7%8E%B0/</loc>
     
     <lastmod>2020-06-12T12:44:34.385Z</lastmod>
@@ -44,37 +72,9 @@
   </url>
   
   <url>
-    <loc>https://hughzc.github.io/2020/02/25/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/</loc>
-    
-    <lastmod>2020-05-25T11:45:47.055Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://hughzc.github.io/2020/01/29/Linux%E4%BD%BF%E7%94%A8/</loc>
-    
-    <lastmod>2020-05-04T07:37:41.927Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/</loc>
-    
-    <lastmod>2020-05-01T08:53:33.072Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://hughzc.github.io/2020/03/21/jvm/</loc>
     
     <lastmod>2020-04-30T01:25:31.486Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://hughzc.github.io/2020/01/14/Java%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</loc>
-    
-    <lastmod>2020-03-19T03:22:16.361Z</lastmod>
     
   </url>
   
