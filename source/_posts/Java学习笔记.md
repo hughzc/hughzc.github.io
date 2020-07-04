@@ -6075,6 +6075,87 @@ public class Mainboard {
 }
 ~~~
 
+#### 反射操作注解
+
+ORM：Object relationship Mapping，对象关系映射
+
+让Java实体类与数据库表结构对应起来
+
+~~~java
+class Student{
+	int id;
+	String name;
+	int age;
+}
+~~~
+
+| id   | name | age  |
+| ---- | ---- | ---- |
+| 001  | hugh | 20   |
+| 002  | wang | 30   |
+
+要求使用注解和反射完成类和表的结构对应关系
+
+核心思路，自定义注解，要求传入列名，类型，长度，然后在POJO类及其字段上加上注解，这样**通过反射获取到POJO类的Class对象，然后可以获取类上的注解，再获取属性然后获取属性上的注解**
+
+类名注解与属性注解如下
+
+~~~java
+//类名的注解
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@interface TableHugh{
+    String value();
+}
+
+//属性的注解
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface FieldHugh{
+    String columnName();
+    String type();
+    int length();
+}
+~~~
+
+实体类如下
+
+~~~java
+@TableHugh("db_stu")
+@Data
+class Student2{
+    @FieldHugh(columnName = "db_id",type = "int",length = 10)
+    private int id;
+    @FieldHugh(columnName = "db_name",type = "varchar",length = 3)
+    private String name;
+    @FieldHugh(columnName = "db_age",type = "int",length = 10)
+    private int age;
+}
+~~~
+
+获取注解及值如下
+
+~~~java
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchFieldException {
+        Class<?> c1 = Class.forName("com.zc.guice.reflection.Student2");
+        // 通过反射获取注解
+        Annotation[] annotations = c1.getAnnotations();
+        for (Annotation annotation : annotations) {
+            System.out.println(annotation);
+        }
+        // 获取注解的value值
+        TableHugh tableHugh = c1.getAnnotation(TableHugh.class);
+        String value = tableHugh.value();
+        System.out.println(value);
+        // 获取类指定的注解
+        Field f = c1.getDeclaredField("name");
+        FieldHugh annotation = f.getAnnotation(FieldHugh.class);
+        System.out.println(annotation.columnName());
+        System.out.println(annotation.type());
+        System.out.println(annotation.length());
+    }
+~~~
+
 ### 正则表达式
 
 #### 概述

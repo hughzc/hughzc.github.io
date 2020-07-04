@@ -1,5 +1,5 @@
 ---
-b title: MySQL
+title: MySQL
 date: 2020-02-09 10:37:14
 tags: MySQL
 categories: MySQL

@@ -1826,3 +1826,78 @@ make && make install    （&&表示先执行前面的，再执行后面的）
 - 刷新环境变量
 
   source /etc/profile
+
+## 安装zk
+
+1、找到镜像网站的压缩包地址
+
+http://mirror.bit.edu.cn/apache/zookeeper/
+
+然后选择对应版本，复制下载地址
+
+使用wget 下载地址来下载压缩包，如
+
+~~~
+wget http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz
+~~~
+
+2、tar -zxvf解压
+
+- 更改注册文件名称为zoo.cfg
+
+  ~~~
+  mv zoo_sample.cfg  zoo.cfg
+  ~~~
+
+- 熟悉配置文件
+
+  - tickTime：心跳时间，2000ms，最小的session超时时间为2倍心跳时间
+  - initLimit：LF初始通信时限，集群中的follower跟随服务器（F）与leader领导者服务器（L）之间初始连接时能容忍的最多心跳数（tickTime数量），用它来限定集群中Zookeeper服务器连接到Leader的时限 
+  - syncLimit：LF同步通信时限，集群中Leader与Follower之间最大响应时间单位。若响应超过syncLimit*tickTime，Leader认为Follower挂了，从服务器列表删除Follower
+  - dataDir：数据目录
+  - clientPort：2181
+
+  ~~~
+  # The number of milliseconds of each tick
+  tickTime=2000
+  # The number of ticks that the initial 
+  # synchronization phase can take
+  initLimit=10
+  # The number of ticks that can pass between 
+  # sending a request and getting an acknowledgement
+  syncLimit=5
+  # the directory where the snapshot is stored.
+  # do not use /tmp for storage, /tmp here is just 
+  # example sakes.
+  dataDir=/opt/zookeeper-3.4.14/zkData
+  # the port at which the clients will connect
+  clientPort=2181
+  ~~~
+
+  tips：这个dir需要自己创建
+
+  ~~~
+  mkdir /opt/zookeeper-3.4.14/zkData
+  ~~~
+
+- 启动服务
+
+  进入bin目录
+
+  ~~~
+  ./zkServer.sh start
+  ~~~
+
+- 查看启动情况
+
+  ~~~
+  ps -ef | grep zookeeper
+  ~~~
+
+- 启动客户端
+
+  ~~~
+  ./zkCli.sh
+  ~~~
+
+  

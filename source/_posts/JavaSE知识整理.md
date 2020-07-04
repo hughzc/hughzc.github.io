@@ -938,6 +938,10 @@ ConcurrentHashMap的put方法
     }
 ~~~
 
+#### ConcurrentHashMap不允许存null原因
+
+
+
 #### 三者的比较
 
 - HashMap线程不安全，数组+链表+红黑树
