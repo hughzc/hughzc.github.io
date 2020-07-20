@@ -68,7 +68,7 @@
 <meta property="og:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/poll.png">
 <meta property="og:image" content="https://hughzc.github.io/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/epoll.png">
 <meta property="article:published_time" content="2020-03-03T14:00:20.000Z">
-<meta property="article:modified_time" content="2020-06-18T05:15:03.514Z">
+<meta property="article:modified_time" content="2020-07-11T04:07:08.953Z">
 <meta property="article:author" content="未名Hugh">
 <meta property="article:tag" content="JavaSE">
 <meta name="twitter:card" content="summary">
@@ -256,7 +256,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-18 13:15:03" itemprop="dateModified" datetime="2020-06-18T13:15:03+08:00">2020-06-18</time>
+                <time title="修改时间：2020-07-11 12:07:08" itemprop="dateModified" datetime="2020-07-11T12:07:08+08:00">2020-07-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -276,7 +276,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>37k</span>
+              <span>38k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -852,10 +852,14 @@
 </li>
 </ul>
 <p>哈希散列的过程：可以看到<strong>hashmap允许键为null</strong></p>
+<p>在1.8后，HashMap计算哈希值的时候，没有直接使用key的hashCode，而是如下所示，将哈希值与右移16位后哈希值进行异或，为什么要这样做呢？</p>
 <figure class="highlight java"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span></span>{</span><br><span class="line">	<span class="keyword">int</span> h;</span><br><span class="line">	<span class="keyword">return</span> (key == <span class="keyword">null</span>) ? <span class="number">0</span> : (h=key.hashCode()) ^ (h >>> <span class="number">16</span>); </span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
+<p>需要结合数组寻址一起讲，得到哈希值后，在数组中寻址使用的是hash & (n-1)，这个语句效果与hash % n一样，但性能更高，初始的时候，HashMap大小为16，所以更多时候，参与运算的只有哈希值的后几位，这样其实哈希值的高位不参与运算，这样就有比较大的可能产生哈希冲突，为了让高位的哈希值也更多的参与到运算，采用将高位右移16位后异或的算法，这样将哈希值的计算进行散列</p>
 <p>将hashCode右移16位，去除低位，与原数据异或，混合原始哈希码的高位和低位，加大低位随机性，散列更均匀，计算下标使用(数组长度-1)&hash，数组长度总为2^n（传入值时替换为最接近2的n次方的值），等价于对长度取模，效率更高。    </p>
 <img src="/2020/03/03/JavaSE%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/hash%E6%95%A3%E5%88%97.png" class title="This is an example image">
+
+
 
 <h4 id="Dos攻击"><a href="#Dos攻击" class="headerlink" title="Dos攻击"></a>Dos攻击</h4><p>在JDK7以前，如果对方知道我方使用哈希算法，可以发送大量哈希值相同的请求来导致严重的哈希碰撞，然后不停访问这些key就可以显著影响服务器的性能（大量占用CPU），这样形成了一次拒绝服务供给（DoS）。这样将最坏性能从O（N）优化至O（logN），有较大的改善。</p>
 <p>那么怎么进一步处理呢？</p>
@@ -1316,20 +1320,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1368,12 +1372,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="站点总字数">499k</span>
+    <span title="站点总字数">510k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">7:33</span>
+    <span title="站点阅读时长">7:44</span>
 </div>
 
 <!--
@@ -1390,7 +1394,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共129.2k字</span>
+  <span class="post-count">博客全站共130.2k字</span>
 </div>
         
 <div class="busuanzi-count">
