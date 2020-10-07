@@ -1900,4 +1900,12 @@ wget http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14
   ./zkCli.sh
   ~~~
 
+- 远程连接服务端
+
+  进入到zookeeper安装目录下的bin目录
+
+  ~~~
+  ./zkCli.sh -server host:prot
+  ~~~
+
   
