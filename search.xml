@@ -1,6 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>spring</title>
+    <url>/2020/09/23/spring/</url>
+    <content><![CDATA[<html><head></head><body><p>Spring是轻量级的一站式框架，主要用来简化企业开发，核心有IOC和AOP</p>
+<a id="more"></a>
+
+<h1 id="spring"><a href="#spring" class="headerlink" title="spring"></a>spring</h1><h2 id="IOC"><a href="#IOC" class="headerlink" title="IOC"></a>IOC</h2><p>IOC全称为控制反转，从没有IOC的时候开始看起。</p>
+<p>在一个tomcat+servlet的架构里面，当tomcat进程起来后，去监听端口，使用servlet+jsp去处理请求，这时候如果用到了某个接口，需要自己在使用到此接口的地方，new出实现类，如果使用的地方很多，则需要在多处去进行new，当实现类有变动的时候，需要将原来所有调用到旧实现类的代码均改动，这样带来了比较大的代码修改和测试的成本。</p>
+<p>当有了IOC后，在调用到此接口的地方，只需要使用xml或者注解来进行注入，将创建对象的权利反转交给了spring框架。spring持有容器，创建出对象后直接进行调用即可，这样减少了类之间的耦合性。底层使用反射来进行对象的创建。spring容器需要进行对象的创建及引用对象的注入。</p>
+<h2 id="AOP"><a href="#AOP" class="headerlink" title="AOP"></a>AOP</h2><p>AOP为面向切面编程。</p>
+<p>如果没有AOP，对于一些类里面的通用代码，需要在相关的方法里面全部去补充，这样有比较多的冗余代码，这样可以定义一个切面，使用动态代理的技术，当运行类A的方法时，其实运行的是类B中的同名方法，类B在此方法前后做共性方法，然后调用类A中的真正实现方法，这样减少了代码的耦合。</p>
+<p>动态代理分为java Proxy和cglib。</p>
+<p>优先使用proxy，然后是cglib。如果被代理类实现了接口，则使用proxy，如果没有实现接口，则使用cglib，本质被生成了个子类。</p>
+<h2 id="Bean生命范围"><a href="#Bean生命范围" class="headerlink" title="Bean生命范围"></a>Bean生命范围</h2><ol>
+<li>singleton：默认，每个容器中只有一个bean的实例</li>
+<li>prototype：为每一个bean请求提供一个实例</li>
+<li>request：为每一个网络请求创建一个实例，请求完成后，bean会失效并被垃圾回收</li>
+<li>session：与request范围类似，确保每个session中有一个bean实例，在session过期后，bean会失效</li>
+<li>global-session</li>
+</ol>
+<p>最常用为单例和多例，bean不是线程安全的，在访问单实例bean时，因为tomcat为多线程访问，因此会调用读个线程来进行请求的分发，如果spring的service层没有实例变量，那么就不会有并发访问变量的请求，一般为并发访问数据库，没有太大问题。</p>
+<h2 id="事务机制"><a href="#事务机制" class="headerlink" title="事务机制"></a>事务机制</h2><h3 id="事务实现"><a href="#事务实现" class="headerlink" title="事务实现"></a>事务实现</h3><p> 事务的实现：使用@Transcational注解，spring使用aop的思想，在方法执行前，先开始事务，然后执行方法，执行完毕后，根据方法是否报错，来决定回滚还是提交事务。</p>
+<h3 id="传播机制"><a href="#传播机制" class="headerlink" title="传播机制"></a>传播机制</h3><p>解决的是多个有事务注解的方法在调用时，事务如何传播的问题。</p>
+<p>场景1：A方法执行失败，B方法不受影响，使用NEW，两个为不同事务</p>
+<p>场景2：B方法失败，只有B回滚，A失败，会带着B回滚，使用嵌套事务，NESTED</p>
+<p>1、PROPAGATION_REQUIRED：如果当前没有事务，就创建一个新事务；如果当前存在事务，就加入该事务，最常用</p>
+<p>2、PROPAGATION_SUPPORTS：支持当前事务，如果当前存在事务，就加入该事务；如果当前不存在事务，就以非事务执行</p>
+<p>3、PROPAGATION_MANDATORY：支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就抛出异常</p>
+<p>4、PROPAGATION_REQUIRES_NEW：创建新事务，无论当前存不存在事务，都创建新事务 </p>
+<p>5、PROPAGATION_NOT_SUPPORTED：以<strong>非事务</strong>方式执行操作，如果当前存在事务，就把当前事务挂起</p>
+<p>6、PROPAGATION_NEVER：以非事务方式执行，如果当前存在事务，则抛出异常</p>
+<p>7、PROPAGATION_NESTED：如果当前存在事务，则在嵌套事务内执行；如果当前没有事务，则按REQUIRED属性执行（嵌套事务：外层的事务如果回滚，会导致内存的事务也回滚；但内存的事务如果回滚，仅回滚自己的代码）</p>
+<h2 id="启动流程"><a href="#启动流程" class="headerlink" title="启动流程"></a>启动流程</h2><p>1、实例化bean：根据xml配置文件或者注解进行Bean的实例化</p>
+<p>2、依赖注入：将当前bean依赖的bean记性注入，如通过构造函数和setter方法</p>
+<p>3、处理aware接口（将容器传递给bean）：spring会检测该对象是否实现了xxxAware接口，将相关的xxxAware实例注入给bean。如果这个bean已经实现了ApplicationContextAware接口，spring容器会调用bean的setApplicationContext(ApplicationContext)方法，传入spring上下文，将spring容器传递给这个bean</p>
+<p>4、BeanPostProcessor：如果想在bean实例构建好后， 若在这个时候，需要对bean进行一些自定义的处理，可以让bean实现BeanPostProcessor接口，会调用postProcessBeforeInitialization(Object obj, String s)方法</p>
+<p>5、InitializaingBean与init-method：如果Bean在spring配置中间中配置了init-method属性，会自动调用其配置的初始化方法</p>
+<p>6、如果Bean实现了BeanPostProcessor接口，会调用postProcessAfterInitialization(Object obj, String s)方法；由于这个方法是在Bean初始化结束时调用的，可以被应用于<strong>内存或缓存技术</strong></p>
+<p>以上几个步骤完成后，Bean就初始化完毕</p>
+<p>7、DisposableBean：当bean不在需要，进行清理阶段，如果Bean实现了DisposableBean这个接口，会调用其实现的destroy()方法</p>
+<p>8、destroy-method：如果这个Bean的spring配置中配置了destroy-method属性，会自动调用其配置的销毁方法</p>
+<p>创建+初始化一个bean -> spring容器管理的bean 长期存活 -> 销毁bean（两个回调函数）</p>
+
+
+<h2 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h2><p>工厂、单例、代理</p>
+<p>工厂：对象创建工厂封装在工厂类，spring ioc核心的设计模式思想体现，他自己就是一个大工厂，将所有的bean实例都给放在了spring容器里（大工厂），若自己使用bean，就找spring容器即可，不用自己创建</p>
+<p>单例：spring默认来说，每个bean都走的是一个单例模式，确保说类在系统运行期间只有一个实例对象，只有一个bean</p>
+<p>代理模式：若要对一些类的方法切入一些增强的代码，会创建一些动态代理的对象，让对目标对象的访问，先经过动态代理对象，动态代理对象先做一些增强的代码，调用目标对象。让动态代理的对象，去代理了目标对象，在这个过程中做一些增强的访问</p>
+<h1 id="spring-mvc"><a href="#spring-mvc" class="headerlink" title="spring mvc"></a>spring mvc</h1><p>1、客户端（浏览器）发送请求，tomcat工作线程将工作线程将请求转交给DispatcherServlet（请求DispatcherServlet）</p>
+<p>2、查找@Controller，一般给controller加上@RequestMapping注解，标注哪些controller处理哪些请求，根据请求的uri，定位到对应的controller</p>
+<p>3、根据@RequestMapping去查找，使用这个controller内的哪个方法来进行请求的处理，对每个方法一般也会加@RequestMapping</p>
+<p>4、直接调用controller中的方法进行处理，调用service,dao层</p>
+<p>5、controller方法有返回值，以前将前端页面放在后端的工程里，返回页面模板名字，spring mvc框架使用模板技术，对html页面做渲染；现在返回json串，前后端分离，前端发送请求，后端返回json数据</p>
+<p>6、把渲染后的html页面返回给浏览器进行显示；前端负责把html页面返回给浏览器</p>
+<h1 id="spring-boot"><a href="#spring-boot" class="headerlink" title="spring boot"></a>spring boot</h1><p>springboot一定程度上简化了单纯用spring的开发流程，如果只用spring，需要写比较多的配置，将代码部署至tomcat，tomcat监听端口，然后调用mvc框架。使用springboot后，其内嵌了tomcat，一下子可以将写好的java web项目启动起来，更简便。</p>
+<p>自动装配：要引入mybatis，引入一个starter依赖，一定程度上自动完成mybatis的一些配置和定义，不需要自己手工去做大量的配置，只需要做一些简单的、必要的配置。免去了手动配置+自定义bean的过程。</p>
+</body></html>]]></content>
+      <categories>
+        <category>spring</category>
+      </categories>
+      <tags>
+        <tag>spring</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>浅谈Guice</title>
     <url>/2020/07/14/%E6%B5%85%E8%B0%88Guice/</url>
     <content><![CDATA[<html><head></head><body><h2 id="是什么"><a href="#是什么" class="headerlink" title="是什么"></a>是什么</h2><p>Guice作为Google的依赖注入（DI）框架，其模块化的概念，有利于平台的模块化开发</p>
@@ -700,7 +764,7 @@
 
 <p>有限状态机（FSM），就是不同有限的状态之间的迁移。state design pattens 与 state machine不一样。</p>
 <p>线程的一个状态迁移就是有限状态机。</p>
-<h3 id="解释器模式Intepreter"><a href="#解释器模式Intepreter" class="headerlink" title="解释器模式Intepreter"></a>解释器模式Intepreter</h3><p>动态脚本解析</p>
+<h3 id="解释器模式Intepreter"><a href="#解释器模式Intepreter" class="headerlink" title="解释器模式Intepreter"></a>解释器模式Intepreter</h3><p>动态脚本解析 </p>
 </body></html>]]></content>
       <categories>
         <category>设计模式</category>
@@ -1280,6 +1344,8 @@
 <figure class="highlight plain"><table><tbody><tr><td class="code"><pre><span class="line">curl -O https://alibaba.github.io/arthas/arthas-boot.jar</span><br><span class="line">java -jar arthas-boot.jar</span><br></pre></td></tr></tbody></table></figure>
 
 <p>然后选择要监控的进程ID即可</p>
+<h3 id="jstat"><a href="#jstat" class="headerlink" title="jstat"></a>jstat</h3><p>jstat可以看jvm各个区域的使用情况</p>
+<p>jstat -gc，查看垃圾收集器中的信息， 主要包含jvm的运行时数据区统计。后缀为C的代表当前区的容量，后缀为U的代表已经使用了多少容量，后缀为T的代表耗时</p>
 <h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="强引用、软引用、弱引用、虚引用"><a href="#强引用、软引用、弱引用、虚引用" class="headerlink" title="强引用、软引用、弱引用、虚引用"></a>强引用、软引用、弱引用、虚引用</h3><p>不同的引用下GC不同</p>
 <p>设置：-Xms:10m -Xmx:10m -XX:+PrintGCDetails</p>
 <h4 id="强引用（Strong-Reference）"><a href="#强引用（Strong-Reference）" class="headerlink" title="强引用（Strong Reference）"></a>强引用（Strong Reference）</h4><ul>
@@ -2999,7 +3065,11 @@
 <p>如果获取锁的线程再次请求锁，将state的值加一即可；释放一次锁，将 state值减一。</p>
 <p>公平与非公平</p>
 <p>非公平锁：如果此时锁状态为0，非等待队列中的线程到来后，可以直接获取锁并执行，可能会造成线程饥饿问题。公平锁：若可以获取锁，将当前线程切换到等待队列头的线程，这样保证按照请求锁的顺序来执行。但公平锁涉及线程的切换，开销较大，一般使用非公平锁。</p>
-<h3 id="JMM内存可见性"><a href="#JMM内存可见性" class="headerlink" title="JMM内存可见性"></a>JMM内存可见性</h3><p>Java内存模型（Java Memory Model，简称JMM）是抽象概念，描述一组规范，围绕原子性、有序性和可见性展开。通过此规范定义了程序中各个变量（包括实例字段，静态字段和构成数组对象的元素）的访问方式。</p>
+<h3 id="JMM内存可见性"><a href="#JMM内存可见性" class="headerlink" title="JMM内存可见性"></a>JMM内存可见性</h3><p>Java内存模型（Java Memory Model，简称JMM）是抽象概念，描述一组规范，围绕<strong>原子性</strong>、<strong>有序性</strong>和<strong>可见性</strong>展开。通过此规范定义了程序中各个变量（包括实例字段，静态字段和构成数组对象的元素）的访问方式。</p>
+<p>为了解决硬件内存的有限性与读取速度的需求，内存的设计分为CPU三级缓存与主内存。当要进行数据的操作时，先将数据从主内存中加载到工作内存，然后进行操作，在工作内存中赋值，再加载并写回到主内存中。</p>
+<p>read load use assign store write</p>
+<img src="/2020/02/27/%E5%B9%B6%E5%8F%91%E4%B8%8E%E9%94%81%E6%80%BB%E7%BB%93/volatile.png" class title="This is an example image">
+
 <p><strong>原子性</strong></p>
 <p>原子性指一个操作不可中断，即使是多个线程一起执行的时候，一个操作一旦开始就不会被其他线程干扰。</p>
 <p><strong>可见性</strong></p>
@@ -3056,7 +3126,9 @@
 <li>禁止指令重排序优化</li>
 </ul>
 <p>如果操作volatile修饰的变量是复合的（多条操作），如value++这种（先读，后自增），即使value被volatile修饰也会引发线程安全问题。synchronized会创建内存屏障，保证所有CPU结果刷到主内存中，可以保证操作的内存可见性，因此在synchronized代码块或方法中操作的变量可以省略volatile修饰。而如果对一个变量的操作是原子性的，如操作布尔类型的变量，加上volatile就可以实现可见性，实现线程安全的目的，此时可以省略synchronized。</p>
-<h5 id="如何保证可见性"><a href="#如何保证可见性" class="headerlink" title="如何保证可见性"></a>如何保证可见性</h5><p>当写一个volatile变量时，JMM把该线程对应的工作内存中的共享变量刷新到主内存中；当读取一个volatile变量时，JMM会把该线程对应的工作内存置为无效，只能从主线程中重新读取。</p>
+<h5 id="如何保证可见性（lock-MESI）"><a href="#如何保证可见性（lock-MESI）" class="headerlink" title="如何保证可见性（lock+MESI）"></a>如何保证可见性（lock+MESI）</h5><p>当写一个volatile变量时，JMM把该线程对应的工作内存中的共享变量刷新到主内存中；当读取一个volatile变量时，JMM会把该线程对应的工作内存置为无效，只能从主线程中重新读取。</p>
+<p>JVM发送<strong>lock前缀指令</strong>给CPU，CPU在计算完后会立即将这个值写回主内存，同时因为有MESI一致性协议，各个CPU都会对总线进行嗅探，看自己本地缓存中数据是否被修改。若被修改，CPU会将本地缓存数据过期掉，这个CPU上执行线程要读取变量时，从 主内存中重新加载最新的数据。</p>
+<p><strong>lock前缀指令 + MESI</strong></p>
 <p>涉及到CPU的结构，CPU一般有3级缓存，每个CPU内有2级缓存，多核CPU共享3级缓存，而3级缓存共享主内存。CPU在读取数据是，从1级缓存，2级，3级，主内存这样的顺序读取，写入顺序是主内存，3级，2级，1级。在读取数据的时候，根据局部性原理会多读取一些数据，按照一块64字节的cache line即<strong>缓存行</strong>来读取。CPU级别的内存可见性是以缓存行为单位的。在常用的Intel CPU内，是依靠<strong>MESI缓存一致性协议</strong>来保证内存可见性的。MESI是CPU缓存的4种状态：</p>
 <ul>
 <li>Modified</li>
@@ -3072,7 +3144,7 @@
 <li>使用MESI缓存一致性</li>
 <li>锁总线（数据量超过缓存行）</li>
 </ul>
-<h5 id="如何禁止重排序"><a href="#如何禁止重排序" class="headerlink" title="如何禁止重排序"></a>如何禁止重排序</h5><p>内存屏障（Memory Barrier）</p>
+<h5 id="如何禁止重排序（内存屏障）"><a href="#如何禁止重排序（内存屏障）" class="headerlink" title="如何禁止重排序（内存屏障）"></a>如何禁止重排序（内存屏障）</h5><p>内存屏障（Memory Barrier）</p>
 <ol>
 <li>保证特性操作的执行顺序</li>
 <li>保证某些变量的内存可见性</li>
@@ -3108,6 +3180,10 @@
 <p>因此解决办法是不让这部分指令重排，即<strong>让instance被volatile修饰</strong>。因此完整的线程安全的单例双重检测如下，其中volatile与static顺序没有要求。</p>
 <figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> Singleton{</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> Singleton instance;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>{}</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>{</span><br><span class="line">        <span class="keyword">if</span>(instance != <span class="keyword">null</span>){</span><br><span class="line">            <span class="keyword">synchronized</span>(Singleton<span class="class">.<span class="keyword">class</span>)</span>{</span><br><span class="line">                <span class="keyword">if</span>(instance != <span class="keyword">null</span>){</span><br><span class="line">                    instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">                }</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
+<h5 id="中间件应用"><a href="#中间件应用" class="headerlink" title="中间件应用"></a>中间件应用</h5><p>在许多中间件里面，会大量使用到volatile关键字</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Kafka</span></span>{</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> running = <span class="keyword">true</span>;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>{</span><br><span class="line">        Kafka kafka = <span class="keyword">new</span> Kafka();</span><br><span class="line">		<span class="comment">// 执行代码</span></span><br><span class="line">		<span class="keyword">while</span>(running){</span><br><span class="line">            Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">        }</span><br><span class="line">	}</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">shutdown</span><span class="params">()</span></span>{</span><br><span class="line">        running = <span class="keyword">false</span>;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>为了避免中间件程序自己关闭，设置volatile的变量来让其阻塞，为了停止，可以将此变量状态进行更改即可，如果没有volatile修饰，则没有可见性，更改无法生效。</p>
 <h4 id="volatile与synchronized"><a href="#volatile与synchronized" class="headerlink" title="volatile与synchronized"></a>volatile与synchronized</h4><ol>
 <li>二者本质不同。volatile为告诉JVM当前变量在寄存器（工作内存）中的值是不确定的，需要<strong>从主存中读取</strong>；synchronized则是<strong>锁定当前变量</strong>，只有当前线程可以访问该变量，其他线程被阻塞住直到该线程完成变量操作为止。</li>
 <li><strong>使用级别</strong>不同。volatile仅能使用在变量级别，而synchronized可以使用在变量、方法和类级别<ul>
@@ -3365,6 +3441,8 @@
 <h4 id="ThreadPoolExecutor扩展"><a href="#ThreadPoolExecutor扩展" class="headerlink" title="ThreadPoolExecutor扩展"></a>ThreadPoolExecutor扩展</h4><p>让自定义类继承ThreadPoolExecutor，然后重写其beforeExecute和afterExecute方法，然后添加自定义方法。</p>
 <figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">beforeExecute</span><span class="params">(Thread t, Runnable r)</span> </span>{ }</span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">afterExecute</span><span class="params">(Runnable r, Throwable t)</span> </span>{ }</span><br></pre></td></tr></tbody></table></figure>
 
+<h4 id="远程服务远程，阻塞队列为无界"><a href="#远程服务远程，阻塞队列为无界" class="headerlink" title="远程服务远程，阻塞队列为无界"></a>远程服务远程，阻塞队列为无界</h4><p>如果消费者的远程服务异常，消费任务时延时比较长，这时候消费速度赶不上生产速度，就会导致阻塞队列中任务积压，如果阻塞队列为无界的，则可能会造成OOM异常。</p>
+<h4 id="线上机器宕机，阻塞队列中请求怎么办"><a href="#线上机器宕机，阻塞队列中请求怎么办" class="headerlink" title="线上机器宕机，阻塞队列中请求怎么办"></a>线上机器宕机，阻塞队列中请求怎么办</h4><p>线程池中阻塞队列积压的任务会丢失，解决办法为：在提交任务到线程池前，先在数据库中插入此任务的信息，如基本数据，还有状态信息，如未提交、已提交、已完成。在提交完成后，完成状态更新为已提交。在机器宕机后，重启系统，使用后台线程扫描数据库中未提交和已提交的任务，将任务信息提取出来并重新提交给线程池去执行。</p>
 <h3 id="并发工具包"><a href="#并发工具包" class="headerlink" title="并发工具包"></a>并发工具包</h3><h4 id="Semaphore"><a href="#Semaphore" class="headerlink" title="Semaphore"></a>Semaphore</h4><h5 id="具体方法"><a href="#具体方法" class="headerlink" title="具体方法"></a>具体方法</h5><p>Semaphore信号量是对锁的拓展，synchronized或ReentrantLock都只允许一个线程访问一个资源，而信号量可以指定多个线程，其构造方法有</p>
 <figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Semaphore</span><span class="params">(<span class="keyword">int</span> permits)</span> </span>{</span><br><span class="line">    sync = <span class="keyword">new</span> NonfairSync(permits);</span><br><span class="line">}</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Semaphore</span><span class="params">(<span class="keyword">int</span> permits, <span class="keyword">boolean</span> fair)</span> </span>{</span><br><span class="line">    sync = fair ? <span class="keyword">new</span> FairSync(permits) : <span class="keyword">new</span> NonfairSync(permits);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
@@ -4348,6 +4426,15 @@
 <p>思路：本质就是枚举，从1到9，看当前的数字是否能放在这个位置，如果不行就回溯。需要记录当前数在这一行，这一列，这个3x3的格子中有没有出现。然后遍历数组，如果当前为空格，记录下棋x,y坐标，如果是数字，记录其出现的行，列及3x3格子中的位置。记录完成后，从第一个空格处开始枚举，base case是如果所有空格都处理完成，返回。然后处理当前的，获取到当前的空格位置，从1-9遍历数字，如果这个数字没有出现过，将其标记为出现，在空格处填充这个数字，然后进行下一个位置的处理，回溯完后，将状态改变回来。</p>
 <figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 数字在当前行是否出现</span></span><br><span class="line"><span class="keyword">boolean</span>[][] row = <span class="keyword">new</span> <span class="keyword">boolean</span>[<span class="number">9</span>][<span class="number">9</span>];</span><br><span class="line"><span class="comment">// 数字在当前列是否出现</span></span><br><span class="line"><span class="keyword">boolean</span>[][] col = <span class="keyword">new</span> <span class="keyword">boolean</span>[<span class="number">9</span>][<span class="number">9</span>];</span><br><span class="line"><span class="comment">// 数字在当前九宫格是否出现</span></span><br><span class="line"><span class="keyword">boolean</span>[][][] sudu = <span class="keyword">new</span> <span class="keyword">boolean</span>[<span class="number">3</span>][<span class="number">3</span>][<span class="number">9</span>];</span><br><span class="line"><span class="comment">// 是空格的地方</span></span><br><span class="line">List<<span class="keyword">int</span>[]> list = <span class="keyword">new</span> ArrayList<>();</span><br><span class="line"><span class="keyword">boolean</span> valid = <span class="keyword">false</span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">solveSudoku</span><span class="params">(<span class="keyword">char</span>[][] board)</span> </span>{</span><br><span class="line">    <span class="comment">// 遍历数组，进行状态填充</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i < <span class="number">9</span>; i++){</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j < <span class="number">9</span>; j++){</span><br><span class="line">            <span class="keyword">if</span>(board[i][j] == <span class="string">'.'</span>){</span><br><span class="line">                list.add(<span class="keyword">new</span> <span class="keyword">int</span>[]{i,j});</span><br><span class="line">            }<span class="keyword">else</span>{</span><br><span class="line">                <span class="keyword">int</span> num = board[i][j] - <span class="string">'0'</span> - <span class="number">1</span>;</span><br><span class="line">                row[i][num] = col[j][num] = sudu[i / <span class="number">3</span>][j / <span class="number">3</span>][num] = <span class="keyword">true</span>;</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    dfs(board,<span class="number">0</span>);</span><br><span class="line">}</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="keyword">char</span>[][] board, <span class="keyword">int</span> index)</span></span>{</span><br><span class="line">    <span class="comment">// base case</span></span><br><span class="line">    <span class="keyword">if</span>(index == list.size()){</span><br><span class="line">        valid = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    }</span><br><span class="line">    <span class="comment">// 取出当前位置</span></span><br><span class="line">    <span class="keyword">int</span>[] now = list.get(index);</span><br><span class="line">    <span class="keyword">int</span> curR = now[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">int</span> curC = now[<span class="number">1</span>];</span><br><span class="line">    <span class="comment">// 从1-9遍历</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i < <span class="number">9</span> && !valid; i++){</span><br><span class="line">        <span class="comment">// 如果行没出现，列没出现，九宫格中没出现</span></span><br><span class="line">        <span class="keyword">if</span>(!row[curR][i] && !col[curC][i] && !sudu[curR/<span class="number">3</span>][curC/<span class="number">3</span>][i]){</span><br><span class="line">            <span class="comment">// 出现过</span></span><br><span class="line">            row[curR][i] = col[curC][i] = sudu[curR/<span class="number">3</span>][curC/<span class="number">3</span>][i] = <span class="keyword">true</span>;</span><br><span class="line">            board[curR][curC] = (<span class="keyword">char</span>)(i + <span class="string">'0'</span> + <span class="number">1</span>);</span><br><span class="line">            <span class="comment">// 处理下一个</span></span><br><span class="line">            dfs(board,index+<span class="number">1</span>);</span><br><span class="line">            <span class="comment">// 回溯</span></span><br><span class="line">            row[curR][i] = col[curC][i] = sudu[curR/<span class="number">3</span>][curC/<span class="number">3</span>][i] = <span class="keyword">false</span>;</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
+<h3 id="颜色分类"><a href="#颜色分类" class="headerlink" title="颜色分类"></a>颜色分类</h3><p>给定一个包含红色、白色和蓝色，一共 n 个元素的数组，原地对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。</p>
+<p>此题中，我们使用整数 0、 1 和 2 分别表示红色、白色和蓝色。</p>
+<p>注意:<br>不能使用代码库中的排序函数来解决这道题。</p>
+<p>示例:</p>
+<p>输入: [2,0,2,1,1,0]<br>输出: [0,0,1,1,2,2]</p>
+<p>直观的解决思路是：分别统计0,1,2的个数，然后按顺序去填充即可。</p>
+<p>但这样需要两次遍历。按照0,1,2的顺序，数组实际上被分成了3块区域，这样其实是荷兰国旗问题，因此可以使用快排的思路去解决。</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sortColors</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>{</span><br><span class="line">    <span class="comment">// 荷兰国旗</span></span><br><span class="line">    <span class="keyword">int</span> less = -<span class="number">1</span>, more = nums.length;</span><br><span class="line">    <span class="keyword">int</span> cur = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span>(cur < more){</span><br><span class="line">        <span class="keyword">if</span>(nums[cur] == <span class="number">0</span>){</span><br><span class="line">            swap(nums,++less,cur++);</span><br><span class="line">        }<span class="keyword">else</span> <span class="keyword">if</span>(nums[cur] == <span class="number">2</span>){</span><br><span class="line">            swap(nums,--more,cur);</span><br><span class="line">        }<span class="keyword">else</span>{</span><br><span class="line">            cur++;</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span></span>{</span><br><span class="line">    <span class="keyword">int</span> temp = nums[i];</span><br><span class="line">    nums[i] = nums[j];</span><br><span class="line">    nums[j] = temp;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
 <h2 id="二分-1"><a href="#二分-1" class="headerlink" title="二分"></a>二分</h2><h3 id="寻找两个正序数组的中位数"><a href="#寻找两个正序数组的中位数" class="headerlink" title="寻找两个正序数组的中位数"></a>寻找两个正序数组的中位数</h3><p>给定两个大小为 m 和 n 的正序（从小到大）数组 nums1 和 nums2。</p>
 <p>请你找出这两个正序数组的中位数，并且要求算法的时间复杂度为 O(log(m + n))。</p>
 <p>你可以假设 nums1 和 nums2 不会同时为空。</p>
@@ -4651,7 +4738,28 @@
 <p>思路：dfs。一个节点的左，右子树，所有可能的路径为：左中，左右，左中右，在经过一个节点的时候，计算三个路径里面最大的。因为最长路径不一定是经过根节点的，因此每经过一个节点更新下全局变量。在计算一个节点的子路径和时，如果子路径小于0，则不如舍弃，因此要将子路径和与0比较。在返回给上一级数据的时候，对于上一级只有向左跟向右两种选择。</p>
 <figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> max = Integer.MIN_VALUE;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxPathSum</span><span class="params">(TreeNode root)</span> </span>{</span><br><span class="line">       <span class="keyword">if</span>(root == <span class="keyword">null</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">       dfs(root);</span><br><span class="line">       <span class="keyword">return</span> max;</span><br><span class="line">   }</span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">dfs</span><span class="params">(TreeNode root)</span></span>{</span><br><span class="line">       <span class="comment">// base case</span></span><br><span class="line">       <span class="keyword">if</span>(root == <span class="keyword">null</span>)</span><br><span class="line">           <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">       <span class="comment">// dfs，计算所有子节点结果</span></span><br><span class="line">       <span class="keyword">int</span> left = Math.max(dfs(root.left),<span class="number">0</span>);</span><br><span class="line">       <span class="keyword">int</span> right = Math.max(dfs(root.right),<span class="number">0</span>);</span><br><span class="line">       <span class="comment">// 计算左，中，右的最大路径</span></span><br><span class="line">       max = Math.max(max,root.val+left+right);</span><br><span class="line">       <span class="comment">// 返回给上一级的，只能是左边或者右边的一条</span></span><br><span class="line">       <span class="keyword">return</span> root.val + Math.max(left,right);</span><br><span class="line">   }</span><br></pre></td></tr></tbody></table></figure>
 
-<h1 id="牛客题目"><a href="#牛客题目" class="headerlink" title="牛客题目"></a>牛客题目</h1><h2 id="bfs"><a href="#bfs" class="headerlink" title="bfs"></a>bfs</h2><h3 id="魔法数字"><a href="#魔法数字" class="headerlink" title="魔法数字"></a>魔法数字</h3><p>题意：一天，牛妹找牛牛做一个游戏，牛妹给牛牛写了一个数字n，然后又给自己写了一个数字m，她希望牛牛能执行最少的操作将他的数字转化成自己的。 </p>
+<h3 id="二叉树中的插入操作"><a href="#二叉树中的插入操作" class="headerlink" title="二叉树中的插入操作"></a>二叉树中的插入操作</h3><p>给定二叉搜索树（BST）的根节点和要插入树中的值，将值插入二叉搜索树。 返回插入后二叉搜索树的根节点。 输入数据保证，新值和原始二叉搜索树中的任意节点值都不同。</p>
+<p>注意，可能存在多种有效的插入方式，只要树在插入后仍保持为二叉搜索树即可。 你可以返回任意有效的结果。</p>
+<p>例如, </p>
+<p>给定二叉搜索树:</p>
+<pre><code>    4
+   / \
+  2   7
+ / \
+1   3</code></pre><p>和 插入的值: 5<br>你可以返回这个二叉搜索树:</p>
+<pre><code>     4
+   /   \
+  2     7
+ / \   /
+1   3 5</code></pre><p>方法一：递归</p>
+<p>定义递归函数的作用是，给定树节点和插入值，返回二叉搜索树的头节点。base case是，如果当前节点为空，以插入值构造新节点，返回此节点。如果当前节点值小于插入值，说明这个值应该插入到当前节点的右子树；如果当前节点值大于插入值，说明这个值应该插入到当前节点的左子树。返回当前头节点。</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> TreeNode <span class="title">insertIntoBST</span><span class="params">(TreeNode root, <span class="keyword">int</span> val)</span> </span>{</span><br><span class="line">    <span class="comment">// base case</span></span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>){</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> TreeNode(val);</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">if</span>(root.val < val){</span><br><span class="line">        root.right = insertIntoBST(root.right,val);</span><br><span class="line">    }<span class="keyword">else</span>{</span><br><span class="line">        root.left = insertIntoBST(root.left,val);</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>方法二：迭代</p>
+<p>如果当前节点是空，构造新节点返回。循环，当前节点如果值比val小，则应该插入到右子树，如果此时右子树为空，构造新节点并跳出循环，否则跳到右子树；左边类似，最后返回头节点。</p>
+<figure class="highlight java"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// base case</span></span><br><span class="line">      <span class="keyword">if</span>(root == <span class="keyword">null</span>){</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">new</span> TreeNode(val);</span><br><span class="line">      }</span><br><span class="line">      <span class="comment">// 遍历节点</span></span><br><span class="line">      TreeNode cur = root;</span><br><span class="line">      <span class="keyword">while</span>(<span class="keyword">true</span>){</span><br><span class="line">          <span class="keyword">if</span>(cur.val < val){</span><br><span class="line">              <span class="keyword">if</span>(cur.right == <span class="keyword">null</span>){</span><br><span class="line">                  cur.right = <span class="keyword">new</span> TreeNode(val);</span><br><span class="line">                  <span class="keyword">break</span>;</span><br><span class="line">              }<span class="keyword">else</span>{</span><br><span class="line">                  cur = cur.right;</span><br><span class="line">              }</span><br><span class="line">          }<span class="keyword">else</span>{</span><br><span class="line">              <span class="keyword">if</span>(cur.left == <span class="keyword">null</span>){</span><br><span class="line">                  cur.left = <span class="keyword">new</span> TreeNode(val);</span><br><span class="line">                  <span class="keyword">break</span>;</span><br><span class="line">              }<span class="keyword">else</span>{</span><br><span class="line">                  cur = cur.left;</span><br><span class="line">              }</span><br><span class="line">          }</span><br><span class="line">      }</span><br><span class="line">      <span class="keyword">return</span> root;</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="bfs"><a href="#bfs" class="headerlink" title="bfs"></a>bfs</h2><h3 id="魔法数字"><a href="#魔法数字" class="headerlink" title="魔法数字"></a>魔法数字</h3><p>题意：一天，牛妹找牛牛做一个游戏，牛妹给牛牛写了一个数字n，然后又给自己写了一个数字m，她希望牛牛能执行最少的操作将他的数字转化成自己的。 </p>
 <p>  操作共有三种，如下： </p>
 <p>​      1.在当前数字的基础上加一，如：4转化为5 </p>
 <p>​      2.在当前数字的基础上减一，如：4转化为3 </p>
@@ -4767,7 +4875,8 @@
     <content><![CDATA[<html><head></head><body><blockquote>
 <p>尚硅谷MySQL课程笔记</p>
 </blockquote>
-<h1 id="数据库操作基础"><a href="#数据库操作基础" class="headerlink" title="数据库操作基础"></a>数据库操作基础</h1><h2 id="数据库概述"><a href="#数据库概述" class="headerlink" title="数据库概述"></a>数据库概述</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<h1 id="数据库操作基础"><a href="#数据库操作基础" class="headerlink" title="数据库操作基础"></a>数据库操作基础</h1><h2 id="数据库概述"><a href="#数据库概述" class="headerlink" title="数据库概述"></a>数据库概述</h2><p>mysql单表百万级别数据，单表最好<strong>500w以内</strong>的数据。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
 <li><strong>可将数据持久化到硬盘</strong></li>
 <li><strong>可存储大量数据</strong></li>
 <li><strong>方便检索</strong></li>
@@ -7800,6 +7909,8 @@
 <td>2个，frm存放表结构信息，</td>
 </tr>
 </tbody></table>
+<p>因为myisam的索引文件和数据文件分开，因此内存中可以存放更多数据，适用于查询较多的场景，比较经典的使用场景是早期大数据下做报表。</p>
+<p>InnoDB支持事务，走聚簇索引，强制要求有主见，支持外键约束，可以有分库分表，读写分离，主备切换来做大数据量、高并发和高可用。技术方案成熟。</p>
 <p>阿里巴巴大部分mysql数据库使用的为percona的原型加以修改，percona提升了高负载下InnoDB性能，更多的诊断与控制行为。</p>
 <h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>性能下降SQL慢，如果执行时间长或者等待时间长</p>
 <ul>
