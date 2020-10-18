@@ -1077,18 +1077,18 @@ IO速度相比CPU速度非常慢
 
 半双工，读的时候不能同时写。
 
-阻塞IO，有个client连接，服务端就新建一个线程进行连接。
+阻塞IO，有个client连接，服务端就新建一个线程进行连接。一个客户端，一个连接，一个线程，当客户端数量太多不支持。
 
 {% asset_img BIO.png This is an example image %}
 
-服务端：服务端等待客户端建立连接，通过accept方法获取Socket，此方法会阻塞直到客户端连接，服务端获取到socket后，新建一个线程处理socket的数据读写。socket的读与写不是双向的，单独拿出socket的InputStream来读，拿出OutputStream来写。
+服务端：服务端等待客户端建立连接，通过accept方法获取Socket，此方法会阻塞直到客户端连接，服务端获取到socket后，**新建一个线程处理socket的数据读写**，在客户端请求建立时，此线程一直存在。socket的读与写不是双向的，单独拿出socket的InputStream来读，拿出OutputStream来写。
 
 客户端：建立一个Socket，向输出流写信息，从服务端读信息，关闭socket连接。
 
 Blocking在于：建立连接阻塞，读写阻塞
 
-- Server端accpet方法阻塞，没有客户端连接就wait
-- 在处理socket流的读与写方法也是阻塞的
+- Server端**accpet方法阻塞**，没有客户端连接就wait
+- 在处理**socket流的读与写方法也是阻塞**的
 
 需要是多线程，因为accept为阻塞的，一个连接一个线程，只有一个线程其他客户端会被阻塞，一次只能处理一个客户端。可以使用线程池。
 
@@ -1097,6 +1097,8 @@ BIO效率低，并发量不好。BIO很少用，代码简单，适合建立连�
 ### NIO
 
 Non-Blocking IO 
+
+使用Selector多路复用器，当有客户端建立连接，会生成对应的channel进行数据读写，selector不断轮询注册的channel，若有channel发生读写事件，将这些channel获取出来，建立线程进行处理，当此请求结束后，销毁线程，而不会一直让线程存在。线程通过buffer缓冲区来与channel进行信息的读写。
 
 {% asset_img NIO.png This is an example image %}
 
@@ -1144,6 +1146,8 @@ NIO相比BIO，不用一个客户端连接建立一个线程，客户端连接�
 ### AIO
 
 Asynchronous-IO
+
+基于Proactor模型，异步非阻塞。每个连接发送过来的请求，绑定一个buffer，通过os去异步完成读，程序继续往下走，等os完成数据读取后，回调接口，给出os异步读完的数据。
 
 客户端要建立连接时，操作系统通知selector，selector连接通道，再交给工人去执行读写操作。
 
@@ -1842,6 +1846,8 @@ public class TankMsgEncoderTest {
 异步非阻塞：自己开火，做好火开的处理，自己去做别的事，让其他工具关火。
 
 程序相当于人，操作系统相当于水。对accept于读写的处理要分开说明。
+
+BIO同步阻塞，针对文件IO操作，用BIO的流读写文件，发起IO请求会被阻塞；NIO发起文件IO操作，在发起后进行了返回，但需要轮询OS看是否操作完。AIO为异步非阻塞，AIO发起文件IO操作后，立刻可以返回组别的，os处理完后，os来通知，并调用回调函数进行处理，不用自己处理。
 
 ### select，poll与epoll
 
